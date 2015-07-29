@@ -1,7 +1,6 @@
 #pragma once
 
 #ifdef __APPLE__
-#define QCC_OS_GROUP_POSIX
 #include <memory>
 using std::shared_ptr;
 using std::weak_ptr;
