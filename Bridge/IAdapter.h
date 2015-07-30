@@ -1,7 +1,9 @@
 #pragma once
 
-#include "defines.h"
+#include "Common/defines.h"
+
 #include <alljoyn/MsgArg.h>
+#include <alljoyn/Status.h>
 
 #include <string>
 #include <vector>
@@ -23,6 +25,7 @@ namespace Bridge
   class IAdapterValue
   {
   public:
+    virtual ~IAdapterValue() { }
     virtual std::string GetName() = 0;
     virtual ajn::MsgArg GetData() = 0;
     virtual void SetData(ajn::MsgArg const& msg) = 0;
@@ -31,6 +34,7 @@ namespace Bridge
   class IAdapterProperty
   {
   public:
+    virtual ~IAdapterProperty() { }
     virtual std::string GetName() = 0;
     virtual AdapterValueVector GetAttributes() = 0;
   };
@@ -38,6 +42,7 @@ namespace Bridge
   class IAdapterMethod
   {
   public:
+    virtual ~IAdapterMethod() { }
     virtual std::string GetName() = 0;
     virtual std::string GetDescription() = 0;
 
@@ -53,19 +58,22 @@ namespace Bridge
   class IAdapterSignal
   {
   public:
-    virtual std::string GetName() = 0;
-    virtual AdapterValueVector GetParams() = 0;
+    virtual ~IAdapterSignal() { }
+    virtual std::string GetName() const = 0;
+    virtual AdapterValueVector GetParams() const = 0;
   };
 
   class IAdapterSignalListener
   {
   public:
+    virtual ~IAdapterSignalListener() { }
     virtual void AdapterSignalHandler(IAdapterSignal const& signal, void* argp) = 0;
   };
 
   class IAdapterDevice
   {
   public:
+    virtual ~IAdapterDevice() { }
     virtual std::string GetName() = 0;
     virtual std::string GetVendor() = 0;
     virtual std::string GetModel() = 0;
@@ -82,10 +90,10 @@ namespace Bridge
   class IAdapterIoRequest
   {
   public:
-    virtual uint32_t Status() = 0;;
-    virtual uint32_t Wait(uint32_t timeoutMillis) = 0;
-    virtual uint32_t Cancel() = 0;
-    virtual uint32_t Release() = 0;
+    virtual QStatus Status() = 0;;
+    virtual QStatus Wait(uint32_t timeoutMillis) = 0;
+    virtual QStatus Cancel() = 0;
+    virtual QStatus Release() = 0;
   };
 
   enum class EnumDeviceOptions
@@ -97,6 +105,7 @@ namespace Bridge
   class IAdapter
   {
   public:
+    virtual ~IAdapter() { }
     virtual std::string GetVendor() = 0;
     virtual std::string GetAdapterName() = 0;
     virtual std::string GetVersion() = 0;
@@ -105,46 +114,45 @@ namespace Bridge
     virtual std::string GetExposedApplicationGuid() = 0;
     virtual AdapterSignalVector GetSignals() = 0;
 
-    virtual uint32_t Initialize() = 0;
-    virtual uint32_t Shutdown();
+    virtual QStatus Initialize() = 0;
+    virtual QStatus Shutdown();
 
-    virtual uint32_t EnumDevices(
+    virtual QStatus EnumDevices(
       EnumDeviceOptions opts,
-      shared_ptr<AdapterDeviceVector>& deviceList,
+      AdapterDeviceVector& deviceList,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual uint32_t GetProperty(
+    virtual QStatus GetProperty(
       shared_ptr<IAdapterProperty>& prop,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual uint32_t SetProperty(
+    virtual QStatus SetProperty(
       shared_ptr<IAdapterProperty> const& prop,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual uint32_t GetPropertyValue(
+    virtual QStatus GetPropertyValue(
       shared_ptr<IAdapterProperty> const& prop,
       std::string const& attributeName,
       shared_ptr<IAdapterValue>& value,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual uint32_t SetPropertyValue(
+    virtual QStatus SetPropertyValue(
       shared_ptr<IAdapterProperty> const& prop,
       shared_ptr<IAdapterValue> const& value,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual uint32_t CallMethod(
+    virtual QStatus CallMethod(
       shared_ptr<IAdapterMethod>& method,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual uint32_t RegisterSignalListener(
+    virtual QStatus RegisterSignalListener(
       shared_ptr<IAdapterSignal> const& signal,
       shared_ptr<IAdapterSignalListener> const& listener,
       void* argp) = 0;
 
-    virtual uint32_t UnregisterSignalListener(
+    virtual QStatus UnregisterSignalListener(
       shared_ptr<IAdapterSignal> const& signal,
       shared_ptr<IAdapterSignalListener> const& listener) = 0;
-  
   };
 }
 

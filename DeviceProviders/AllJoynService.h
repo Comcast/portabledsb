@@ -1,6 +1,6 @@
 #pragma once
 
-#include "defines.h"
+#include "Common/defines.h"
 
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/ProxyBusObject.h>

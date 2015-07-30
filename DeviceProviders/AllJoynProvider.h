@@ -1,7 +1,8 @@
 #pragma once
 
-#include "defines.h"
-#include "AllJoynStatus.h"
+#include "Common/defines.h"
+#include "DeviceProviders/AllJoynStatus.h"
+
 #include <alljoyn/AboutListener.h>
 
 #include <map>
