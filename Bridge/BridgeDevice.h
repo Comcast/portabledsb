@@ -1,14 +1,16 @@
 #pragma once
 
+#include "Bridge/IAdapter.h"
+
 namespace Bridge
 {
   class BridgeDevice
   {
   public:
-    QStatus Shutdown()
-    {
-      return ER_OK;
-    }
+    QStatus Shutdown();
+    QStatus Initialize(shared_ptr<IAdapterDevice> const& dev);
+
+  private:
   };
 }
 

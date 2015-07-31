@@ -13,7 +13,7 @@ namespace Bridge
   class IAdapter;
   class BridgeDevice;
 
-  typedef std::map<int, shared_ptr<BridgeDevice> > BridgeDeviceList;
+  typedef std::map<IAdapterDevice*, shared_ptr<BridgeDevice> > BridgeDeviceList;
 
   class DeviceSystemBridge : public enable_shared_from_this<DeviceSystemBridge>
   {

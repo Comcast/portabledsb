@@ -75,7 +75,7 @@ bool Common::Logger::IsLevelEnabled(char const* module, Level level)
   if (itr != gLevelMap.end())
     minLevel = itr->second;
   
-  return level >= itr->second;
+  return level >= minLevel;
 }
 
 void Common::Logger::VaLog(const char* module, Level level, const char* /*file*/, int /*line*/,

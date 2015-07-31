@@ -15,6 +15,11 @@ namespace
   std::string const kDeviceArriaveDeviceHandle = "Device_Handle";
   std::string const kDeviceRemovalSignal = "Device_Removal";
   std::string const kDeviceRemovalDeviceHandle = "Device_Handle";
+
+  inline Bridge::BridgeDeviceList::key_type GetKey(shared_ptr<Bridge::IAdapterDevice> const& dev)
+  {
+    return dev.get();
+  }
 }
 
 Bridge::DeviceSystemBridge::DeviceSystemBridge(shared_ptr<IAdapter> const& adapter)
@@ -235,5 +240,33 @@ QStatus Bridge::DeviceSystemBridge::ShutdownInternal()
   return ER_OK;
 }
 
+QStatus Bridge::DeviceSystemBridge::UpdateDevice(shared_ptr<IAdapterDevice> const& dev, bool exposedOnAllJoynBus)
+{
+  QStatus st = ER_OK;
 
+  BridgeDeviceList::const_iterator itr = m_deviceList.find(GetKey(dev));
+  if (itr == m_deviceList.end() && exposedOnAllJoynBus)
+  {
+    st = CreateDevice(dev);
+  }
+  else if (itr != m_deviceList.end() && !exposedOnAllJoynBus)
+  {
+    m_deviceList.erase(itr);
+    if ((st = itr->second->Shutdown()) != ER_OK)
+      DSBLOG_WARN("failed to shutdown BridgeDevice: 0x%x", st);
+  }
+
+  return st;
+}
+
+QStatus Bridge::DeviceSystemBridge::CreateDevice(shared_ptr<IAdapterDevice> const& dev)
+{
+  shared_ptr<BridgeDevice> newDevice(new BridgeDevice());
+  
+  QStatus st = newDevice->Initialize(dev);
+  if (st == ER_OK)
+    m_deviceList.insert(std::make_pair(GetKey(dev), newDevice));
+
+  return st;
+}
 
