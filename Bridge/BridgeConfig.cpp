@@ -14,10 +14,27 @@ namespace
 {
   DSB_DECLARE_LOGNAME(BridgeConfig);
 
+  inline xmlChar const* toXmlChar(char const* s)
+  {
+    return reinterpret_cast<xmlChar const *>(s);
+  }
+
+  inline char const* toChar(xmlChar const* s)
+  {
+    return reinterpret_cast<char const *>(s);
+  }
+
+  inline xmlChar const* toXmlChar(bool b)
+  {
+    return b ? toXmlChar("true") : toXmlChar("false");
+  }
+
   char const* kAlljoynObjectPathPrefix = "/BridgeConfig/AdapterDevices/Device[@Id=\"";
+  char const* kAdapterDevices = "/BridgeConfig/AdapterDevices";
   char const* kAlljoynObjectPathSuffix = "\"]";
-  char const* kVisibleAttribute = "Visible";
+  char const* kDeviceElementName = "Device";
   char const* kIdAttribute = "Id";
+  char const* kVisibleAttribute = "Visible";
 
   std::string MakePathId(std::string const& id)
   {
@@ -35,7 +52,7 @@ namespace
       xmlAttr* attrs = node->properties;
       while (attrs && attrs->name && attrs->children)
       {
-        if (strcmp(reinterpret_cast<char const *>(attrs->name), attr) == 0)
+        if (strcmp(toChar(attrs->name), attr) == 0)
           return xmlNodeListGetString(node->doc, attrs->children, 1);
         attrs = attrs->next;
       }
@@ -54,7 +71,7 @@ namespace
 
     DSBLOG_INFO("select: %s", xpath);
 
-    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression(reinterpret_cast<xmlChar const *>(xpath), ctx);
+    xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression(toXmlChar(xpath), ctx);
     if (xpathObj)
     {
       int n = 0;
@@ -80,10 +97,10 @@ namespace
     if (node)
     {
       xmlChar* s = xmlNodeGetContent(node);
-      content = std::string(reinterpret_cast<char const *>(s));
-      xmlXPathFreeContext(ctx);
+      content = std::string(toChar(s));
     }
 
+    xmlXPathFreeContext(ctx);
     DSBLOG_INFO("%s == %s", xpath, content.c_str());
     return content;
   }
@@ -130,9 +147,12 @@ QStatus Bridge::BridgeConfig::ToFile(std::string const& fileName)
   if (!fileName.empty())
     outfile = fileName.c_str();
 
-  xmlSaveCtxtPtr ctx = xmlSaveToFilename(outfile, NULL, XML_SAVE_FORMAT);
-  xmlSaveDoc(ctx, m_doc);
-  xmlSaveClose(ctx);
+  // TODO: use TextWriter to actually indent this stuff
+//  xmlSaveCtxtPtr ctx = xmlSaveToFilename(outfile, NULL, XML_SAVE_AS_HTML);
+//  xmlSaveDoc(ctx, m_doc);
+//  xmlSaveClose(ctx);
+  xmlKeepBlanksDefault(1);
+  xmlSaveFormatFile(outfile, m_doc, 1);
 
   return ER_OK;
 }
@@ -141,13 +161,50 @@ QStatus Bridge::BridgeConfig::ToString(std::string& out)
 {
   xmlBufferPtr buff = xmlBufferCreate();
 
+  // TODO: use TextWriter to actually indent this stuff
   xmlSaveCtxtPtr ctx = xmlSaveToBuffer(buff, NULL, XML_SAVE_FORMAT);
   xmlSaveDoc(ctx, m_doc);
   xmlSaveClose(ctx);
 
-  out = std::string(reinterpret_cast<char const *>(buff->content));
+  out = std::string(toChar(buff->content));
   xmlBufferFree(buff);
 
+  return ER_OK;
+}
+
+QStatus Bridge::BridgeConfig::AddObject(DsbObjectConfig const& obj)
+{
+  xmlXPathContextPtr ctx = xmlXPathNewContext(m_doc);
+  if (!ctx)
+    return ER_FAIL;
+
+  xmlNodePtr parent = SelectSingleNode(ctx, kAdapterDevices);
+  if (parent)
+  {
+    xmlNodePtr node = xmlNewTextChild(parent, NULL,  toXmlChar(kDeviceElementName),
+      toXmlChar(obj.GetDescription().c_str()));
+    xmlNewProp(node, toXmlChar(kIdAttribute), toXmlChar(obj.GetId().c_str()));
+    xmlNewProp(node, toXmlChar(kVisibleAttribute), toXmlChar(obj.IsVisible()));
+  }
+
+  xmlXPathFreeContext(ctx);
+  return ER_OK;
+}
+
+QStatus Bridge::BridgeConfig::RemoveObject(std::string const& id)
+{
+  xmlXPathContextPtr ctx = xmlXPathNewContext(m_doc);
+  if (!ctx)
+    return ER_FAIL;
+
+  xmlNodePtr node = SelectSingleNode(ctx, MakePathId(id).c_str());
+  if (node)
+  {
+    xmlUnlinkNode(node);
+    xmlFreeNode(node);
+  }
+
+  xmlXPathFreeContext(ctx);
   return ER_OK;
 }
 
@@ -170,7 +227,7 @@ QStatus Bridge::BridgeConfig::FindObject(std::string const& id, DsbObjectConfig&
   xmlChar* attr = GetNodeAttribute(node, kVisibleAttribute);
   if (attr)
   {
-    bool b = strcasecmp(reinterpret_cast<char const *>(attr), "true") == 0
+    bool b = strcasecmp(toChar(attr), "true") == 0
       ? true
       : false;
     obj.SetIsVisible(b);
@@ -178,7 +235,7 @@ QStatus Bridge::BridgeConfig::FindObject(std::string const& id, DsbObjectConfig&
   }
 
   xmlChar* desc = xmlNodeGetContent(node);
-  obj.SetDescription( std::string(reinterpret_cast<char const *>(desc)) );
+  obj.SetDescription(std::string(toChar(desc)));
 
   xmlXPathFreeContext(ctx);
   return ER_OK;

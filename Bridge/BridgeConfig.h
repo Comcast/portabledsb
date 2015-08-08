@@ -34,7 +34,6 @@ namespace Bridge
         m_description != rhs.m_description;
     }
 
-  private:
     void SetId(std::string const& id)
       { m_id = id; }
 
@@ -62,7 +61,7 @@ namespace Bridge
     QStatus ToFile(std::string const& fileName = "");
     QStatus ToString(std::string& out);
     QStatus FindObject(std::string const& id, DsbObjectConfig& obj);
-    QStatus AddObject(DsbObjectConfig& obj);
+    QStatus AddObject(DsbObjectConfig const& obj);
     QStatus RemoveObject(std::string const& id);
 
     std::string GetFilename() const

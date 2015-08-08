@@ -26,8 +26,6 @@ Bridge::DeviceSystemBridge::DeviceSystemBridge(shared_ptr<IAdapter> const& adapt
   : m_alljoynInitialized(false)
   , m_adapter(adapter)
 {
-  g_Instance = shared_from_this();
-  m_adapterSignaListener = shared_ptr<AdapterSignalListener>(new AdapterSignalListener(shared_from_this()));
 }
 
 Bridge::DeviceSystemBridge::~DeviceSystemBridge()
@@ -57,7 +55,14 @@ QStatus Bridge::DeviceSystemBridge::Initialize()
 
 Leave:
   if (st != ER_OK)
+  {
     Shutdown();
+  }
+  else
+  {
+    g_Instance = shared_from_this();
+    m_adapterSignaListener = shared_ptr<AdapterSignalListener>(new AdapterSignalListener(shared_from_this()));
+  }
 
   return st;
 }
@@ -88,6 +93,7 @@ QStatus Bridge::DeviceSystemBridge::InitializeInternal()
   if (st != ER_OK)
   {
     DSBLOG_WARN("Failed to register adapter signal handlers: 0x%x", st);
+    goto Leave;
   }
 
 Leave:
@@ -110,6 +116,8 @@ QStatus Bridge::DeviceSystemBridge::Shutdown()
     AllJoynShutdown();
     m_alljoynInitialized = false;
   }
+
+  g_Instance.reset();
 
   return st;
 }

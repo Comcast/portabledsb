@@ -3,8 +3,12 @@ SRCS=DeviceProviders/AllJoynProvider.cpp \
      Bridge/Bridge.cpp \
      Bridge/BridgeConfig.cpp \
      Bridge/BridgeDevice.cpp \
-     Bridge/main.cpp \
-     Common/Log.cpp
+     Common/Log.cpp \
+     Adapters/MockAdapter/MockAdapter.cpp \
+     Adapters/MockAdapter/MockDevices.cpp \
+     Adapters/MockAdapter/MockAdapterDevice.cpp \
+     Adapters/ZigBeeAdapter/ZigBeeAdapter.cpp \
+     main.cpp
 
 LIBXML_INC=/usr/include/libxml2
 
@@ -15,12 +19,14 @@ LDFLAGS=-L $(ALLJOYN_INSTALL_DIR)/lib -lalljoyn -lcrypto -lxml2
 DEV_PROVIDER_OBJS=$(patsubst %.cpp, %.o,$(SRCS))
 OBJS=$(DEV_PROVIDER_OBJS)
 
-all: dsb
+all: moc-adapter 
 
 clean:
-	$(RM) dsb core DeviceProviders/*.o Bridge/*.o Common/*.o
+	$(RM) MockAdapter core DeviceProviders/*.o Bridge/*.o Common/*.o Adapters/MockAdapter/*.o \
+    Adapters/ZigBee/*.o
 
-dsb: $(OBJS)
+
+moc-adapter: $(OBJS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 

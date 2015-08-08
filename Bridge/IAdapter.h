@@ -104,6 +104,8 @@ namespace Bridge
 
   class IAdapter
   {
+  protected:
+    IAdapter() { }
   public:
     virtual ~IAdapter() { }
     virtual std::string GetVendor() = 0;
@@ -115,7 +117,7 @@ namespace Bridge
     virtual AdapterSignalVector GetSignals() = 0;
 
     virtual QStatus Initialize() = 0;
-    virtual QStatus Shutdown();
+    virtual QStatus Shutdown() = 0;
 
     virtual QStatus EnumDevices(
       EnumDeviceOptions opts,
