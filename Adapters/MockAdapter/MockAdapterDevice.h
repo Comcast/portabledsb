@@ -9,6 +9,7 @@ namespace AdapterLib
   std::string const kDeviceResetPropertyHandle = "Property_Handle";
   std::string const kDsbMethodReturnValue = "Return_Value";
 
+  class MockAdapter;
   class MockAdapterDevice;
 
   class MockAdapterSignal : public Bridge::IAdapterSignal
@@ -21,6 +22,10 @@ namespace AdapterLib
 
     virtual std::string GetName() const;
     virtual Bridge::AdapterValueVector const& GetParams() const;
+
+    void SetParams(Bridge::AdapterValueVector const& params);
+
+    shared_ptr<MockAdapterSignal> Clone();
 
   private:
     std::string                     m_name;
@@ -96,9 +101,7 @@ namespace AdapterLib
   class MockAdapterDevice : public Bridge::IAdapterDevice, public enable_shared_from_this<MockAdapterDevice> 
   {
   public:
-    MockAdapterDevice(
-      MockDeviceDescriptor const& desc,
-      Bridge::IAdapter const& parent);
+    MockAdapterDevice(MockDeviceDescriptor const& desc, shared_ptr<MockAdapter> const& parent);
       
     virtual std::string GetName();
     virtual std::string GetVendor();
@@ -129,7 +132,7 @@ namespace AdapterLib
 
   private:
     std::string                         m_name;
-    Bridge::IAdapter const&             m_parent;
+    weak_ptr<MockAdapter>               m_parent;
     std::string                         m_vendor;
     std::string                         m_model;
     std::string                         m_version;

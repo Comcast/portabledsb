@@ -115,6 +115,8 @@ namespace Bridge
   protected:
     IAdapter() { }
   public:
+    typedef int32_t RegistrationHandle;
+
     virtual ~IAdapter() { }
     virtual std::string GetVendor() = 0;
     virtual std::string GetAdapterName() = 0;
@@ -156,13 +158,12 @@ namespace Bridge
       IAdapterIoRequest** req) = 0;
 
     virtual QStatus RegisterSignalListener(
-      shared_ptr<IAdapterSignal> const& signal,
+      std::string const& signalName,
       shared_ptr<IAdapterSignalListener> const& listener,
-      void* argp) = 0;
+      void* argp, 
+      RegistrationHandle& handle) = 0;
 
-    virtual QStatus UnregisterSignalListener(
-      shared_ptr<IAdapterSignal> const& signal,
-      shared_ptr<IAdapterSignalListener> const& listener) = 0;
+    virtual QStatus UnregisterSignalListener(RegistrationHandle const& h) = 0;
   };
 }
 

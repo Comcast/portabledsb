@@ -2,12 +2,21 @@
 #include "Adapters/MockAdapter/MockDevices.h"
 #include "Adapters/MockAdapter/MockAdapterDevice.h"
 
+namespace
+{
+  Bridge::IAdapter::RegistrationHandle nextHandle = 0;
+  Bridge::IAdapter::RegistrationHandle GetNextRegistrationHandle()
+  {
+    return ++nextHandle;
+  }
+}
+
 AdapterLib::MockAdapter::MockAdapter()
   : m_vendor("Acme")
   , m_adapterName("DSB Mock Adapter")
   , m_exposedAdapterPrefix("com." + m_vendor)
-  , m_exposedApplicationGuid("C27BC425-0058-4829-8775-441B5D8740C0")
   , m_exposedApplicationName("DeviceSystemBridge")
+  , m_exposedApplicationGuid("C27BC425-0058-4829-8775-441B5D8740C0")
 {
   // TODO: get m_exposedApplicatioName and Prefix from config
 }
@@ -127,18 +136,36 @@ QStatus AdapterLib::MockAdapter::CallMethod(
 
 
 QStatus AdapterLib::MockAdapter::RegisterSignalListener(
-    shared_ptr<Bridge::IAdapterSignal> const& signal,
+    std::string const& signalName,
     shared_ptr<Bridge::IAdapterSignalListener> const& listener,
-    void* argp)
+    void* argp,
+    Bridge::IAdapter::RegistrationHandle& handle)
 {
-  return ER_NOT_IMPLEMENTED;
+  RegisteredSignal reg;
+  reg.Listener = listener;
+  reg.Context = argp;
+  reg.RegHandle = GetNextRegistrationHandle();
+  m_signalListeners.insert(SignalMap::value_type(signalName, reg));
+  handle = reg.RegHandle;
+  return ER_OK;
 }
 
 
-QStatus AdapterLib::MockAdapter::UnregisterSignalListener(
-    shared_ptr<Bridge::IAdapterSignal> const& signal,
-    shared_ptr<Bridge::IAdapterSignalListener> const& listener)
+QStatus AdapterLib::MockAdapter::UnregisterSignalListener(Bridge::IAdapter::RegistrationHandle const& h)
 {
+  QStatus st = ER_FAIL;
+  for (SignalMap::iterator begin = m_signalListeners.begin(), end = m_signalListeners.end();
+    begin != end; ++begin)
+  {
+    if (begin->second.RegHandle == h)
+    {
+      m_signalListeners.erase(begin);
+      st = ER_OK;
+      break;
+    }
+  }
+  return st;
+
   return ER_NOT_IMPLEMENTED;
 }
 
@@ -150,7 +177,8 @@ void AdapterLib::MockAdapter::CreateMockDevices()
   for (vector::const_iterator begin = devices.begin(), end = devices.end();
     begin != end; ++begin)
   {
-    shared_ptr<MockAdapterDevice> dev(new MockAdapterDevice(*begin, *this));
+    shared_ptr<MockAdapter> self = shared_from_this();
+    shared_ptr<MockAdapterDevice> dev(new MockAdapterDevice(*begin, self));
     // TODO
   }
 }
@@ -158,5 +186,12 @@ void AdapterLib::MockAdapter::CreateMockDevices()
 void AdapterLib::MockAdapter::CreateSignals()
 {
 }
+
+QStatus AdapterLib::MockAdapter::NotifySignalListeners(shared_ptr<MockAdapterSignal> const& signal)
+{
+  QStatus st = ER_OK;
+  return st;
+}
+
 
 

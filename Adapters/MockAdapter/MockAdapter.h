@@ -3,11 +3,14 @@
 #include "Bridge/IAdapter.h"
 #include "Common/defines.h"
 
+#include <map>
+
 namespace AdapterLib
 {
   class MockAdapterDevice;
+  class MockAdapterSignal;
 
-  class MockAdapter : public Bridge::IAdapter, public enable_shared_from_this<Bridge::IAdapter>
+  class MockAdapter : public Bridge::IAdapter, public enable_shared_from_this<MockAdapter>
   {
   public:
     MockAdapter();
@@ -53,13 +56,14 @@ namespace AdapterLib
       Bridge::IAdapterIoRequest** req);
 
     virtual QStatus RegisterSignalListener(
-      shared_ptr<Bridge::IAdapterSignal> const& signal,
+      std::string const& signalName,
       shared_ptr<Bridge::IAdapterSignalListener> const& listener,
-      void* argp);
+      void* argp,
+      Bridge::IAdapter::RegistrationHandle& handle);
 
-    virtual QStatus UnregisterSignalListener(
-      shared_ptr<Bridge::IAdapterSignal> const& signal,
-      shared_ptr<Bridge::IAdapterSignalListener> const& listener);
+    virtual QStatus UnregisterSignalListener(Bridge::IAdapter::RegistrationHandle const& h);
+
+    QStatus NotifySignalListeners(shared_ptr<MockAdapterSignal> const& signal);
 
   private:
     void CreateMockDevices();
@@ -74,6 +78,16 @@ namespace AdapterLib
     std::string m_exposedApplicationGuid;
 
     std::vector< shared_ptr<MockAdapterDevice> > m_devices;
+
+    struct RegisteredSignal
+    {
+      shared_ptr<Bridge::IAdapterSignalListener> Listener;
+      void* Context;
+      Bridge::IAdapter::RegistrationHandle RegHandle;
+    };
+
+    typedef std::multimap<std::string, RegisteredSignal> SignalMap;
+    SignalMap m_signalListeners;
   };
 }
 

@@ -1,10 +1,9 @@
 #include "Adapters/MockAdapter/MockAdapterDevice.h"
+#include "Adapters/MockAdapter/MockAdapter.h"
 
 using namespace AdapterLib;
 
-MockAdapterDevice::MockAdapterDevice(
-    MockDeviceDescriptor const& desc,
-    Bridge::IAdapter const& parent)
+MockAdapterDevice::MockAdapterDevice(MockDeviceDescriptor const& desc, shared_ptr<MockAdapter> const& parent)
   : m_name(desc.Name)
   , m_parent(parent)
   , m_vendor(desc.VendorName)
@@ -61,16 +60,19 @@ QStatus MockAdapterDevice::DispatchMethod(
 QStatus MockAdapterDevice::SendSignal(
     std::string const& signalName,
     shared_ptr<MockAdapterProperty> const& prop,
-    shared_ptr<MockAdapterValue> const& attr)
+    shared_ptr<MockAdapterValue> const& value)
 {
   if (!prop)
     return ER_BAD_ARG_2;
-  if (!attr)
+  if (!value)
     return ER_BAD_ARG_3;
 
   QStatus st = ER_FAIL;
 
   shared_ptr<MockAdapterSignal> signal;
+  shared_ptr<MockAdapter> parent = m_parent.lock();
+  if (!parent)
+    return ER_FAIL;
 
   typedef Bridge::AdapterSignalVector::const_iterator iterator;
   for (iterator begin = m_signalPrototypes.begin(), end = m_signalPrototypes.end();
@@ -78,19 +80,32 @@ QStatus MockAdapterDevice::SendSignal(
   {
     if ((*begin)->GetName() == signalName)
     {
-      // TODO: clone
       signal = dynamic_pointer_cast<MockAdapterSignal>(*begin);
       DSB_ASSERT(signal != NULL);
+      if (signal)
+        signal = signal->Clone();
     }
   }
 
   if (!signal)
     return st;
 
-  // TODO: Continue here
   if (signal->GetName() == Bridge::kChangeOfValueSignal)
   {
+    Bridge::AdapterValueVector params;
+
+    shared_ptr<MockAdapterValue> p(new MockAdapterValue("PropertyName", *this));
+    p->SetData(ajn::MsgArg("s", prop->GetName().c_str(), NULL));
+
+    shared_ptr<MockAdapterValue> v(new MockAdapterValue("PropertyValue", *this));
+    v->SetData(value->GetData());
+
+    params.push_back(p);
+    params.push_back(v);
   }
+
+  if (signal)
+    parent->NotifySignalListeners(signal);
 
   return st;
 }
@@ -275,6 +290,15 @@ MockAdapterSignal::MockAdapterSignal(
   , m_parent(parent)
   , m_params(params)
 {
+}
+
+shared_ptr<MockAdapterSignal> MockAdapterSignal::Clone()
+{
+  shared_ptr<MockAdapterSignal> clone(new MockAdapterSignal(
+    m_name,
+    m_parent,
+    m_params));
+  return clone;
 }
 
 
