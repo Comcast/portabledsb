@@ -10,6 +10,14 @@
 
 namespace Bridge
 {
+  std::string const kDeviceArrivalSignal = "Device_Arrival";
+  std::string const kDeviceArravalHandle = "Device_Handle";
+  std::string const kDeviceRemovalSignal = "Device_Removal";
+  std::string const kDeviceRemovalDeviceHandle = "Device_Handle";
+  std::string const kChangeOfValueSignal = "Change_Of_Value";
+  std::string const kCovPropertyHandle = "Property_Handle";
+  std::string const kCovAttributeHandle = "Attribute_Handle";
+
   class IAdapterValue;
   class IAdapterProperty;
   class IAdapterMethod;
@@ -43,16 +51,16 @@ namespace Bridge
   {
   public:
     virtual ~IAdapterMethod() { }
-    virtual std::string GetName() = 0;
+    virtual std::string GetName() const = 0;
     virtual std::string GetDescription() = 0;
 
-    virtual AdapterValueVector GetInputParams() = 0;
-    virtual AdapterValueVector GetOutputParams() = 0;
+    virtual AdapterValueVector const& GetInputParams() const = 0;
+    virtual AdapterValueVector const& GetOutputParams() const = 0;
 
     virtual void SetInputParams(AdapterValueVector const& params) = 0;
     virtual void SetOutputParams(AdapterValueVector const& params) = 0;
 
-    virtual int32_t GetResult() = 0;
+    virtual QStatus GetResult() = 0;
   };
 
   class IAdapterSignal
@@ -60,7 +68,7 @@ namespace Bridge
   public:
     virtual ~IAdapterSignal() { }
     virtual std::string GetName() const = 0;
-    virtual AdapterValueVector GetParams() const = 0;
+    virtual AdapterValueVector const& GetParams() const = 0;
   };
 
   class IAdapterSignalListener
@@ -82,9 +90,9 @@ namespace Bridge
     virtual std::string GetSerialNumber() = 0;
     virtual std::string GetDescription() = 0;
 
-    virtual AdapterPropertyVector GetProperties() = 0;
-    virtual AdapterMethodVector GetMethods() = 0;
-    virtual AdapterSignalVector GetSignals() = 0;
+    virtual AdapterPropertyVector const& GetProperties() const = 0;
+    virtual AdapterMethodVector const& GetMethods() const = 0;
+    virtual AdapterSignalVector const& GetSignals() const = 0;
   };
 
   class IAdapterIoRequest
@@ -145,7 +153,7 @@ namespace Bridge
 
     virtual QStatus CallMethod(
       shared_ptr<IAdapterMethod>& method,
-      shared_ptr<IAdapterIoRequest>* req) = 0;
+      IAdapterIoRequest** req) = 0;
 
     virtual QStatus RegisterSignalListener(
       shared_ptr<IAdapterSignal> const& signal,

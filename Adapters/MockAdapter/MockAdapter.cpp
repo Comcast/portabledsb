@@ -112,9 +112,17 @@ QStatus AdapterLib::MockAdapter::SetPropertyValue(
 
 QStatus AdapterLib::MockAdapter::CallMethod(
     shared_ptr<Bridge::IAdapterMethod>& method,
-    shared_ptr<Bridge::IAdapterIoRequest>* req)
+    Bridge::IAdapterIoRequest** req)
 {
-  return ER_NOT_IMPLEMENTED;
+  shared_ptr<MockAdapterMethod> m = dynamic_pointer_cast<MockAdapterMethod>(method);
+  if (!m)
+    return ER_BAD_ARG_1;
+
+  shared_ptr<MockAdapterDevice> device = m->GetParent();
+  if (!device)
+    return ER_INVALID_ADDRESS;
+
+  return device->DispatchMethod(m, req);
 }
 
 
@@ -142,7 +150,8 @@ void AdapterLib::MockAdapter::CreateMockDevices()
   for (vector::const_iterator begin = devices.begin(), end = devices.end();
     begin != end; ++begin)
   {
-    shared_ptr<MockAdapterDevice> dev(new MockAdapterDevice(*begin, shared_from_this()));
+    shared_ptr<MockAdapterDevice> dev(new MockAdapterDevice(*begin, *this));
+    // TODO
   }
 }
 

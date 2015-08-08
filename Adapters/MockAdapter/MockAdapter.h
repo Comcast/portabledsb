@@ -50,7 +50,7 @@ namespace AdapterLib
 
     virtual QStatus CallMethod(
       shared_ptr<Bridge::IAdapterMethod>& method,
-      shared_ptr<Bridge::IAdapterIoRequest>* req);
+      Bridge::IAdapterIoRequest** req);
 
     virtual QStatus RegisterSignalListener(
       shared_ptr<Bridge::IAdapterSignal> const& signal,
