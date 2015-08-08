@@ -155,7 +155,7 @@ namespace Bridge
 
     virtual QStatus CallMethod(
       shared_ptr<IAdapterMethod>& method,
-      IAdapterIoRequest** req) = 0;
+      shared_ptr<IAdapterIoRequest>* req) = 0;
 
     virtual QStatus RegisterSignalListener(
       std::string const& signalName,

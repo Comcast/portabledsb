@@ -3,7 +3,7 @@
 
 using namespace AdapterLib;
 
-MockAdapterDevice::MockAdapterDevice(MockDeviceDescriptor const& desc, shared_ptr<MockAdapter> const& parent)
+MockAdapterDevice::MockAdapterDevice(MockDeviceDescriptor const& desc, weak_ptr<MockAdapter> const& parent)
   : m_name(desc.Name)
   , m_parent(parent)
   , m_vendor(desc.VendorName)
@@ -28,7 +28,7 @@ void MockAdapterDevice::CreateSignals()
 {
    Bridge::AdapterValueVector params;
    m_signalPrototypes.push_back(shared_ptr<MockAdapterSignal>(new MockAdapterSignal(
-    Bridge::kChangeOfValueSignal, *this, params)));
+    Bridge::kChangeOfValueSignal, shared_from_this(), params)));
 
   // TODO: This is incomplete, re-visit once signal emit is worked on 
 }
@@ -45,7 +45,7 @@ void MockAdapterDevice::CreateMethods()
 
 QStatus MockAdapterDevice::DispatchMethod(
   shared_ptr<MockAdapterMethod>& method,
-  Bridge::IAdapterIoRequest** req)
+  shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
   if (req)
     *req = NULL;
@@ -284,7 +284,7 @@ void MockAdapterValue::SetData(ajn::MsgArg const& msg)
 
 MockAdapterSignal::MockAdapterSignal(
       std::string const& name,
-      Bridge::IAdapterDevice const& parent,
+      weak_ptr<MockAdapterDevice> const& parent,
       Bridge::AdapterValueVector const& params)
   : m_name(name)
   , m_parent(parent)

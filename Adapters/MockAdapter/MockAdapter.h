@@ -10,7 +10,7 @@ namespace AdapterLib
   class MockAdapterDevice;
   class MockAdapterSignal;
 
-  class MockAdapter : public Bridge::IAdapter, public enable_shared_from_this<MockAdapter>
+  class MockAdapter : public Bridge::IAdapter, public enable_shared_from_this<Bridge::IAdapter>
   {
   public:
     MockAdapter();
@@ -53,7 +53,7 @@ namespace AdapterLib
 
     virtual QStatus CallMethod(
       shared_ptr<Bridge::IAdapterMethod>& method,
-      Bridge::IAdapterIoRequest** req);
+      shared_ptr<Bridge::IAdapterIoRequest>* req);
 
     virtual QStatus RegisterSignalListener(
       std::string const& signalName,

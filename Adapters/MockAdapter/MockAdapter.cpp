@@ -121,7 +121,7 @@ QStatus AdapterLib::MockAdapter::SetPropertyValue(
 
 QStatus AdapterLib::MockAdapter::CallMethod(
     shared_ptr<Bridge::IAdapterMethod>& method,
-    Bridge::IAdapterIoRequest** req)
+    shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
   shared_ptr<MockAdapterMethod> m = dynamic_pointer_cast<MockAdapterMethod>(method);
   if (!m)
@@ -150,7 +150,6 @@ QStatus AdapterLib::MockAdapter::RegisterSignalListener(
   return ER_OK;
 }
 
-
 QStatus AdapterLib::MockAdapter::UnregisterSignalListener(Bridge::IAdapter::RegistrationHandle const& h)
 {
   QStatus st = ER_FAIL;
@@ -177,21 +176,32 @@ void AdapterLib::MockAdapter::CreateMockDevices()
   for (vector::const_iterator begin = devices.begin(), end = devices.end();
     begin != end; ++begin)
   {
-    shared_ptr<MockAdapter> self = shared_from_this();
+    shared_ptr<MockAdapter> self = dynamic_pointer_cast<MockAdapter>(shared_from_this());
     shared_ptr<MockAdapterDevice> dev(new MockAdapterDevice(*begin, self));
-    // TODO
+    m_devices.push_back(dev);
   }
 }
 
 void AdapterLib::MockAdapter::CreateSignals()
 {
+  //shared_ptr<MockAdapterSignal> signal(new MockAdapterSignal());
 }
 
 QStatus AdapterLib::MockAdapter::NotifySignalListeners(shared_ptr<MockAdapterSignal> const& signal)
 {
-  QStatus st = ER_OK;
+  QStatus st = ER_FAIL;
+  if (!signal)
+    return st;
+
+  std::pair< SignalMap::iterator, SignalMap::iterator > range = 
+    m_signalListeners.equal_range(signal->GetName());
+
+  for (SignalMap::iterator begin = range.first, end = range.second; begin != end; ++begin)
+  {
+    RegisteredSignal& handler = begin->second;
+    handler.Listener->AdapterSignalHandler(*signal, handler.Context);
+  }
+
   return st;
 }
-
-
 

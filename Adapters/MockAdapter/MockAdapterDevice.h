@@ -17,7 +17,7 @@ namespace AdapterLib
   public:
     MockAdapterSignal(
       std::string const& name,
-      Bridge::IAdapterDevice const& dev,
+      weak_ptr<MockAdapterDevice> const& parent,
       Bridge::AdapterValueVector const& params);
 
     virtual std::string GetName() const;
@@ -29,7 +29,7 @@ namespace AdapterLib
 
   private:
     std::string                     m_name;
-    Bridge::IAdapterDevice const&   m_parent;
+    weak_ptr<MockAdapterDevice>     m_parent;
     Bridge::AdapterValueVector      m_params;
   };
 
@@ -101,7 +101,7 @@ namespace AdapterLib
   class MockAdapterDevice : public Bridge::IAdapterDevice, public enable_shared_from_this<MockAdapterDevice> 
   {
   public:
-    MockAdapterDevice(MockDeviceDescriptor const& desc, shared_ptr<MockAdapter> const& parent);
+    MockAdapterDevice(MockDeviceDescriptor const& desc, weak_ptr<MockAdapter> const& parent);
       
     virtual std::string GetName();
     virtual std::string GetVendor();
@@ -117,7 +117,7 @@ namespace AdapterLib
 
     QStatus DispatchMethod(
       shared_ptr<MockAdapterMethod>& method,
-      Bridge::IAdapterIoRequest** req);
+      shared_ptr<Bridge::IAdapterIoRequest>* req);
 
     QStatus SendSignal(
       std::string const& signalName,

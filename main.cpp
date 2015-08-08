@@ -2,8 +2,7 @@
 #include "Bridge/Bridge.h"
 #include "Bridge/IAdapter.h"
 #include "Common/Log.h"
-
-#include "Adapters/ZigBeeAdapter/ZigBeeAdapter.h"
+#include "Adapters/MockAdapter/MockAdapter.h"
 
 namespace
 {
@@ -45,7 +44,7 @@ int main(int /*argc*/, char* /*argv*/ [])
   QStatus st = ER_OK;
 
   // TODO: should be unique_ptr and ownership give to bridge
-  shared_ptr<Bridge::IAdapter> adapter(new AdapterLib::ZigBeeAdapter());
+  shared_ptr<Bridge::IAdapter> adapter(new AdapterLib::MockAdapter());
 
   shared_ptr<Bridge::DeviceSystemBridge> bridge(new Bridge::DeviceSystemBridge(adapter));
   st = bridge->Initialize();

@@ -199,25 +199,34 @@ QStatus Bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegiste
 {
   QStatus ret = ER_OK;
 
-  shared_ptr<IAdapterSignalListener> listener =
-    dynamic_pointer_cast<IAdapterSignalListener>(g_Instance);
+  shared_ptr<IAdapterSignalListener> listener = dynamic_pointer_cast<IAdapterSignalListener>(g_Instance);
 
-  AdapterSignalVector signals = m_adapter->GetSignals();
-  for (AdapterSignalVector::const_iterator itr = signals.begin(); itr != signals.end(); ++itr)
+  if (isRegister)
   {
-    if (isRegister)
+    AdapterSignalVector signals = m_adapter->GetSignals();
+    for (AdapterSignalVector::const_iterator itr = signals.begin(); itr != signals.end(); ++itr)
     {
-      QStatus st = m_adapter->RegisterSignalListener(*itr, listener, NULL);
-      if (st != ER_OK)
-      {
-        DSBLOG_WARN("failed to register signal listener on adapter: 0x%x", st);
-        if (ret == ER_OK)
-          ret = st;
+        Bridge::IAdapter::RegistrationHandle handle;
+        QStatus st = m_adapter->RegisterSignalListener((*itr)->GetName(), listener, NULL, handle);
+        if (st != ER_OK)
+        {
+          DSBLOG_WARN("failed to register signal listener on adapter: 0x%x", st);
+          if (ret == ER_OK)
+            ret = st;
+        }
+        else
+        {
+          m_registeredSignalListeners.push_back(handle);
+        }
       }
-    }
-    else
+  }
+  else
+  {
+    typedef std::vector<IAdapter::RegistrationHandle>::const_iterator iterator;
+    for (iterator begin = m_registeredSignalListeners.begin(), end = m_registeredSignalListeners.end();
+      begin != end; ++begin)
     {
-      QStatus st = m_adapter->UnregisterSignalListener(*itr, listener);
+      QStatus st = m_adapter->UnregisterSignalListener(*begin);
       if (st != ER_OK)
       {
         DSBLOG_WARN("failed to unregister signal listener on adapter: 0x%x", st);

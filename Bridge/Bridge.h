@@ -73,6 +73,7 @@ namespace Bridge
     shared_ptr<IAdapter>              m_adapter;
     BridgeDeviceList                  m_deviceList;
     shared_ptr<AdapterSignalListener> m_adapterSignaListener;
+    std::vector<IAdapter::RegistrationHandle> m_registeredSignalListeners;
   };
 }
 

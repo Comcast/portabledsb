@@ -7,7 +7,6 @@ SRCS=DeviceProviders/AllJoynProvider.cpp \
      Adapters/MockAdapter/MockAdapter.cpp \
      Adapters/MockAdapter/MockDevices.cpp \
      Adapters/MockAdapter/MockAdapterDevice.cpp \
-     Adapters/ZigBeeAdapter/ZigBeeAdapter.cpp \
      main.cpp
 
 LIBXML_INC=/usr/include/libxml2
@@ -22,8 +21,7 @@ OBJS=$(DEV_PROVIDER_OBJS)
 all: moc-adapter 
 
 clean:
-	$(RM) MockAdapter core DeviceProviders/*.o Bridge/*.o Common/*.o Adapters/MockAdapter/*.o \
-    Adapters/ZigBee/*.o
+	$(RM) MockAdapter core DeviceProviders/*.o Bridge/*.o Common/*.o Adapters/MockAdapter/*.o
 
 
 moc-adapter: $(OBJS)
