@@ -56,21 +56,21 @@ void MockAdapterDevice::CreateMethods()
   m_methods.push_back(m);
 }
 
-QStatus MockAdapterDevice::DispatchMethod(
+int32_t MockAdapterDevice::DispatchMethod(
   shared_ptr<MockAdapterMethod>& method,
   shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
   if (req)
     *req = NULL;
 
-  QStatus st = ER_OK;
+  int32_t st = ER_OK;
   if (method->GetName() == kDeviceResetMethod)
     st = Reset(method);
 
   return st;
 }
 
-QStatus MockAdapterDevice::SendSignal(
+int32_t MockAdapterDevice::SendSignal(
     std::string const& signalName,
     shared_ptr<MockAdapterProperty> const& prop,
     shared_ptr<MockAdapterValue> const& value)
@@ -80,7 +80,7 @@ QStatus MockAdapterDevice::SendSignal(
   if (!value)
     return ER_BAD_ARG_3;
 
-  QStatus st = ER_FAIL;
+  int32_t st = ER_FAIL;
 
   shared_ptr<MockAdapterSignal> signal;
   shared_ptr<MockAdapter> parent = m_parent.lock();
@@ -110,7 +110,7 @@ QStatus MockAdapterDevice::SendSignal(
     shared_ptr<MockAdapterDevice> self = shared_from_this();
 
     shared_ptr<MockAdapterValue> p(new MockAdapterValue("PropertyName"));
-    p->SetData(ajn::MsgArg("s", prop->GetName().c_str(), NULL));
+    p->SetData(Common::Variant(prop->GetName()));
 
     shared_ptr<MockAdapterValue> v(new MockAdapterValue("PropertyValue"));
     v->SetData(value->GetData());
@@ -125,9 +125,9 @@ QStatus MockAdapterDevice::SendSignal(
   return st;
 }
 
-QStatus MockAdapterDevice::Reset(shared_ptr<MockAdapterMethod>& method)
+int32_t MockAdapterDevice::Reset(shared_ptr<MockAdapterMethod>& method)
 {
-  QStatus st = ER_OK;
+  int32_t st = ER_OK;
 
   Bridge::AdapterValueVector const& inParams = method->GetInputParams();
   if (inParams.size() == 0)
@@ -277,12 +277,12 @@ void MockAdapterMethod::AddOutputParam(shared_ptr<Bridge::IAdapterValue> const& 
   m_outputParams.push_back(p);
 }
 
-QStatus MockAdapterMethod::GetResult()
+int32_t MockAdapterMethod::GetResult()
 {
   return m_result;
 }
 
-void MockAdapterMethod::SetResult(QStatus st)
+void MockAdapterMethod::SetResult(int32_t st)
 {
   m_result = st;
 }
@@ -298,14 +298,14 @@ std::string MockAdapterValue::GetName()
   return m_name;
 }
 
-ajn::MsgArg MockAdapterValue::GetData()
+Common::Variant MockAdapterValue::GetData()
 {
   return m_data;
 }
 
-void MockAdapterValue::SetData(ajn::MsgArg const& msg)
+void MockAdapterValue::SetData(Common::Variant const& v)
 {
-  m_data = msg;
+  m_data = v;
 }
 
 MockAdapterSignal::MockAdapterSignal(

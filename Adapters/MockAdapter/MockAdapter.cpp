@@ -64,7 +64,7 @@ Bridge::AdapterSignalVector AdapterLib::MockAdapter::GetSignals()
 }
 
 
-QStatus AdapterLib::MockAdapter::Initialize()
+int32_t AdapterLib::MockAdapter::Initialize()
 {
   CreateMockDevices();
   CreateSignals();
@@ -72,13 +72,13 @@ QStatus AdapterLib::MockAdapter::Initialize()
 }
 
 
-QStatus AdapterLib::MockAdapter::Shutdown()
+int32_t AdapterLib::MockAdapter::Shutdown()
 {
   return ER_NOT_IMPLEMENTED;
 }
 
 
-QStatus AdapterLib::MockAdapter::EnumDevices(
+int32_t AdapterLib::MockAdapter::EnumDevices(
     Bridge::EnumDeviceOptions /*opts*/,
     Bridge::AdapterDeviceVector& deviceList,
     shared_ptr<Bridge::IAdapterIoRequest>* req)
@@ -93,7 +93,7 @@ QStatus AdapterLib::MockAdapter::EnumDevices(
 }
 
 
-QStatus AdapterLib::MockAdapter::GetProperty(
+int32_t AdapterLib::MockAdapter::GetProperty(
     shared_ptr<Bridge::IAdapterProperty>& prop,
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
@@ -118,7 +118,7 @@ QStatus AdapterLib::MockAdapter::GetProperty(
 }
 
 
-QStatus AdapterLib::MockAdapter::SetProperty(
+int32_t AdapterLib::MockAdapter::SetProperty(
     shared_ptr<Bridge::IAdapterProperty> const& prop,
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
@@ -143,7 +143,7 @@ QStatus AdapterLib::MockAdapter::SetProperty(
 }
 
 
-QStatus AdapterLib::MockAdapter::GetPropertyValue(
+int32_t AdapterLib::MockAdapter::GetPropertyValue(
     shared_ptr<Bridge::IAdapterProperty> const& prop,
     std::string const& attributeName,
     shared_ptr<Bridge::IAdapterValue>& value,
@@ -166,7 +166,7 @@ QStatus AdapterLib::MockAdapter::GetPropertyValue(
 }
 
 
-QStatus AdapterLib::MockAdapter::SetPropertyValue(
+int32_t AdapterLib::MockAdapter::SetPropertyValue(
     shared_ptr<Bridge::IAdapterProperty> const& prop,
     shared_ptr<Bridge::IAdapterValue> const& value,
     shared_ptr<Bridge::IAdapterIoRequest>* req)
@@ -188,7 +188,7 @@ QStatus AdapterLib::MockAdapter::SetPropertyValue(
 }
 
 
-QStatus AdapterLib::MockAdapter::CallMethod(
+int32_t AdapterLib::MockAdapter::CallMethod(
     shared_ptr<Bridge::IAdapterMethod>& method,
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
@@ -204,7 +204,7 @@ QStatus AdapterLib::MockAdapter::CallMethod(
 }
 
 
-QStatus AdapterLib::MockAdapter::RegisterSignalListener(
+int32_t AdapterLib::MockAdapter::RegisterSignalListener(
     std::string const& signalName,
     shared_ptr<Bridge::IAdapterSignalListener> const& listener,
     void* argp,
@@ -219,9 +219,9 @@ QStatus AdapterLib::MockAdapter::RegisterSignalListener(
   return ER_OK;
 }
 
-QStatus AdapterLib::MockAdapter::UnregisterSignalListener(Bridge::IAdapter::RegistrationHandle const& h)
+int32_t AdapterLib::MockAdapter::UnregisterSignalListener(Bridge::IAdapter::RegistrationHandle const& h)
 {
-  QStatus st = ER_FAIL;
+  int32_t st = ER_FAIL;
   for (SignalMap::iterator begin = m_signalListeners.begin(), end = m_signalListeners.end();
     begin != end; ++begin)
   {
@@ -262,9 +262,9 @@ void AdapterLib::MockAdapter::CreateSignals()
   m_signals.push_back(signal);
 }
 
-QStatus AdapterLib::MockAdapter::NotifySignalListeners(shared_ptr<MockAdapterSignal> const& signal)
+int32_t AdapterLib::MockAdapter::NotifySignalListeners(shared_ptr<MockAdapterSignal> const& signal)
 {
-  QStatus st = ER_FAIL;
+  int32_t st = ER_FAIL;
   if (!signal)
     return st;
 

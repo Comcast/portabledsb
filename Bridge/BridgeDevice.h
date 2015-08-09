@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Bridge/IAdapter.h"
+#include <alljoyn/Status.h>
 
 namespace Bridge
 {

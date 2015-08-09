@@ -24,46 +24,46 @@ namespace AdapterLib
     virtual std::string GetExposedApplicationGuid();
     virtual Bridge::AdapterSignalVector GetSignals();
 
-    virtual QStatus Initialize();
-    virtual QStatus Shutdown();
+    virtual int32_t Initialize();
+    virtual int32_t Shutdown();
 
-    virtual QStatus EnumDevices(
+    virtual int32_t EnumDevices(
       Bridge::EnumDeviceOptions opts,
       Bridge::AdapterDeviceVector& deviceList,
       shared_ptr<Bridge::IAdapterIoRequest>* req);
 
-    virtual QStatus GetProperty(
+    virtual int32_t GetProperty(
       shared_ptr<Bridge::IAdapterProperty>& prop,
       shared_ptr<Bridge::IAdapterIoRequest>* req);
 
-    virtual QStatus SetProperty(
+    virtual int32_t SetProperty(
       shared_ptr<Bridge::IAdapterProperty> const& prop,
       shared_ptr<Bridge::IAdapterIoRequest>* req);
 
-    virtual QStatus GetPropertyValue(
+    virtual int32_t GetPropertyValue(
       shared_ptr<Bridge::IAdapterProperty> const& prop,
       std::string const& attributeName,
       shared_ptr<Bridge::IAdapterValue>& value,
       shared_ptr<Bridge::IAdapterIoRequest>* req);
 
-    virtual QStatus SetPropertyValue(
+    virtual int32_t SetPropertyValue(
       shared_ptr<Bridge::IAdapterProperty> const& prop,
       shared_ptr<Bridge::IAdapterValue> const& value,
       shared_ptr<Bridge::IAdapterIoRequest>* req);
 
-    virtual QStatus CallMethod(
+    virtual int32_t CallMethod(
       shared_ptr<Bridge::IAdapterMethod>& method,
       shared_ptr<Bridge::IAdapterIoRequest>* req);
 
-    virtual QStatus RegisterSignalListener(
+    virtual int32_t RegisterSignalListener(
       std::string const& signalName,
       shared_ptr<Bridge::IAdapterSignalListener> const& listener,
       void* argp,
       Bridge::IAdapter::RegistrationHandle& handle);
 
-    virtual QStatus UnregisterSignalListener(Bridge::IAdapter::RegistrationHandle const& h);
+    virtual int32_t UnregisterSignalListener(Bridge::IAdapter::RegistrationHandle const& h);
 
-    QStatus NotifySignalListeners(shared_ptr<MockAdapterSignal> const& signal);
+    int32_t NotifySignalListeners(shared_ptr<MockAdapterSignal> const& signal);
 
   private:
     void CreateMockDevices();

@@ -4,6 +4,8 @@
 #include "Common/Log.h"
 #include "Adapters/MockAdapter/MockAdapter.h"
 
+#include "Common/Variant.h"
+
 namespace
 {
   DSB_DECLARE_LOGNAME(Main);

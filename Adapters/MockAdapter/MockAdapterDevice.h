@@ -51,8 +51,8 @@ namespace AdapterLib
     void AddInputParam(shared_ptr<Bridge::IAdapterValue> const& p);
     void AddOutputParam(shared_ptr<Bridge::IAdapterValue> const& p);
 
-    virtual QStatus GetResult();
-    void SetResult(QStatus st);
+    virtual int32_t GetResult();
+    void SetResult(int32_t st);
 
   private:
     shared_ptr<MockAdapterDevice> GetParent() const
@@ -64,7 +64,7 @@ namespace AdapterLib
     Bridge::AdapterValueVector    m_inputParams;
     Bridge::AdapterValueVector    m_outputParams;
     weak_ptr<MockAdapterDevice>   m_parent;
-    QStatus                       m_result;
+    int32_t                       m_result;
   };
 
   class MockAdapterProperty : public Bridge::IAdapterProperty
@@ -92,12 +92,12 @@ namespace AdapterLib
     MockAdapterValue(std::string const& name);
 
     virtual std::string GetName();
-    virtual ajn::MsgArg GetData();
-    virtual void SetData(ajn::MsgArg const& msg);
+    virtual Common::Variant GetData();
+    virtual void SetData(Common::Variant const& v);
 
   private:
     std::string                 m_name;
-    ajn::MsgArg                 m_data;
+    Common::Variant             m_data;
   };
 
   class MockAdapterDevice : public Bridge::IAdapterDevice, public enable_shared_from_this<MockAdapterDevice> 
@@ -119,11 +119,11 @@ namespace AdapterLib
     virtual Bridge::AdapterMethodVector const& GetMethods() const;
     virtual Bridge::AdapterSignalVector const& GetSignals() const;
 
-    QStatus DispatchMethod(
+    int32_t DispatchMethod(
       shared_ptr<MockAdapterMethod>& method,
       shared_ptr<Bridge::IAdapterIoRequest>* req);
 
-    QStatus SendSignal(
+    int32_t SendSignal(
       std::string const& signalName,
       shared_ptr<MockAdapterProperty> const& prop,
       shared_ptr<MockAdapterValue> const& attr);
@@ -137,7 +137,7 @@ namespace AdapterLib
     void CreateMethods();
     void CreateSignals();
 
-    QStatus Reset(shared_ptr<MockAdapterMethod>& method);
+    int32_t Reset(shared_ptr<MockAdapterMethod>& method);
 
   private:
     std::string                         m_name;

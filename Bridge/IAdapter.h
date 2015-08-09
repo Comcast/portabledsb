@@ -1,9 +1,7 @@
 #pragma once
 
 #include "Common/defines.h"
-
-#include <alljoyn/MsgArg.h>
-#include <alljoyn/Status.h>
+#include "Common/Variant.h"
 
 #include <string>
 #include <vector>
@@ -35,8 +33,8 @@ namespace Bridge
   public:
     virtual ~IAdapterValue() { }
     virtual std::string GetName() = 0;
-    virtual ajn::MsgArg GetData() = 0;
-    virtual void SetData(ajn::MsgArg const& msg) = 0;
+    virtual Common::Variant GetData() = 0;
+    virtual void SetData(Common::Variant const& msg) = 0;
   };
 
   class IAdapterProperty
@@ -60,7 +58,7 @@ namespace Bridge
     virtual void SetInputParams(AdapterValueVector const& params) = 0;
     virtual void SetOutputParams(AdapterValueVector const& params) = 0;
 
-    virtual QStatus GetResult() = 0;
+    virtual int32_t GetResult() = 0;
   };
 
   class IAdapterSignal
@@ -98,10 +96,10 @@ namespace Bridge
   class IAdapterIoRequest
   {
   public:
-    virtual QStatus Status() = 0;;
-    virtual QStatus Wait(uint32_t timeoutMillis) = 0;
-    virtual QStatus Cancel() = 0;
-    virtual QStatus Release() = 0;
+    virtual int32_t Status() = 0;;
+    virtual int32_t Wait(uint32_t timeoutMillis) = 0;
+    virtual int32_t Cancel() = 0;
+    virtual int32_t Release() = 0;
   };
 
   enum class EnumDeviceOptions
@@ -126,44 +124,44 @@ namespace Bridge
     virtual std::string GetExposedApplicationGuid() = 0;
     virtual AdapterSignalVector GetSignals() = 0;
 
-    virtual QStatus Initialize() = 0;
-    virtual QStatus Shutdown() = 0;
+    virtual int32_t Initialize() = 0;
+    virtual int32_t Shutdown() = 0;
 
-    virtual QStatus EnumDevices(
+    virtual int32_t EnumDevices(
       EnumDeviceOptions opts,
       AdapterDeviceVector& deviceList,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual QStatus GetProperty(
+    virtual int32_t GetProperty(
       shared_ptr<IAdapterProperty>& prop,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual QStatus SetProperty(
+    virtual int32_t SetProperty(
       shared_ptr<IAdapterProperty> const& prop,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual QStatus GetPropertyValue(
+    virtual int32_t GetPropertyValue(
       shared_ptr<IAdapterProperty> const& prop,
       std::string const& attributeName,
       shared_ptr<IAdapterValue>& value,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual QStatus SetPropertyValue(
+    virtual int32_t SetPropertyValue(
       shared_ptr<IAdapterProperty> const& prop,
       shared_ptr<IAdapterValue> const& value,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual QStatus CallMethod(
+    virtual int32_t CallMethod(
       shared_ptr<IAdapterMethod>& method,
       shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual QStatus RegisterSignalListener(
+    virtual int32_t RegisterSignalListener(
       std::string const& signalName,
       shared_ptr<IAdapterSignalListener> const& listener,
       void* argp, 
       RegistrationHandle& handle) = 0;
 
-    virtual QStatus UnregisterSignalListener(RegistrationHandle const& h) = 0;
+    virtual int32_t UnregisterSignalListener(RegistrationHandle const& h) = 0;
   };
 }
 

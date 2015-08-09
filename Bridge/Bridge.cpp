@@ -129,7 +129,8 @@ QStatus Bridge::DeviceSystemBridge::InitializeAdapter()
     DSBLOG_ERROR("can't initialize null adapter");
     return ER_FAIL;
   }
-  return m_adapter->Initialize();
+  int ret = m_adapter->Initialize();
+  return ret == 0 ? ER_OK : ER_FAIL;
 }
 
 QStatus Bridge::DeviceSystemBridge::InitializeDevices(bool update)
@@ -141,18 +142,24 @@ QStatus Bridge::DeviceSystemBridge::InitializeDevices(bool update)
   if (update)
     opts = EnumDeviceOptions::ForceRefresh;
 
-  QStatus st = m_adapter->EnumDevices(opts, deviceList, &request);
+  int ret = m_adapter->EnumDevices(opts, deviceList, &request);
 
-  if (st != ER_OK)
+  if (ret != 0)
     goto Leave;
 
-  for (AdapterDeviceVector::iterator itr = deviceList.begin(); itr != deviceList.end(); ++itr)
+  typedef AdapterDeviceVector::iterator iterator;
+  for (iterator begin = deviceList.begin(), end = deviceList.end(); begin != end; ++begin)
   {
-    // TODO
+    // TODO: get configuration for device
+
+    if (update)
+      UpdateDevice(*begin, true);
+
+    // unfinished
   }
 
 Leave:
-  return st;
+  return ret == 0 ? ER_OK : ER_FAIL;
 }
 
 void Bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void* argp)
@@ -192,7 +199,7 @@ Leave:
 
 QStatus Bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegister)
 {
-  QStatus ret = ER_OK;
+  QStatus st = ER_OK;
 
   shared_ptr<IAdapterSignalListener> listener = dynamic_pointer_cast<IAdapterSignalListener>(g_Instance);
 
@@ -202,11 +209,11 @@ QStatus Bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegiste
     for (AdapterSignalVector::const_iterator itr = signals.begin(); itr != signals.end(); ++itr)
     {
         Bridge::IAdapter::RegistrationHandle handle;
-        QStatus st = m_adapter->RegisterSignalListener((*itr)->GetName(), listener, NULL, handle);
-        if (st != ER_OK)
+        int ret = m_adapter->RegisterSignalListener((*itr)->GetName(), listener, NULL, handle);
+        if (ret != 0)
         {
           DSBLOG_WARN("failed to register signal listener on adapter: 0x%x", st);
-          if (ret == ER_OK)
+          if (st == ER_OK)
             ret = st;
         }
         else
@@ -221,17 +228,17 @@ QStatus Bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegiste
     for (iterator begin = m_registeredSignalListeners.begin(), end = m_registeredSignalListeners.end();
       begin != end; ++begin)
     {
-      QStatus st = m_adapter->UnregisterSignalListener(*begin);
-      if (st != ER_OK)
+      int ret = m_adapter->UnregisterSignalListener(*begin);
+      if (ret != 0)
       {
         DSBLOG_WARN("failed to unregister signal listener on adapter: 0x%x", st);
-        if (ret == ER_OK)
-          ret = st;
+        if (st == ER_OK)
+          st = ER_FAIL;
       }
     }
   }
 
-  return ret;
+  return st;
 }
 
 QStatus Bridge::DeviceSystemBridge::ShutdownInternal()
