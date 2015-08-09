@@ -16,6 +16,10 @@ namespace Bridge
   std::string const kCovPropertyHandle = "Property_Handle";
   std::string const kCovAttributeHandle = "Attribute_Handle";
 
+  std::string const kDsbDeviceNotificationSignal = "DeviceNotificationSignal";
+  std::string const kDsbSendMsgToDeviceMethod = "SendMessageToDeviceSynchronous";
+
+
   class IAdapterValue;
   class IAdapterProperty;
   class IAdapterMethod;
