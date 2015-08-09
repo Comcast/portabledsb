@@ -11,6 +11,7 @@ namespace AdapterLib
 
   class MockAdapter;
   class MockAdapterDevice;
+  class MockAdapterValue;
 
   class MockAdapterSignal : public Bridge::IAdapterSignal
   {
@@ -22,8 +23,6 @@ namespace AdapterLib
 
     virtual std::string GetName() const;
     virtual Bridge::AdapterValueVector const& GetParams() const;
-
-    void SetParams(Bridge::AdapterValueVector const& params);
 
     shared_ptr<MockAdapterSignal> Clone();
 
@@ -71,22 +70,26 @@ namespace AdapterLib
   class MockAdapterProperty : public Bridge::IAdapterProperty
   {
   public:
-    MockAdapterProperty(MockPropertyDescriptor const& desc);
+    MockAdapterProperty(MockPropertyDescriptor const& desc, weak_ptr<MockAdapterDevice> const& parent);
 
     virtual std::string GetName();
     virtual Bridge::AdapterValueVector GetAttributes();
 
+    shared_ptr<MockAdapterDevice> GetParent()
+      { return m_parent.lock(); }
+
+    shared_ptr<MockAdapterValue> GetAttributeByName(std::string const& name);
+
   private:
     std::string                 m_name;
     Bridge::AdapterValueVector  m_attributes;
+    weak_ptr<MockAdapterDevice> m_parent;
   };
 
   class MockAdapterValue : public Bridge::IAdapterValue
   {
   public:
-    MockAdapterValue(
-      std::string const& name,
-      MockAdapterDevice const& parent);
+    MockAdapterValue(std::string const& name);
 
     virtual std::string GetName();
     virtual ajn::MsgArg GetData();
@@ -95,14 +98,15 @@ namespace AdapterLib
   private:
     std::string                 m_name;
     ajn::MsgArg                 m_data;
-    MockAdapterDevice const&    m_parent;
   };
 
   class MockAdapterDevice : public Bridge::IAdapterDevice, public enable_shared_from_this<MockAdapterDevice> 
   {
   public:
-    MockAdapterDevice(MockDeviceDescriptor const& desc, weak_ptr<MockAdapter> const& parent);
-      
+    static shared_ptr<MockAdapterDevice> Create(
+      MockDeviceDescriptor const& desc,
+      weak_ptr<MockAdapter> const& parent);
+
     virtual std::string GetName();
     virtual std::string GetVendor();
     virtual std::string GetModel();
@@ -124,7 +128,12 @@ namespace AdapterLib
       shared_ptr<MockAdapterProperty> const& prop,
       shared_ptr<MockAdapterValue> const& attr);
 
+    shared_ptr<MockAdapter> GetParent() const
+      { return m_parent.lock(); }
+
   private:
+    MockAdapterDevice(MockDeviceDescriptor const& desc, weak_ptr<MockAdapter> const& parent);
+
     void CreateMethods();
     void CreateSignals();
 

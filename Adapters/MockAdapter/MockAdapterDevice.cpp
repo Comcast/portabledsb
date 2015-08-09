@@ -3,6 +3,28 @@
 
 using namespace AdapterLib;
 
+shared_ptr<MockAdapterDevice> MockAdapterDevice::Create(
+    MockDeviceDescriptor const& desc,
+    weak_ptr<MockAdapter> const& parent)
+{
+  shared_ptr<MockAdapterDevice> device(new MockAdapterDevice(desc, parent));
+
+  for (int i = 0; i < kMockDeviceMaxProperties; ++i)
+  {
+    MockPropertyDescriptor const& descriptor = desc.PropertyDescriptors[i];
+    if (descriptor.Id == kLastDescriptorId)
+      break;
+
+    device->m_properties.push_back(shared_ptr<Bridge::IAdapterProperty>(
+          new MockAdapterProperty(descriptor, device)));
+  }
+
+  device->CreateMethods();
+  device->CreateSignals();
+  
+  return device;
+}
+
 MockAdapterDevice::MockAdapterDevice(MockDeviceDescriptor const& desc, weak_ptr<MockAdapter> const& parent)
   : m_name(desc.Name)
   , m_parent(parent)
@@ -13,22 +35,14 @@ MockAdapterDevice::MockAdapterDevice(MockDeviceDescriptor const& desc, weak_ptr<
   , m_serialNumber(desc.SerialNumber)
   , m_description(desc.Description)
 {
-  for (int i = 0; i < kMockDeviceMaxProperties; ++i)
-  {
-    MockPropertyDescriptor const& d = desc.PropertyDescriptors[i];
-    if (d.Id == kLastDescriptorId)
-      break;
 
-    m_properties.push_back(shared_ptr<Bridge::IAdapterProperty>(
-      new MockAdapterProperty(d)));
-  }
 }
 
 void MockAdapterDevice::CreateSignals()
 {
-   Bridge::AdapterValueVector params;
-   m_signalPrototypes.push_back(shared_ptr<MockAdapterSignal>(new MockAdapterSignal(
-    Bridge::kChangeOfValueSignal, shared_from_this(), params)));
+  Bridge::AdapterValueVector params;
+  m_signalPrototypes.push_back(shared_ptr<MockAdapterSignal>(new MockAdapterSignal(
+          Bridge::kChangeOfValueSignal, shared_from_this(), params)));
 
   // TODO: This is incomplete, re-visit once signal emit is worked on 
 }
@@ -38,8 +52,7 @@ void MockAdapterDevice::CreateMethods()
   shared_ptr<MockAdapterDevice> self = shared_from_this();
 
   shared_ptr<MockAdapterMethod> m(new MockAdapterMethod(kDeviceResetMethod, self));
-  m->AddInputParam(shared_ptr<Bridge::IAdapterValue>(
-    new MockAdapterValue(kDeviceResetPropertyHandle, *this)));
+  m->AddInputParam(shared_ptr<Bridge::IAdapterValue>(new MockAdapterValue(kDeviceResetPropertyHandle)));
   m_methods.push_back(m);
 }
 
@@ -94,10 +107,12 @@ QStatus MockAdapterDevice::SendSignal(
   {
     Bridge::AdapterValueVector params;
 
-    shared_ptr<MockAdapterValue> p(new MockAdapterValue("PropertyName", *this));
+    shared_ptr<MockAdapterDevice> self = shared_from_this();
+
+    shared_ptr<MockAdapterValue> p(new MockAdapterValue("PropertyName"));
     p->SetData(ajn::MsgArg("s", prop->GetName().c_str(), NULL));
 
-    shared_ptr<MockAdapterValue> v(new MockAdapterValue("PropertyValue", *this));
+    shared_ptr<MockAdapterValue> v(new MockAdapterValue("PropertyValue"));
     v->SetData(value->GetData());
 
     params.push_back(p);
@@ -182,8 +197,10 @@ Bridge::AdapterSignalVector const& MockAdapterDevice::GetSignals() const
   return m_signalPrototypes;
 }
 
-MockAdapterProperty::MockAdapterProperty(MockPropertyDescriptor const& desc)
+MockAdapterProperty::MockAdapterProperty( MockPropertyDescriptor const& desc,
+  weak_ptr<MockAdapterDevice> const& parent)
   : m_name(desc.Name)
+  , m_parent(parent)
 {
 }
 
@@ -191,6 +208,18 @@ std::string MockAdapterProperty::GetName()
 {
   return m_name;
 }
+
+shared_ptr<MockAdapterValue> MockAdapterProperty::GetAttributeByName(std::string const& name)
+{
+  typedef Bridge::AdapterValueVector::const_iterator iterator;
+  for (iterator begin = m_attributes.begin(), end = m_attributes.end(); begin != end; ++begin)
+  {
+    if ((*begin)->GetName() == name)
+      return dynamic_pointer_cast<MockAdapterValue>(*begin);
+  }
+  return shared_ptr<MockAdapterValue>();
+}
+
 
 Bridge::AdapterValueVector MockAdapterProperty::GetAttributes()
 {
@@ -258,11 +287,8 @@ void MockAdapterMethod::SetResult(QStatus st)
   m_result = st;
 }
 
-MockAdapterValue::MockAdapterValue(
-    std::string const& name,
-    MockAdapterDevice const& parent)
+MockAdapterValue::MockAdapterValue(std::string const& name)
   : m_name(name)
-  , m_parent(parent)
 {
 }
 

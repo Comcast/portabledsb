@@ -132,21 +132,16 @@ QStatus Bridge::DeviceSystemBridge::InitializeAdapter()
   return m_adapter->Initialize();
 }
 
-QStatus Bridge::DeviceSystemBridge::InitializeDevices(bool isUpdate)
+QStatus Bridge::DeviceSystemBridge::InitializeDevices(bool update)
 {
   AdapterDeviceVector deviceList;
   shared_ptr<IAdapterIoRequest> request;
 
   EnumDeviceOptions opts = EnumDeviceOptions::CacheOnly;
-  if (isUpdate)
+  if (update)
     opts = EnumDeviceOptions::ForceRefresh;
 
   QStatus st = m_adapter->EnumDevices(opts, deviceList, &request);
-  if (st == ER_OK)
-  {
-    if ((st = request->Wait(kWaitTimeoutForAdapterOperation)) != ER_OK)
-      DSBLOG_WARN("timeout waiting for EnumDevices to complete");
-  }
 
   if (st != ER_OK)
     goto Leave;

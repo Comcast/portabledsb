@@ -78,6 +78,7 @@ namespace AdapterLib
     std::string m_exposedApplicationGuid;
 
     std::vector< shared_ptr<MockAdapterDevice> > m_devices;
+    std::vector< shared_ptr<MockAdapterSignal> > m_signals;
 
     struct RegisteredSignal
     {

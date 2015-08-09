@@ -2,6 +2,9 @@
 #include "Adapters/MockAdapter/MockDevices.h"
 #include "Adapters/MockAdapter/MockAdapterDevice.h"
 
+#include <vector>
+#include <algorithm>
+
 namespace
 {
   Bridge::IAdapter::RegistrationHandle nextHandle = 0;
@@ -23,8 +26,6 @@ AdapterLib::MockAdapter::MockAdapter()
 
 AdapterLib::MockAdapter::~MockAdapter()
 {
-  CreateMockDevices();
-  CreateSignals();
 }
 
 std::string AdapterLib::MockAdapter::GetVendor()
@@ -65,7 +66,9 @@ Bridge::AdapterSignalVector AdapterLib::MockAdapter::GetSignals()
 
 QStatus AdapterLib::MockAdapter::Initialize()
 {
-  return ER_NOT_IMPLEMENTED;
+  CreateMockDevices();
+  CreateSignals();
+  return ER_OK;
 }
 
 
@@ -76,11 +79,17 @@ QStatus AdapterLib::MockAdapter::Shutdown()
 
 
 QStatus AdapterLib::MockAdapter::EnumDevices(
-    Bridge::EnumDeviceOptions opts,
+    Bridge::EnumDeviceOptions /*opts*/,
     Bridge::AdapterDeviceVector& deviceList,
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
-  return ER_NOT_IMPLEMENTED;
+  if (req)
+    *req = NULL;
+
+  deviceList.clear();
+  std::copy(m_devices.begin(), m_devices.end(), std::back_inserter(deviceList));
+
+  return ER_OK;
 }
 
 
@@ -88,7 +97,24 @@ QStatus AdapterLib::MockAdapter::GetProperty(
     shared_ptr<Bridge::IAdapterProperty>& prop,
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
-  return ER_NOT_IMPLEMENTED;
+  if (req)
+    *req = NULL;
+
+  shared_ptr<MockAdapterProperty> mockAdapterProperty = dynamic_pointer_cast<MockAdapterProperty>(prop);
+  if (!mockAdapterProperty)
+    return ER_BAD_ARG_1;
+
+  shared_ptr<MockAdapterDevice> device = mockAdapterProperty->GetParent();
+  if (!device)
+    return ER_INVALID_ADDRESS;
+
+  shared_ptr<MockAdapter> adapter = device->GetParent();
+  if (!adapter)
+    return ER_INVALID_ADDRESS;
+
+  // TODO: set prop with latest stuff
+  
+  return ER_OK;
 }
 
 
@@ -96,7 +122,24 @@ QStatus AdapterLib::MockAdapter::SetProperty(
     shared_ptr<Bridge::IAdapterProperty> const& prop,
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
-  return ER_NOT_IMPLEMENTED;
+  if (req)
+    *req = NULL;
+
+  shared_ptr<MockAdapterProperty> mockAdapterProperty = dynamic_pointer_cast<MockAdapterProperty>(prop);
+  if (!mockAdapterProperty)
+    return ER_BAD_ARG_1;
+
+  shared_ptr<MockAdapterDevice> device = mockAdapterProperty->GetParent();
+  if (!device)
+    return ER_INVALID_ADDRESS;
+
+  shared_ptr<MockAdapter> adapter = device->GetParent();
+  if (!adapter)
+    return ER_INVALID_ADDRESS;
+
+  // TODO: set internal state from prop->GetData()
+  
+  return ER_OK;
 }
 
 
@@ -106,7 +149,20 @@ QStatus AdapterLib::MockAdapter::GetPropertyValue(
     shared_ptr<Bridge::IAdapterValue>& value,
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
-  return ER_NOT_IMPLEMENTED;
+  if (req)
+    *req = NULL;
+
+  shared_ptr<MockAdapterProperty> mockAdapterProperty = dynamic_pointer_cast<MockAdapterProperty>(prop);
+  if (!mockAdapterProperty)
+    return ER_BAD_ARG_1;
+
+  shared_ptr<MockAdapterValue> attr = mockAdapterProperty->GetAttributeByName(attributeName);
+  if (!attr)
+    return ER_INVALID_ADDRESS;
+
+  value = dynamic_pointer_cast<Bridge::IAdapterValue>(attr);
+
+  return ER_OK;
 }
 
 
@@ -115,7 +171,20 @@ QStatus AdapterLib::MockAdapter::SetPropertyValue(
     shared_ptr<Bridge::IAdapterValue> const& value,
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
-  return ER_NOT_IMPLEMENTED;
+  if (req)
+    *req = NULL;
+
+  shared_ptr<MockAdapterProperty> mockAdapterProperty = dynamic_pointer_cast<MockAdapterProperty>(prop);
+  if (!mockAdapterProperty)
+    return ER_BAD_ARG_1;
+
+  shared_ptr<MockAdapterValue> attr = mockAdapterProperty->GetAttributeByName(value->GetName());
+  if (!attr)
+    return ER_INVALID_ADDRESS;
+
+  attr->SetData(value->GetData());
+
+  return ER_OK;
 }
 
 
@@ -164,27 +233,33 @@ QStatus AdapterLib::MockAdapter::UnregisterSignalListener(Bridge::IAdapter::Regi
     }
   }
   return st;
-
-  return ER_NOT_IMPLEMENTED;
 }
 
 void AdapterLib::MockAdapter::CreateMockDevices()
 {
+  shared_ptr<MockAdapter> self = dynamic_pointer_cast<MockAdapter>(shared_from_this());
+
   typedef std::vector<AdapterLib::MockDeviceDescriptor> vector;
 
   vector devices = AdapterLib::GetMockDevices();
   for (vector::const_iterator begin = devices.begin(), end = devices.end();
     begin != end; ++begin)
   {
-    shared_ptr<MockAdapter> self = dynamic_pointer_cast<MockAdapter>(shared_from_this());
-    shared_ptr<MockAdapterDevice> dev(new MockAdapterDevice(*begin, self));
+    shared_ptr<MockAdapterDevice> dev = MockAdapterDevice::Create(*begin, self);
     m_devices.push_back(dev);
   }
 }
 
 void AdapterLib::MockAdapter::CreateSignals()
 {
-  //shared_ptr<MockAdapterSignal> signal(new MockAdapterSignal());
+  shared_ptr<MockAdapterDevice> parent;
+
+  Bridge::AdapterValueVector values;
+
+  shared_ptr<MockAdapterValue> val(new MockAdapterValue(Bridge::kDeviceArravalHandle));
+  shared_ptr<MockAdapterSignal> signal(new MockAdapterSignal(Bridge::kDeviceArrivalSignal,
+    parent, values));
+  m_signals.push_back(signal);
 }
 
 QStatus AdapterLib::MockAdapter::NotifySignalListeners(shared_ptr<MockAdapterSignal> const& signal)
