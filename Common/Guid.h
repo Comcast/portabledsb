@@ -12,8 +12,13 @@ namespace Common
     {
       uuid_t uuid;
       uuid_generate_random(uuid);
-
+      
+      #ifdef __linux__
+      char* s;
+      #else
       uuid_string_t s;
+      #endif
+
       uuid_unparse(uuid, s);
 
       return Guid(std::string(s));

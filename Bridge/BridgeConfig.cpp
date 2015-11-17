@@ -3,6 +3,7 @@
 
 #include <string>
 #include <sstream>
+#include <string.h>
 
 #include <strings.h>
 #include <libxml/tree.h>

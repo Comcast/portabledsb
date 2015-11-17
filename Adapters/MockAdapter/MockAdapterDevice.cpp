@@ -61,7 +61,7 @@ int32_t MockAdapterDevice::DispatchMethod(
   shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
   if (req)
-    *req = NULL;
+    req->reset();
 
   int32_t st = ER_OK;
   if (method->GetName() == kDeviceResetMethod)

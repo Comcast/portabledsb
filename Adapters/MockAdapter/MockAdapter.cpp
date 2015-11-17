@@ -84,7 +84,8 @@ int32_t AdapterLib::MockAdapter::EnumDevices(
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
   if (req)
-    *req = NULL;
+    req->reset();
+    
 
   deviceList.clear();
   std::copy(m_devices.begin(), m_devices.end(), std::back_inserter(deviceList));
@@ -98,7 +99,7 @@ int32_t AdapterLib::MockAdapter::GetProperty(
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
   if (req)
-    *req = NULL;
+    req->reset();
 
   shared_ptr<MockAdapterProperty> mockAdapterProperty = dynamic_pointer_cast<MockAdapterProperty>(prop);
   if (!mockAdapterProperty)
@@ -123,7 +124,7 @@ int32_t AdapterLib::MockAdapter::SetProperty(
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
   if (req)
-    *req = NULL;
+    req ->reset();
 
   shared_ptr<MockAdapterProperty> mockAdapterProperty = dynamic_pointer_cast<MockAdapterProperty>(prop);
   if (!mockAdapterProperty)
@@ -150,7 +151,7 @@ int32_t AdapterLib::MockAdapter::GetPropertyValue(
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
   if (req)
-    *req = NULL;
+    req->reset();
 
   shared_ptr<MockAdapterProperty> mockAdapterProperty = dynamic_pointer_cast<MockAdapterProperty>(prop);
   if (!mockAdapterProperty)
@@ -172,7 +173,7 @@ int32_t AdapterLib::MockAdapter::SetPropertyValue(
     shared_ptr<Bridge::IAdapterIoRequest>* req)
 {
   if (req)
-    *req = NULL;
+    req->reset(); 
 
   shared_ptr<MockAdapterProperty> mockAdapterProperty = dynamic_pointer_cast<MockAdapterProperty>(prop);
   if (!mockAdapterProperty)

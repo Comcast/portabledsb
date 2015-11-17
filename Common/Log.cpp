@@ -7,6 +7,11 @@
 #include <sys/time.h>
 #include <time.h>
 
+#ifdef __linux__
+#include <unistd.h>
+#include <sys/syscall.h>
+#endif
+
 #include <map>
 
 namespace
@@ -55,7 +60,7 @@ namespace
   pthread_t GetCurrentThreadId() { return pthread_self(); }
   #else
   #define ThreadId_FMT "%d"
-  int32_t GetCurrentThreadId() { return syscall(SYS_gettid); }
+  int32_t GetCurrentThreadId() { return syscall(__NR_gettid); }
   #endif
 }
 
