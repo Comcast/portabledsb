@@ -54,25 +54,36 @@ namespace Bridge
     class AdapterSignalListener : public IAdapterSignalListener
     {
     public:
-      AdapterSignalListener(shared_ptr<DeviceSystemBridge> const& parent)
-        : m_parent(parent) { }
+      AdapterSignalListener(DeviceSystemBridge& parent)
+        : m_parent(parent)
+        , m_shuttingDown(false)
+      {
+      }
 
       virtual void AdapterSignalHandler(IAdapterSignal const& signal, void* argp)
       {
-        shared_ptr<DeviceSystemBridge> dsb = m_parent.lock();
-        if (dsb)
-          dsb->OnAdapterSignal(signal, argp);
+        if (m_shuttingDown)
+        {
+          return;
+        }
+        m_parent.OnAdapterSignal(signal, argp);
+      }
+
+      void Shutdown()
+      {
+        m_shuttingDown = true;
       }
       
     private:
-      weak_ptr<DeviceSystemBridge> m_parent;
+      DeviceSystemBridge& m_parent;
+      bool m_shuttingDown;
     };
 
   private:
     bool                              m_alljoynInitialized;
     shared_ptr<IAdapter>              m_adapter;
     BridgeDeviceList                  m_deviceList;
-    shared_ptr<AdapterSignalListener> m_adapterSignaListener;
+    shared_ptr<AdapterSignalListener> m_adapterSignalListener;
     std::vector<IAdapter::RegistrationHandle> m_registeredSignalListeners;
   };
 }
