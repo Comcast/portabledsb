@@ -162,7 +162,7 @@ Leave:
   return ret == 0 ? ER_OK : ER_FAIL;
 }
 
-void Bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void* argp)
+void Bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void*)
 {
   // TODO
   shared_ptr<IAdapterDevice> adapterDevice;
