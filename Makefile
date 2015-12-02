@@ -21,10 +21,10 @@ LDFLAGS=-L $(ALLJOYN_INSTALL_DIR)/lib -lalljoyn -lcrypto -lxml2 -pthread -luuid
 DEV_PROVIDER_OBJS=$(patsubst %.cpp, %.o, $(SRCS))
 OBJS=$(DEV_PROVIDER_OBJS)
 
-all: moc-adapter 
+all: moc-adapter
 
 clean:
-	$(RM) MockAdapter core DeviceProviders/*.o Bridge/*.o Common/*.o Adapters/MockAdapter/*.o
+	$(RM) moc-adapter *.o DeviceProviders/*.o Bridge/*.o Common/*.o Adapters/MockAdapter/*.o
 
 moc-adapter: $(OBJS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
