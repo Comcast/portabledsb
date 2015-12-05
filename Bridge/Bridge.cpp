@@ -8,8 +8,6 @@ namespace
 {
   DSB_DECLARE_LOGNAME(DeviceSystemBridge);
 
-  shared_ptr<Bridge::DeviceSystemBridge> g_Instance;
-
   int32_t const kWaitTimeoutForAdapterOperation = 20000; //ms
   std::string const kDeviceArrivalSignal = "Device_Arrival";
   std::string const kDeviceArriaveDeviceHandle = "Device_Handle";
@@ -25,11 +23,13 @@ namespace
 Bridge::DeviceSystemBridge::DeviceSystemBridge(shared_ptr<IAdapter> const& adapter)
   : m_alljoynInitialized(false)
   , m_adapter(adapter)
+  , m_adapterSignalListener(new AdapterSignalListener(*this))
 {
 }
 
 Bridge::DeviceSystemBridge::~DeviceSystemBridge()
 {
+  m_adapterSignalListener->Shutdown();
   Shutdown();
   m_adapter.reset();
 }
@@ -57,11 +57,6 @@ Leave:
   if (st != ER_OK)
   {
     Shutdown();
-  }
-  else
-  {
-    g_Instance = shared_from_this();
-    m_adapterSignaListener = shared_ptr<AdapterSignalListener>(new AdapterSignalListener(shared_from_this()));
   }
 
   return st;
@@ -117,8 +112,6 @@ QStatus Bridge::DeviceSystemBridge::Shutdown()
     m_alljoynInitialized = false;
   }
 
-  g_Instance.reset();
-
   return st;
 }
 
@@ -162,7 +155,7 @@ Leave:
   return ret == 0 ? ER_OK : ER_FAIL;
 }
 
-void Bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void* argp)
+void Bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void*)
 {
   // TODO
   shared_ptr<IAdapterDevice> adapterDevice;
@@ -201,15 +194,13 @@ QStatus Bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegiste
 {
   QStatus st = ER_OK;
 
-  shared_ptr<IAdapterSignalListener> listener = dynamic_pointer_cast<IAdapterSignalListener>(g_Instance);
-
   if (isRegister)
   {
     AdapterSignalVector signals = m_adapter->GetSignals();
     for (AdapterSignalVector::const_iterator itr = signals.begin(); itr != signals.end(); ++itr)
     {
         Bridge::IAdapter::RegistrationHandle handle;
-        int ret = m_adapter->RegisterSignalListener((*itr)->GetName(), listener, NULL, handle);
+        int ret = m_adapter->RegisterSignalListener((*itr)->GetName(), m_adapterSignalListener, NULL, handle);
         if (ret != 0)
         {
           DSBLOG_WARN("failed to register signal listener on adapter: 0x%x", st);

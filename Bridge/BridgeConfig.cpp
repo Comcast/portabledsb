@@ -136,7 +136,7 @@ QStatus Bridge::BridgeConfig::FromFile(std::string const& fileName)
     xmlFreeDoc(m_doc);
 
   m_doc = doc;
-  return ER_OK;
+  return st;
 }
 
 QStatus Bridge::BridgeConfig::ToFile(std::string const& fileName)

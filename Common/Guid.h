@@ -14,7 +14,7 @@ namespace Common
       uuid_generate_random(uuid);
       
       #ifdef __linux__
-      char* s;
+      char s[37];
       #else
       uuid_string_t s;
       #endif

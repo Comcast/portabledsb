@@ -6,7 +6,7 @@ QStatus Bridge::BridgeDevice::Shutdown()
   return st;
 }
 
-QStatus Bridge::BridgeDevice::Initialize(shared_ptr<IAdapterDevice> const& dev)
+QStatus Bridge::BridgeDevice::Initialize(shared_ptr<IAdapterDevice> const&)
 {
   QStatus st = ER_OK;
   return st;
