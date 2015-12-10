@@ -5,6 +5,7 @@
 #include "Adapters/MockAdapter/MockAdapter.h"
 
 #include "Common/Variant.h"
+#include <iostream>
 
 namespace
 {
@@ -45,15 +46,35 @@ int main(int /*argc*/, char* /*argv*/ [])
 
   QStatus st = ER_OK;
 
-  // TODO: should be unique_ptr and ownership give to bridge
-  shared_ptr<Bridge::IAdapter> adapter(new AdapterLib::MockAdapter());
+  shared_ptr<Bridge::DeviceSystemBridge> bridge(new Bridge::DeviceSystemBridge(
+    shared_ptr<Bridge::IAdapter>(new AdapterLib::MockAdapter())));
 
-  shared_ptr<Bridge::DeviceSystemBridge> bridge(new Bridge::DeviceSystemBridge(adapter));
   st = bridge->Initialize();
   if (st != ER_OK)
   {
     DSBLOG_ERROR("failed to initialize bridge: 0x%x", st);
     return 1;
+  }
+
+  shared_ptr<Bridge::IAdapter> adapter = bridge->GetAdapter();
+
+  Bridge::AdapterDeviceVector deviceList;
+  shared_ptr<Bridge::IAdapterIoRequest> req;
+
+    // TODO: do we need enums for this?
+  int32_t ret = adapter->EnumDevices(Bridge::EnumDeviceOptions::ForceRefresh, deviceList, &req);
+  if (ret != 0)
+  {
+    std::cout << "EnumDevices:" << ret << std::endl;
+    exit(0);
+  }
+
+  for (auto const& d : deviceList)
+  {
+    std::cout << "Device" << std::endl;
+    std::cout << "\tName:" << d->GetName() << std::endl;
+    std::cout << std::endl;
+    std::cout << std::endl;
   }
 
   return 0;
