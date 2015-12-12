@@ -107,18 +107,19 @@ namespace
   }
 }
 
-Bridge::BridgeConfig::BridgeConfig()
+bridge::BridgeConfig::BridgeConfig()
   : m_doc(NULL)
 {
 }
 
-Bridge::BridgeConfig::~BridgeConfig()
+bridge::BridgeConfig::~BridgeConfig()
 {
   if (m_doc)
     xmlFreeDoc(m_doc);
 }
 
-QStatus Bridge::BridgeConfig::FromFile(std::string const& fileName)
+QStatus
+bridge::BridgeConfig::FromFile(std::string const& fileName)
 {
   QStatus st = ER_OK;
 
@@ -139,7 +140,8 @@ QStatus Bridge::BridgeConfig::FromFile(std::string const& fileName)
   return st;
 }
 
-QStatus Bridge::BridgeConfig::ToFile(std::string const& fileName)
+QStatus
+bridge::BridgeConfig::ToFile(std::string const& fileName)
 {
   if (!m_doc)
     return ER_FAIL;
@@ -158,7 +160,8 @@ QStatus Bridge::BridgeConfig::ToFile(std::string const& fileName)
   return ER_OK;
 }
 
-QStatus Bridge::BridgeConfig::ToString(std::string& out)
+QStatus
+bridge::BridgeConfig::ToString(std::string& out)
 {
   xmlBufferPtr buff = xmlBufferCreate();
 
@@ -173,7 +176,8 @@ QStatus Bridge::BridgeConfig::ToString(std::string& out)
   return ER_OK;
 }
 
-QStatus Bridge::BridgeConfig::AddObject(DsbObjectConfig const& obj)
+QStatus
+bridge::BridgeConfig::AddObject(DsbObjectConfig const& obj)
 {
   xmlXPathContextPtr ctx = xmlXPathNewContext(m_doc);
   if (!ctx)
@@ -192,7 +196,8 @@ QStatus Bridge::BridgeConfig::AddObject(DsbObjectConfig const& obj)
   return ER_OK;
 }
 
-QStatus Bridge::BridgeConfig::RemoveObject(std::string const& id)
+QStatus
+bridge::BridgeConfig::RemoveObject(std::string const& id)
 {
   xmlXPathContextPtr ctx = xmlXPathNewContext(m_doc);
   if (!ctx)
@@ -209,7 +214,8 @@ QStatus Bridge::BridgeConfig::RemoveObject(std::string const& id)
   return ER_OK;
 }
 
-QStatus Bridge::BridgeConfig::FindObject(std::string const& id, DsbObjectConfig& obj)
+QStatus
+bridge::BridgeConfig::FindObject(std::string const& id, DsbObjectConfig& obj)
 {
   if (!m_doc)
     return ER_FAIL;
@@ -242,39 +248,45 @@ QStatus Bridge::BridgeConfig::FindObject(std::string const& id, DsbObjectConfig&
   return ER_OK;
 }
 
-std::string Bridge::BridgeConfig::GetBridgeKeyX() const
+std::string
+bridge::BridgeConfig::GetBridgeKeyX() const
 {
   return GetElementText(m_doc, "/BridgeConfig/Settings/Bridge/KEYX");
 }
 
-std::string Bridge::BridgeConfig::GetDeviceKeyX() const
+std::string
+bridge::BridgeConfig::GetDeviceKeyX() const
 {
   return GetElementText(m_doc, "/BridgeConfig/Settings/Device/KEYX");
 }
 
-std::string Bridge::BridgeConfig::GetDeviceUsername() const
+std::string
+bridge::BridgeConfig::GetDeviceUsername() const
 {
   return GetElementText(m_doc, "/BridgeConfig/Settings/Device/USERNAME");
 }
 
-std::string Bridge::BridgeConfig::GetDevicePassword() const
+std::string
+bridge::BridgeConfig::GetDevicePassword() const
 {
   return GetElementText(m_doc, "/BridgeConfig/Settings/Device/PASSWORD");
 }
 
-std::string Bridge::BridgeConfig::GetDeviceEcdheEcdsaPrivateKey() const
+std::string
+bridge::BridgeConfig::GetDeviceEcdheEcdsaPrivateKey() const
 {
   return GetElementText(m_doc, "/BridgeConfig/Settings/Device/ECDHEECDSAPRIVATEKEY");
 }
 
-std::string Bridge::BridgeConfig::GetDeviceEcdheEcdsaCertChain() const
+std::string
+bridge::BridgeConfig::GetDeviceEcdheEcdsaCertChain() const
 {
   return GetElementText(m_doc, "/BridgeConfig/Settings/Device/ECDHEECDSACERTCHAIN");
 }
 
-bool Bridge::BridgeConfig::GetDefaultVisibility() const
+bool
+bridge::BridgeConfig::GetDefaultVisibility() const
 {
   std::string s = GetElementText(m_doc, "/BridgeConfig/Settings/Device/DefaultVisibility");
   return ToBoolean(s);
 }
-

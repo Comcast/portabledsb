@@ -3,7 +3,7 @@
 
 namespace
 {
-  Common::Guid const kDefaultAppGuid = Common::Guid::FromString("DA9C7763-C3E0-4B3B-B190-5BEF8DF96E4D");
+  common::Guid const kDefaultAppGuid = common::Guid::FromString("DA9C7763-C3E0-4B3B-B190-5BEF8DF96E4D");
   char const* kDefaultLanguageForAbout = "en";
   char const* kUnknownAdapter = "Unknown Device";
   char const* kUnknownManufacturer = "Unknown";
@@ -17,7 +17,7 @@ namespace
   DSB_DECLARE_LOGNAME(AllJoynAbout);
 }
 
-using namespace Bridge;
+using namespace bridge;
 
 AllJoynAbout::AllJoynAbout()
   : m_isAnnounced(false)
@@ -30,14 +30,16 @@ AllJoynAbout::~AllJoynAbout()
   Shutdown();
 }
 
-QStatus AllJoynAbout::Initialize(ajn::BusAttachment& bus)
+QStatus
+AllJoynAbout::Initialize(ajn::BusAttachment& bus)
 {
   m_aboutObj.reset(new ajn::AboutObj(bus, ajn::BusObject::UNANNOUNCED));
   m_aboutData.reset(new ajn::AboutData(kDefaultLanguageForAbout));
   return SetDefaultAboutData();
 }
 
-QStatus AllJoynAbout::Shutdown()
+QStatus
+AllJoynAbout::Shutdown()
 {
   if (m_isAnnounced)
   {
@@ -54,7 +56,8 @@ QStatus AllJoynAbout::Shutdown()
   return ER_OK;
 }
 
-QStatus AllJoynAbout::SetDefaultAboutData()
+QStatus
+AllJoynAbout::SetDefaultAboutData()
 {
   std::string deviceId;
   std::string deviceName;
@@ -78,7 +81,8 @@ QStatus AllJoynAbout::SetDefaultAboutData()
   return ER_OK;
 }
 
-QStatus AllJoynAbout::GetDeviceId(std::string& deviceId)
+QStatus
+AllJoynAbout::GetDeviceId(std::string& deviceId)
 {
   deviceId.clear();
 
@@ -94,15 +98,17 @@ QStatus AllJoynAbout::GetDeviceId(std::string& deviceId)
   return st;
 }
 
-QStatus AllJoynAbout::ReadDeviceId(std::string&)
+QStatus
+AllJoynAbout::ReadDeviceId(std::string& s)
 {
   // TODO read from config
   return ER_FAIL;
 }
 
-QStatus AllJoynAbout::CreateAndSaveDeviceId(std::string& deviceId)
+QStatus
+AllJoynAbout::CreateAndSaveDeviceId(std::string& deviceId)
 {
-  Common::Guid guid = Common::Guid::Create();
+  common::Guid guid = common::Guid::Create();
   deviceId = guid.ToString();
 
   // TODO: need to persist this configuration 
@@ -110,73 +116,84 @@ QStatus AllJoynAbout::CreateAndSaveDeviceId(std::string& deviceId)
 }
 
 
-QStatus AllJoynAbout::SetManufacturer(char const* s)
+QStatus
+AllJoynAbout::SetManufacturer(char const* s)
 {
   return m_aboutData
     ? m_aboutData->SetManufacturer(s)
     : ER_INVALID_ADDRESS;
 }
 
-QStatus AllJoynAbout::SetDeviceName(char const* s)
+QStatus
+AllJoynAbout::SetDeviceName(char const* s)
 {
   return m_aboutData
     ? m_aboutData->SetDeviceName(s)
     : ER_INVALID_ADDRESS;
 }
 
-QStatus AllJoynAbout::SetVersion(char const* s)
+QStatus
+AllJoynAbout::SetVersion(char const* s)
 {
   return m_aboutData
     ? m_aboutData->SetSoftwareVersion(s)
     : ER_INVALID_ADDRESS;
 }
 
-QStatus AllJoynAbout::SetApplicationName(char const* s)
+QStatus
+AllJoynAbout::SetApplicationName(char const* s)
 {
   return m_aboutData
     ? m_aboutData->SetAppName(s)
     : ER_INVALID_ADDRESS;
 }
 
-QStatus AllJoynAbout::SetApplicationGuid(Common::Guid const& guid)
+QStatus
+AllJoynAbout::SetApplicationGuid(common::Guid const& guid)
 {
   return m_aboutData
     ? m_aboutData->SetAppId(guid.ToString().c_str())
     : ER_INVALID_ADDRESS;
 }
 
-QStatus AllJoynAbout::SetDeviceId(char const* s)
+QStatus
+AllJoynAbout::SetDeviceId(char const* s)
 {
   return m_aboutData
     ? m_aboutData->SetDeviceId(s)
     : ER_INVALID_ADDRESS;
 }
 
-QStatus AllJoynAbout::SetModel(char const* s)
+QStatus
+AllJoynAbout::SetModel(char const* s)
 {
   return m_aboutData
     ? m_aboutData->SetModelNumber(s)
     : ER_INVALID_ADDRESS;
 }
 
-QStatus AllJoynAbout::SetDescription(char const* s)
+QStatus
+AllJoynAbout::SetDescription(char const* s)
 {
   return m_aboutData
     ? m_aboutData->SetDescription(s)
     : ER_INVALID_ADDRESS;
 }
 
-QStatus AllJoynAbout::AddObject(ajn::BusObject& obj, ajn::InterfaceDescription const* ifc)
+QStatus
+AllJoynAbout::AddObject(ajn::BusObject& obj, ajn::InterfaceDescription const* ifc)
 {
   return obj.SetAnnounceFlag(ifc, ajn::BusObject::ANNOUNCED);
 }
 
-QStatus AllJoynAbout::RemoveObject(ajn::BusObject& obj, ajn::InterfaceDescription const* ifc)
+QStatus
+AllJoynAbout::RemoveObject(ajn::BusObject& obj, ajn::InterfaceDescription const* ifc)
 {
   return obj.SetAnnounceFlag(ifc, ajn::BusObject::UNANNOUNCED);
 }
 
-QStatus AllJoynAbout::Announce()
+QStatus
+AllJoynAbout::Announce()
 {
   QStatus st = ER_INIT_FAILED;
   if (m_aboutObj)
@@ -187,4 +204,3 @@ QStatus AllJoynAbout::Announce()
 
   return st;
 }
-

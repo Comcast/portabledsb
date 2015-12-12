@@ -3,15 +3,13 @@
 #include "Bridge/IAdapter.h"
 #include <alljoyn/Status.h>
 
-namespace Bridge
+namespace bridge
 {
   class BridgeDevice
   {
   public:
     QStatus Shutdown();
     QStatus Initialize(shared_ptr<IAdapterDevice> const& dev);
-
-  private:
   };
 }
 

@@ -1,7 +1,7 @@
 #include "Bridge/ConfigManager.h"
 #include "Bridge/IAdapter.h"
 
-using namespace Bridge;
+using namespace bridge;
 
 namespace
 {
@@ -21,14 +21,16 @@ ConfigManager::~ConfigManager()
   Shutdown();
 }
 
-int32_t ConfigManager::Initialize(shared_ptr<DeviceSystemBridge> const& bridge)
+int32_t
+ConfigManager::Initialize(shared_ptr<DeviceSystemBridge> const& bridge)
 {
   m_parent = bridge;
   m_bridgeConfig.FromFile(kBridgeConfigFile);
   return 0;
 }
 
-int32_t ConfigManager::Shutdown()
+int32_t
+ConfigManager::Shutdown()
 {
   ShutdownAllJoyn();
   m_adapter.reset();
@@ -36,12 +38,14 @@ int32_t ConfigManager::Shutdown()
   return 0;
 }
 
-int32_t ConfigManager::ShutdownAllJoyn()
+int32_t
+ConfigManager::ShutdownAllJoyn()
 {
   return 0;
 }
 
-int32_t ConfigManager::ConnectToAllJoyn(shared_ptr<IAdapter> const& adapter)
+int32_t
+ConfigManager::ConnectToAllJoyn(shared_ptr<IAdapter> const& adapter)
 {
   m_adapter = adapter;
 
@@ -59,9 +63,8 @@ int32_t ConfigManager::ConnectToAllJoyn(shared_ptr<IAdapter> const& adapter)
   return 0;
 }
 
-int32_t ConfigManager::BuildServiceName()
+int32_t
+ConfigManager::BuildServiceName()
 {
   return 0;
 }
-
-

@@ -5,7 +5,9 @@
 #include <vector>
 #include <alljoyn/Message.h>
 
-namespace AdapterLib
+namespace adapters
+{
+namespace mock
 {
   static const int kMockValueMaxSize = 128;
   static const int kMockPropertyMaxValues = 10;
@@ -85,5 +87,6 @@ namespace AdapterLib
   std::string AccessToString(MockPropertyAccess access);
   std::string PropertyTypeToString(MockPropertyType type);
   std::string PropertyAttributeIdToString(MockPropertyAttributeId attrid);
+}
 }
 

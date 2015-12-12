@@ -28,13 +28,15 @@ AllJoynService::~AllJoynService()
   Shutdown();
 }
 
-void AllJoynService::Initialize(ajn::MsgArg const& aboutDataArg, ajn::MsgArg const& objectDescriptionArg)
+void
+AllJoynService::Initialize(ajn::MsgArg const& aboutDataArg, ajn::MsgArg const& objectDescriptionArg)
 {
   m_aboutDataArg = aboutDataArg;
   m_objectDescriptionArg = objectDescriptionArg;
 }
 
-void AllJoynService::Shutdown()
+void
+AllJoynService::Shutdown()
 {
   if (m_sessionId != 0)
   {
@@ -55,7 +57,8 @@ void AllJoynService::Shutdown()
   pthread_mutex_unlock(&m_mutex);
 }
 
-shared_ptr<AllJoynBusObject> AllJoynService::GetBusObject(std::string const& path)
+shared_ptr<AllJoynBusObject>
+AllJoynService::GetBusObject(std::string const& path)
 {
   shared_ptr<AllJoynBusObject> busObject;
 
@@ -71,12 +74,14 @@ shared_ptr<AllJoynBusObject> AllJoynService::GetBusObject(std::string const& pat
   return busObject;
 }
 
-ajn::BusAttachment* AllJoynService::GetBusAttachment() const
+ajn::BusAttachment*
+AllJoynService::GetBusAttachment() const
 {
   return GetProvider()->GetBusAttachment();
 }
 
-void AllJoynService::OnSessionLost(ajn::SessionId /*sessionId*/, ajn::SessionListener::SessionLostReason /*reason*/)
+void
+AllJoynService::OnSessionLost(ajn::SessionId /*sessionId*/, ajn::SessionListener::SessionLostReason /*reason*/)
 {
   shared_ptr<AllJoynProvider> provider = GetProvider();
   if (provider)
@@ -85,27 +90,32 @@ void AllJoynService::OnSessionLost(ajn::SessionId /*sessionId*/, ajn::SessionLis
   }
 }
 
-void AllJoynService::OnSessionMemberAdded(ajn::SessionId /*sessionId*/, char const* /*uniqueName*/)
+void
+AllJoynService::OnSessionMemberAdded(ajn::SessionId /*sessionId*/, char const* /*uniqueName*/)
 {
 
 }
 
-void AllJoynService::OnSessionMemberRemoved(ajn::SessionId /*sessionId*/, char const* /*uniqueName*/)
+void
+AllJoynService::OnSessionMemberRemoved(ajn::SessionId /*sessionId*/, char const* /*uniqueName*/)
 {
 
 }
 
-void AllJoynService::SessionListener::SessionLost(ajn::SessionId sessionId, ajn::SessionListener::SessionLostReason reason)
+void
+AllJoynService::SessionListener::SessionLost(ajn::SessionId sessionId, ajn::SessionListener::SessionLostReason reason)
 {
   m_parent->OnSessionLost(sessionId, reason);
 }
 
-void AllJoynService::SessionListener::SessionMemberAdded(ajn::SessionId sessionId, char const* uniqueName)
+void
+AllJoynService::SessionListener::SessionMemberAdded(ajn::SessionId sessionId, char const* uniqueName)
 {
   m_parent->OnSessionMemberAdded(sessionId, uniqueName);
 }
 
-void AllJoynService::SessionListener::SessionMemberRemoved(ajn::SessionId sessionId, char const* uniqueName)
+void
+AllJoynService::SessionListener::SessionMemberRemoved(ajn::SessionId sessionId, char const* uniqueName)
 {
   m_parent->OnSessionMemberRemoved(sessionId, uniqueName);
 }

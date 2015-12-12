@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-namespace Bridge
+namespace bridge
 {
   std::string const kDeviceArrivalSignal = "Device_Arrival";
   std::string const kDeviceArravalHandle = "Device_Handle";
@@ -37,8 +37,8 @@ namespace Bridge
   public:
     virtual ~IAdapterValue() { }
     virtual std::string GetName() = 0;
-    virtual Common::Variant GetData() = 0;
-    virtual void SetData(Common::Variant const& msg) = 0;
+    virtual common::Variant GetData() = 0;
+    virtual void SetData(common::Variant const& msg) = 0;
   };
 
   class IAdapterProperty

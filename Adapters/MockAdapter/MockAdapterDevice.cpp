@@ -1,7 +1,7 @@
 #include "Adapters/MockAdapter/MockAdapterDevice.h"
 #include "Adapters/MockAdapter/MockAdapter.h"
 
-using namespace AdapterLib;
+using namespace adapters::mock;
 
 shared_ptr<MockAdapterDevice> MockAdapterDevice::Create(
     MockDeviceDescriptor const& desc,
@@ -15,7 +15,7 @@ shared_ptr<MockAdapterDevice> MockAdapterDevice::Create(
     if (descriptor.Id == kLastDescriptorId)
       break;
 
-    device->m_properties.push_back(shared_ptr<Bridge::IAdapterProperty>(
+    device->m_properties.push_back(shared_ptr<bridge::IAdapterProperty>(
           new MockAdapterProperty(descriptor, device)));
   }
 
@@ -40,9 +40,9 @@ MockAdapterDevice::MockAdapterDevice(MockDeviceDescriptor const& desc, weak_ptr<
 
 void MockAdapterDevice::CreateSignals()
 {
-  Bridge::AdapterValueVector params;
+  bridge::AdapterValueVector params;
   m_signalPrototypes.push_back(shared_ptr<MockAdapterSignal>(new MockAdapterSignal(
-          Bridge::kChangeOfValueSignal, shared_from_this(), params)));
+          bridge::kChangeOfValueSignal, shared_from_this(), params)));
 
   // TODO: This is incomplete, re-visit once signal emit is worked on 
 }
@@ -52,13 +52,13 @@ void MockAdapterDevice::CreateMethods()
   shared_ptr<MockAdapterDevice> self = shared_from_this();
 
   shared_ptr<MockAdapterMethod> m(new MockAdapterMethod(kDeviceResetMethod, self));
-  m->AddInputParam(shared_ptr<Bridge::IAdapterValue>(new MockAdapterValue(kDeviceResetPropertyHandle)));
+  m->AddInputParam(shared_ptr<bridge::IAdapterValue>(new MockAdapterValue(kDeviceResetPropertyHandle)));
   m_methods.push_back(m);
 }
 
 int32_t MockAdapterDevice::DispatchMethod(
   shared_ptr<MockAdapterMethod>& method,
-  shared_ptr<Bridge::IAdapterIoRequest>* req)
+  shared_ptr<bridge::IAdapterIoRequest>* req)
 {
   if (req)
     req->reset();
@@ -87,7 +87,7 @@ int32_t MockAdapterDevice::SendSignal(
   if (!parent)
     return ER_FAIL;
 
-  typedef Bridge::AdapterSignalVector::const_iterator iterator;
+  typedef bridge::AdapterSignalVector::const_iterator iterator;
   for (iterator begin = m_signalPrototypes.begin(), end = m_signalPrototypes.end();
     ((begin != end) && !signal); ++begin)
   {
@@ -103,14 +103,14 @@ int32_t MockAdapterDevice::SendSignal(
   if (!signal)
     return st;
 
-  if (signal->GetName() == Bridge::kChangeOfValueSignal)
+  if (signal->GetName() == bridge::kChangeOfValueSignal)
   {
-    Bridge::AdapterValueVector params;
+    bridge::AdapterValueVector params;
 
     shared_ptr<MockAdapterDevice> self = shared_from_this();
 
     shared_ptr<MockAdapterValue> p(new MockAdapterValue("PropertyName"));
-    p->SetData(Common::Variant(prop->GetName()));
+    p->SetData(common::Variant(prop->GetName()));
 
     shared_ptr<MockAdapterValue> v(new MockAdapterValue("PropertyValue"));
     v->SetData(value->GetData());
@@ -129,7 +129,7 @@ int32_t MockAdapterDevice::Reset(shared_ptr<MockAdapterMethod>& method)
 {
   int32_t st = ER_OK;
 
-  Bridge::AdapterValueVector const& inParams = method->GetInputParams();
+  bridge::AdapterValueVector const& inParams = method->GetInputParams();
   if (inParams.size() == 0)
   {
     // reset device
@@ -137,7 +137,7 @@ int32_t MockAdapterDevice::Reset(shared_ptr<MockAdapterMethod>& method)
   else if (inParams.size() == 1)
   {
     // reset property by name
-    shared_ptr<Bridge::IAdapterValue> arg1 = inParams[0];
+    shared_ptr<bridge::IAdapterValue> arg1 = inParams[0];
     if (!arg1)
       return ER_BAD_ARG_1;
   }
@@ -182,17 +182,17 @@ std::string MockAdapterDevice::GetDescription()
   return m_description;
 }
 
-Bridge::AdapterPropertyVector const& MockAdapterDevice::GetProperties() const
+bridge::AdapterPropertyVector const& MockAdapterDevice::GetProperties() const
 {
   return m_properties;
 }
 
-Bridge::AdapterMethodVector const& MockAdapterDevice::GetMethods() const
+bridge::AdapterMethodVector const& MockAdapterDevice::GetMethods() const
 {
   return m_methods;
 }
 
-Bridge::AdapterSignalVector const& MockAdapterDevice::GetSignals() const
+bridge::AdapterSignalVector const& MockAdapterDevice::GetSignals() const
 {
   return m_signalPrototypes;
 }
@@ -211,7 +211,7 @@ std::string MockAdapterProperty::GetName()
 
 shared_ptr<MockAdapterValue> MockAdapterProperty::GetAttributeByName(std::string const& name)
 {
-  typedef Bridge::AdapterValueVector::const_iterator iterator;
+  typedef bridge::AdapterValueVector::const_iterator iterator;
   for (iterator begin = m_attributes.begin(), end = m_attributes.end(); begin != end; ++begin)
   {
     if ((*begin)->GetName() == name)
@@ -221,7 +221,7 @@ shared_ptr<MockAdapterValue> MockAdapterProperty::GetAttributeByName(std::string
 }
 
 
-Bridge::AdapterValueVector MockAdapterProperty::GetAttributes()
+bridge::AdapterValueVector MockAdapterProperty::GetAttributes()
 {
   return m_attributes;
 }
@@ -247,32 +247,32 @@ std::string MockAdapterMethod::GetDescription()
   return m_description;
 }
 
-Bridge::AdapterValueVector const& MockAdapterMethod::GetInputParams() const
+bridge::AdapterValueVector const& MockAdapterMethod::GetInputParams() const
 {
   return m_inputParams;
 }
 
-Bridge::AdapterValueVector const& MockAdapterMethod::GetOutputParams() const
+bridge::AdapterValueVector const& MockAdapterMethod::GetOutputParams() const
 {
   return m_outputParams;
 }
 
-void MockAdapterMethod::SetInputParams(Bridge::AdapterValueVector const& params)
+void MockAdapterMethod::SetInputParams(bridge::AdapterValueVector const& params)
 {
   m_inputParams = params;
 }
 
-void MockAdapterMethod::SetOutputParams(Bridge::AdapterValueVector const& params)
+void MockAdapterMethod::SetOutputParams(bridge::AdapterValueVector const& params)
 {
   m_outputParams = params;
 }
 
-void MockAdapterMethod::AddInputParam(shared_ptr<Bridge::IAdapterValue> const& p)
+void MockAdapterMethod::AddInputParam(shared_ptr<bridge::IAdapterValue> const& p)
 {
   m_inputParams.push_back(p);
 }
 
-void MockAdapterMethod::AddOutputParam(shared_ptr<Bridge::IAdapterValue> const& p)
+void MockAdapterMethod::AddOutputParam(shared_ptr<bridge::IAdapterValue> const& p)
 {
   m_outputParams.push_back(p);
 }
@@ -298,12 +298,12 @@ std::string MockAdapterValue::GetName()
   return m_name;
 }
 
-Common::Variant MockAdapterValue::GetData()
+common::Variant MockAdapterValue::GetData()
 {
   return m_data;
 }
 
-void MockAdapterValue::SetData(Common::Variant const& v)
+void MockAdapterValue::SetData(common::Variant const& v)
 {
   m_data = v;
 }
@@ -311,7 +311,7 @@ void MockAdapterValue::SetData(Common::Variant const& v)
 MockAdapterSignal::MockAdapterSignal(
       std::string const& name,
       weak_ptr<MockAdapterDevice> const& parent,
-      Bridge::AdapterValueVector const& params)
+      bridge::AdapterValueVector const& params)
   : m_name(name)
   , m_parent(parent)
   , m_params(params)
@@ -333,7 +333,7 @@ std::string MockAdapterSignal::GetName() const
   return m_name;
 }
 
-Bridge::AdapterValueVector const& MockAdapterSignal::GetParams() const
+bridge::AdapterValueVector const& MockAdapterSignal::GetParams() const
 {
   return m_params;
 }

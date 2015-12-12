@@ -5,7 +5,7 @@
 
 struct _xmlDoc;
 
-namespace Bridge
+namespace bridge
 {
   class BridgeConfig;
 

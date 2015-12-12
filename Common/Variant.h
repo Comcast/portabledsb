@@ -5,7 +5,7 @@
 #include <string>
 #include <string.h>
 
-namespace Common
+namespace common
 {
   class Variant
   {

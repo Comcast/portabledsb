@@ -7,14 +7,14 @@
 
 namespace
 {
-  Bridge::IAdapter::RegistrationHandle nextHandle = 0;
-  Bridge::IAdapter::RegistrationHandle GetNextRegistrationHandle()
+  bridge::IAdapter::RegistrationHandle nextHandle = 0;
+  bridge::IAdapter::RegistrationHandle GetNextRegistrationHandle()
   {
     return ++nextHandle;
   }
 }
 
-AdapterLib::MockAdapter::MockAdapter()
+adapters::mock::MockAdapter::MockAdapter()
   : m_vendor("Acme")
   , m_adapterName("DSB Mock Adapter")
   , m_exposedAdapterPrefix("com." + m_vendor)
@@ -24,47 +24,54 @@ AdapterLib::MockAdapter::MockAdapter()
   // TODO: get m_exposedApplicatioName and Prefix from config
 }
 
-AdapterLib::MockAdapter::~MockAdapter()
+adapters::mock::MockAdapter::~MockAdapter()
 {
 }
 
-std::string AdapterLib::MockAdapter::GetVendor()
+std::string
+adapters::mock::MockAdapter::GetVendor()
 {
   return m_vendor;
 }
 
-std::string AdapterLib::MockAdapter::GetAdapterName()
+std::string
+adapters::mock::MockAdapter::GetAdapterName()
 {
   return m_adapterName;
 }
 
-std::string AdapterLib::MockAdapter::GetVersion()
+std::string
+adapters::mock::MockAdapter::GetVersion()
 {
   return m_version;
 }
 
-std::string AdapterLib::MockAdapter::GetExposedAdapterPrefix()
+std::string
+adapters::mock::MockAdapter::GetExposedAdapterPrefix()
 {
   return m_exposedAdapterPrefix;
 }
 
-std::string AdapterLib::MockAdapter::GetExposedApplicationName()
+std::string
+adapters::mock::MockAdapter::GetExposedApplicationName()
 {
   return m_exposedApplicationName;
 }
 
-std::string AdapterLib::MockAdapter::GetExposedApplicationGuid()
+std::string
+adapters::mock::MockAdapter::GetExposedApplicationGuid()
 {
   return m_exposedApplicationGuid;
 }
 
-Bridge::AdapterSignalVector AdapterLib::MockAdapter::GetSignals()
+bridge::AdapterSignalVector adapters::mock::MockAdapter::GetSignals()
 {
-  return Bridge::AdapterSignalVector();
+  return bridge::AdapterSignalVector();
 }
 
 
-int32_t AdapterLib::MockAdapter::Initialize()
+int32_t
+adapters::mock::MockAdapter::Initialize()
 {
   CreateMockDevices();
   CreateSignals();
@@ -72,16 +79,18 @@ int32_t AdapterLib::MockAdapter::Initialize()
 }
 
 
-int32_t AdapterLib::MockAdapter::Shutdown()
+int32_t
+adapters::mock::MockAdapter::Shutdown()
 {
   return ER_NOT_IMPLEMENTED;
 }
 
 
-int32_t AdapterLib::MockAdapter::EnumDevices(
-    Bridge::EnumDeviceOptions /*opts*/,
-    Bridge::AdapterDeviceVector& deviceList,
-    shared_ptr<Bridge::IAdapterIoRequest>* req)
+int32_t
+adapters::mock::MockAdapter::EnumDevices(
+    bridge::EnumDeviceOptions /*opts*/,
+    bridge::AdapterDeviceVector& deviceList,
+    shared_ptr<bridge::IAdapterIoRequest>* req)
 {
   if (req)
     req->reset();
@@ -94,9 +103,10 @@ int32_t AdapterLib::MockAdapter::EnumDevices(
 }
 
 
-int32_t AdapterLib::MockAdapter::GetProperty(
-    shared_ptr<Bridge::IAdapterProperty>& prop,
-    shared_ptr<Bridge::IAdapterIoRequest>* req)
+int32_t
+adapters::mock::MockAdapter::GetProperty(
+    shared_ptr<bridge::IAdapterProperty>& prop,
+    shared_ptr<bridge::IAdapterIoRequest>* req)
 {
   if (req)
     req->reset();
@@ -119,9 +129,10 @@ int32_t AdapterLib::MockAdapter::GetProperty(
 }
 
 
-int32_t AdapterLib::MockAdapter::SetProperty(
-    shared_ptr<Bridge::IAdapterProperty> const& prop,
-    shared_ptr<Bridge::IAdapterIoRequest>* req)
+int32_t
+adapters::mock::MockAdapter::SetProperty(
+    shared_ptr<bridge::IAdapterProperty> const& prop,
+    shared_ptr<bridge::IAdapterIoRequest>* req)
 {
   if (req)
     req ->reset();
@@ -144,11 +155,12 @@ int32_t AdapterLib::MockAdapter::SetProperty(
 }
 
 
-int32_t AdapterLib::MockAdapter::GetPropertyValue(
-    shared_ptr<Bridge::IAdapterProperty> const& prop,
+int32_t
+adapters::mock::MockAdapter::GetPropertyValue(
+    shared_ptr<bridge::IAdapterProperty> const& prop,
     std::string const& attributeName,
-    shared_ptr<Bridge::IAdapterValue>& value,
-    shared_ptr<Bridge::IAdapterIoRequest>* req)
+    shared_ptr<bridge::IAdapterValue>& value,
+    shared_ptr<bridge::IAdapterIoRequest>* req)
 {
   if (req)
     req->reset();
@@ -161,16 +173,17 @@ int32_t AdapterLib::MockAdapter::GetPropertyValue(
   if (!attr)
     return ER_INVALID_ADDRESS;
 
-  value = dynamic_pointer_cast<Bridge::IAdapterValue>(attr);
+  value = dynamic_pointer_cast<bridge::IAdapterValue>(attr);
 
   return ER_OK;
 }
 
 
-int32_t AdapterLib::MockAdapter::SetPropertyValue(
-    shared_ptr<Bridge::IAdapterProperty> const& prop,
-    shared_ptr<Bridge::IAdapterValue> const& value,
-    shared_ptr<Bridge::IAdapterIoRequest>* req)
+int32_t
+adapters::mock::MockAdapter::SetPropertyValue(
+    shared_ptr<bridge::IAdapterProperty> const& prop,
+    shared_ptr<bridge::IAdapterValue> const& value,
+    shared_ptr<bridge::IAdapterIoRequest>* req)
 {
   if (req)
     req->reset(); 
@@ -189,9 +202,10 @@ int32_t AdapterLib::MockAdapter::SetPropertyValue(
 }
 
 
-int32_t AdapterLib::MockAdapter::CallMethod(
-    shared_ptr<Bridge::IAdapterMethod>& method,
-    shared_ptr<Bridge::IAdapterIoRequest>* req)
+int32_t
+adapters::mock::MockAdapter::CallMethod(
+    shared_ptr<bridge::IAdapterMethod>& method,
+    shared_ptr<bridge::IAdapterIoRequest>* req)
 {
   shared_ptr<MockAdapterMethod> m = dynamic_pointer_cast<MockAdapterMethod>(method);
   if (!m)
@@ -205,11 +219,12 @@ int32_t AdapterLib::MockAdapter::CallMethod(
 }
 
 
-int32_t AdapterLib::MockAdapter::RegisterSignalListener(
+int32_t
+adapters::mock::MockAdapter::RegisterSignalListener(
     std::string const& signalName,
-    shared_ptr<Bridge::IAdapterSignalListener> const& listener,
+    shared_ptr<bridge::IAdapterSignalListener> const& listener,
     void* argp,
-    Bridge::IAdapter::RegistrationHandle& handle)
+    bridge::IAdapter::RegistrationHandle& handle)
 {
   RegisteredSignal reg;
   reg.Listener = listener;
@@ -220,7 +235,8 @@ int32_t AdapterLib::MockAdapter::RegisterSignalListener(
   return ER_OK;
 }
 
-int32_t AdapterLib::MockAdapter::UnregisterSignalListener(Bridge::IAdapter::RegistrationHandle const& h)
+int32_t
+adapters::mock::MockAdapter::UnregisterSignalListener(bridge::IAdapter::RegistrationHandle const& h)
 {
   int32_t st = ER_FAIL;
   for (SignalMap::iterator begin = m_signalListeners.begin(), end = m_signalListeners.end();
@@ -236,13 +252,14 @@ int32_t AdapterLib::MockAdapter::UnregisterSignalListener(Bridge::IAdapter::Regi
   return st;
 }
 
-void AdapterLib::MockAdapter::CreateMockDevices()
+void
+adapters::mock::MockAdapter::CreateMockDevices()
 {
   shared_ptr<MockAdapter> self = dynamic_pointer_cast<MockAdapter>(shared_from_this());
 
-  typedef std::vector<AdapterLib::MockDeviceDescriptor> vector;
+  typedef std::vector<adapters::mock::MockDeviceDescriptor> vector;
 
-  vector devices = AdapterLib::GetMockDevices();
+  vector devices = adapters::mock::GetMockDevices();
   for (vector::const_iterator begin = devices.begin(), end = devices.end();
     begin != end; ++begin)
   {
@@ -251,19 +268,21 @@ void AdapterLib::MockAdapter::CreateMockDevices()
   }
 }
 
-void AdapterLib::MockAdapter::CreateSignals()
+void
+adapters::mock::MockAdapter::CreateSignals()
 {
   shared_ptr<MockAdapterDevice> parent;
 
-  Bridge::AdapterValueVector values;
+  bridge::AdapterValueVector values;
 
-  shared_ptr<MockAdapterValue> val(new MockAdapterValue(Bridge::kDeviceArravalHandle));
-  shared_ptr<MockAdapterSignal> signal(new MockAdapterSignal(Bridge::kDeviceArrivalSignal,
+  shared_ptr<MockAdapterValue> val(new MockAdapterValue(bridge::kDeviceArravalHandle));
+  shared_ptr<MockAdapterSignal> signal(new MockAdapterSignal(bridge::kDeviceArrivalSignal,
     parent, values));
   m_signals.push_back(signal);
 }
 
-int32_t AdapterLib::MockAdapter::NotifySignalListeners(shared_ptr<MockAdapterSignal> const& signal)
+int32_t
+adapters::mock::MockAdapter::NotifySignalListeners(shared_ptr<MockAdapterSignal> const& signal)
 {
   int32_t st = ER_FAIL;
   if (!signal)

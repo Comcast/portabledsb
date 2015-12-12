@@ -9,7 +9,7 @@
 #include <alljoyn/InterfaceDescription.h>
 #include <alljoyn/Status.h>
 
-namespace Bridge
+namespace bridge
 {
   class AllJoynAbout
   {
@@ -28,7 +28,7 @@ namespace Bridge
     QStatus SetDeviceName(char const* s);
     QStatus SetVersion(char const* s);
     QStatus SetApplicationName(char const* s);
-    QStatus SetApplicationGuid(Common::Guid const& guid);
+    QStatus SetApplicationGuid(common::Guid const& guid);
     QStatus SetDeviceId(char const* s);
     QStatus SetModel(char const* s);
     QStatus SetDescription(char const* s);

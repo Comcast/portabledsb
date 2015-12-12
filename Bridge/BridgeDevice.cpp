@@ -1,12 +1,14 @@
 #include "Bridge/BridgeDevice.h"
 
-QStatus Bridge::BridgeDevice::Shutdown()
+QStatus
+bridge::BridgeDevice::Shutdown()
 {
   QStatus st = ER_OK;
   return st;
 }
 
-QStatus Bridge::BridgeDevice::Initialize(shared_ptr<IAdapterDevice> const&)
+QStatus
+bridge::BridgeDevice::Initialize(shared_ptr<IAdapterDevice> const&)
 {
   QStatus st = ER_OK;
   return st;

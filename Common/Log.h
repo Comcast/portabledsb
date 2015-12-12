@@ -8,7 +8,7 @@
 
 #include <stdarg.h>
 
-namespace Common
+namespace common
 {
   class Logger
   {
@@ -37,13 +37,13 @@ namespace Common
 
 
 #define DSBLOG_WITH_LEVEL(LEVEL, FORMAT, ...) \
-    do { if (Common::Logger::IsLevelEnabled(__dsb_logger_module_name__, LEVEL)) { \
-        Common::Logger::Write(__dsb_logger_module_name__, LEVEL, __FILE__, __LINE__ - 2, FORMAT, ##__VA_ARGS__); \
+    do { if (common::Logger::IsLevelEnabled(__dsb_logger_module_name__, LEVEL)) { \
+        common::Logger::Write(__dsb_logger_module_name__, LEVEL, __FILE__, __LINE__ - 2, FORMAT, ##__VA_ARGS__); \
     } } while (0)
 
 #define DSBLOG(LEVEL, NAME, FORMAT, ...) \
-    do { if (Common::Logger::IsLevelEnabled(NAME, Common::Logger::LEVEL)) { \
-        Common::Logger::Write(NAME, Common::Logger::LEVEL, __FILE__, __LINE__ - 2, FORMAT, ##__VA_ARGS__); \
+    do { if (common::Logger::IsLevelEnabled(NAME, common::Logger::LEVEL)) { \
+        common::Logger::Write(NAME, common::Logger::LEVEL, __FILE__, __LINE__ - 2, FORMAT, ##__VA_ARGS__); \
     } } while (0)
 
 

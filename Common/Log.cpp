@@ -24,24 +24,24 @@ namespace
       { return strcmp(s, t) < 0; }
   };
 
-  char const* LevelToString(Common::Logger::Level l)
+  char const* LevelToString(common::Logger::Level l)
   {
     char const* s = "unknown";
     switch (l)
     {
-      case Common::Logger::DSB_LOGLEVEL_OFF:
+      case common::Logger::DSB_LOGLEVEL_OFF:
         s = "OFF";
         break;
-      case Common::Logger::DSB_LOGLEVEL_DEBUG:
+      case common::Logger::DSB_LOGLEVEL_DEBUG:
         s = "DEBUG";
         break;
-      case Common::Logger::DSB_LOGLEVEL_INFO:
+      case common::Logger::DSB_LOGLEVEL_INFO:
         s = "INFO";
         break;
-      case Common::Logger::DSB_LOGLEVEL_WARN:
+      case common::Logger::DSB_LOGLEVEL_WARN:
         s = "WARN";
         break;
-      case Common::Logger::DSB_LOGLEVEL_ERROR:
+      case common::Logger::DSB_LOGLEVEL_ERROR:
         s = "ERROR";
         break;
       default:
@@ -50,10 +50,10 @@ namespace
     return s;
   }
 
-  typedef std::map<char const*, Common::Logger::Level, StringCompare> LevelMap;
+  typedef std::map<char const*, common::Logger::Level, StringCompare> LevelMap;
   LevelMap gLevelMap;
 
-  Common::Logger::Level sDefaultLoggingLevel = Common::Logger::DSB_LOGLEVEL_INFO;
+  common::Logger::Level sDefaultLoggingLevel = common::Logger::DSB_LOGLEVEL_INFO;
 
   #ifdef __APPLE__
   #define ThreadId_FMT "%p"
@@ -64,7 +64,8 @@ namespace
   #endif
 }
 
-void Common::Logger::Write(char const* module, Level level, char const* file,
+void
+common::Logger::Write(char const* module, Level level, char const* file,
         int line, char const* format, ...)
 { 
   va_list args;
@@ -73,9 +74,10 @@ void Common::Logger::Write(char const* module, Level level, char const* file,
   va_end(args);
 }
 
-bool Common::Logger::IsLevelEnabled(char const* module, Level level)
+bool
+common::Logger::IsLevelEnabled(char const* module, Level level)
 {
-  Common::Logger::Level minLevel = sDefaultLoggingLevel;
+  common::Logger::Level minLevel = sDefaultLoggingLevel;
   LevelMap::const_iterator itr = gLevelMap.find(module);
   if (itr != gLevelMap.end())
     minLevel = itr->second;
@@ -83,7 +85,8 @@ bool Common::Logger::IsLevelEnabled(char const* module, Level level)
   return level >= minLevel;
 }
 
-void Common::Logger::VaLog(const char* module, Level level, const char* /*file*/, int /*line*/,
+void
+common::Logger::VaLog(const char* module, Level level, const char* /*file*/, int /*line*/,
   const char* format, va_list args)
 {
   struct tm result;

@@ -14,27 +14,28 @@ namespace
   std::string const kDeviceRemovalSignal = "Device_Removal";
   std::string const kDeviceRemovalDeviceHandle = "Device_Handle";
 
-  inline Bridge::BridgeDeviceList::key_type GetKey(shared_ptr<Bridge::IAdapterDevice> const& dev)
+  inline bridge::BridgeDeviceList::key_type GetKey(shared_ptr<bridge::IAdapterDevice> const& dev)
   {
     return dev.get();
   }
 }
 
-Bridge::DeviceSystemBridge::DeviceSystemBridge(shared_ptr<IAdapter> const& adapter)
+bridge::DeviceSystemBridge::DeviceSystemBridge(shared_ptr<IAdapter> const& adapter)
   : m_alljoynInitialized(false)
   , m_adapter(adapter)
   , m_adapterSignalListener(new AdapterSignalListener(*this))
 {
 }
 
-Bridge::DeviceSystemBridge::~DeviceSystemBridge()
+bridge::DeviceSystemBridge::~DeviceSystemBridge()
 {
   m_adapterSignalListener->Shutdown();
   Shutdown();
   m_adapter.reset();
 }
 
-QStatus Bridge::DeviceSystemBridge::Initialize()
+QStatus
+bridge::DeviceSystemBridge::Initialize()
 {
   QStatus st = ER_OK;
 
@@ -62,7 +63,8 @@ Leave:
   return st;
 }
 
-QStatus Bridge::DeviceSystemBridge::InitializeInternal()
+QStatus
+bridge::DeviceSystemBridge::InitializeInternal()
 {
   QStatus st = ER_OK;
 
@@ -95,7 +97,8 @@ Leave:
   return st;
 }
 
-QStatus Bridge::DeviceSystemBridge::Shutdown()
+QStatus
+bridge::DeviceSystemBridge::Shutdown()
 {
   QStatus st = ER_OK;
 
@@ -115,7 +118,8 @@ QStatus Bridge::DeviceSystemBridge::Shutdown()
   return st;
 }
 
-QStatus Bridge::DeviceSystemBridge::InitializeAdapter()
+QStatus
+bridge::DeviceSystemBridge::InitializeAdapter()
 {
   if (!m_adapter)
   {
@@ -126,7 +130,8 @@ QStatus Bridge::DeviceSystemBridge::InitializeAdapter()
   return ret == 0 ? ER_OK : ER_FAIL;
 }
 
-QStatus Bridge::DeviceSystemBridge::InitializeDevices(bool update)
+QStatus
+bridge::DeviceSystemBridge::InitializeDevices(bool update)
 {
   AdapterDeviceVector deviceList;
   shared_ptr<IAdapterIoRequest> request;
@@ -155,7 +160,8 @@ Leave:
   return ret == 0 ? ER_OK : ER_FAIL;
 }
 
-void Bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void*)
+void
+bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void*)
 {
   // TODO
   shared_ptr<IAdapterDevice> adapterDevice;
@@ -190,7 +196,8 @@ Leave:
   return;
 }
 
-QStatus Bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegister)
+QStatus
+bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegister)
 {
   QStatus st = ER_OK;
 
@@ -199,7 +206,7 @@ QStatus Bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegiste
     AdapterSignalVector signals = m_adapter->GetSignals();
     for (AdapterSignalVector::const_iterator itr = signals.begin(); itr != signals.end(); ++itr)
     {
-        Bridge::IAdapter::RegistrationHandle handle;
+        IAdapter::RegistrationHandle handle;
         int ret = m_adapter->RegisterSignalListener((*itr)->GetName(), m_adapterSignalListener, NULL, handle);
         if (ret != 0)
         {
@@ -232,7 +239,8 @@ QStatus Bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegiste
   return st;
 }
 
-QStatus Bridge::DeviceSystemBridge::ShutdownInternal()
+QStatus
+bridge::DeviceSystemBridge::ShutdownInternal()
 {
   // m_configManager.Shutdown();
 
@@ -250,7 +258,8 @@ QStatus Bridge::DeviceSystemBridge::ShutdownInternal()
   return ER_OK;
 }
 
-QStatus Bridge::DeviceSystemBridge::UpdateDevice(shared_ptr<IAdapterDevice> const& dev, bool exposedOnAllJoynBus)
+QStatus
+bridge::DeviceSystemBridge::UpdateDevice(shared_ptr<IAdapterDevice> const& dev, bool exposedOnAllJoynBus)
 {
   QStatus st = ER_OK;
 
@@ -269,7 +278,8 @@ QStatus Bridge::DeviceSystemBridge::UpdateDevice(shared_ptr<IAdapterDevice> cons
   return st;
 }
 
-QStatus Bridge::DeviceSystemBridge::CreateDevice(shared_ptr<IAdapterDevice> const& dev)
+QStatus
+bridge::DeviceSystemBridge::CreateDevice(shared_ptr<IAdapterDevice> const& dev)
 {
   shared_ptr<BridgeDevice> newDevice(new BridgeDevice());
   
@@ -279,4 +289,3 @@ QStatus Bridge::DeviceSystemBridge::CreateDevice(shared_ptr<IAdapterDevice> cons
 
   return st;
 }
-

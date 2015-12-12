@@ -6,7 +6,7 @@
 
 #include <alljoyn/MsgArg.h>
 
-namespace Bridge
+namespace bridge
 {
   class DeviceMain;
 

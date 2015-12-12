@@ -8,7 +8,7 @@
 #include <alljoyn/SessionListener.h>
 #include <alljoyn/SessionPortListener.h>
 
-namespace Bridge
+namespace bridge
 {
   class IAdapter;
   class DeviceSystemBridge;

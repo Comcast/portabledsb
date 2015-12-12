@@ -15,7 +15,7 @@ namespace
 int main(int /*argc*/, char* /*argv*/ [])
 {
   #if 0
-  Bridge::BridgeConfig config;
+  bridge::bridgeConfig config;
   config.FromFile("/some/file.xml");
 
   std::cout << config.GetBridgeKeyX() << std::endl;
@@ -26,7 +26,7 @@ int main(int /*argc*/, char* /*argv*/ [])
   std::cout << config.GetDeviceEcdheEcdsaCertChain() << std::endl;
   std::cout << config.GetDefaultVisibility() << std::endl;
 
-  Bridge::DsbObjectConfig obj;
+  bridge::DsbObjectConfig obj;
   QStatus st = config.FindObject("/my/bus/object", obj);
 
   obj.SetId("/my/bus/object2");
@@ -46,8 +46,8 @@ int main(int /*argc*/, char* /*argv*/ [])
 
   QStatus st = ER_OK;
 
-  shared_ptr<Bridge::DeviceSystemBridge> bridge(new Bridge::DeviceSystemBridge(
-    shared_ptr<Bridge::IAdapter>(new AdapterLib::MockAdapter())));
+  shared_ptr<bridge::DeviceSystemBridge> bridge(new bridge::DeviceSystemBridge(
+    shared_ptr<bridge::IAdapter>(new adapters::mock::MockAdapter())));
 
   st = bridge->Initialize();
   if (st != ER_OK)
@@ -56,13 +56,13 @@ int main(int /*argc*/, char* /*argv*/ [])
     return 1;
   }
 
-  shared_ptr<Bridge::IAdapter> adapter = bridge->GetAdapter();
+  shared_ptr<bridge::IAdapter> adapter = bridge->GetAdapter();
 
-  Bridge::AdapterDeviceVector deviceList;
-  shared_ptr<Bridge::IAdapterIoRequest> req;
+  bridge::AdapterDeviceVector deviceList;
+  shared_ptr<bridge::IAdapterIoRequest> req;
 
     // TODO: do we need enums for this?
-  int32_t ret = adapter->EnumDevices(Bridge::EnumDeviceOptions::ForceRefresh, deviceList, &req);
+  int32_t ret = adapter->EnumDevices(bridge::EnumDeviceOptions::ForceRefresh, deviceList, &req);
   if (ret != 0)
   {
     std::cout << "EnumDevices:" << ret << std::endl;

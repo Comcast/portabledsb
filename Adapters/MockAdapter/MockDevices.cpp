@@ -2,7 +2,7 @@
 
 namespace
 {
-  using namespace AdapterLib;
+  using namespace adapters::mock;
 
   const MockDeviceDescriptor kMockDevices[] = 
   {
@@ -160,13 +160,15 @@ namespace
   };
 }
 
-std::vector<AdapterLib::MockDeviceDescriptor> AdapterLib::GetMockDevices()
+std::vector<MockDeviceDescriptor>
+adapters::mock::GetMockDevices()
 {
   const int n = sizeof(kMockDevices) / sizeof(MockDeviceDescriptor);
-  return std::vector<AdapterLib::MockDeviceDescriptor>(kMockDevices, kMockDevices + n);
+  return std::vector<MockDeviceDescriptor>(kMockDevices, kMockDevices + n);
 }
 
-std::string AdapterLib::PropertyUnitsToString(MockPropertyUnits units)
+std::string
+adapters::mock::PropertyUnitsToString(MockPropertyUnits units)
 {
   std::string s = "Unsupported";
   switch (units)
@@ -186,7 +188,8 @@ std::string AdapterLib::PropertyUnitsToString(MockPropertyUnits units)
   return s;
 }
 
-std::string AdapterLib::AccessToString(MockPropertyAccess access)
+std::string
+adapters::mock::AccessToString(MockPropertyAccess access)
 {
   std::string s = "Unsupported";
   switch (access)
@@ -206,7 +209,8 @@ std::string AdapterLib::AccessToString(MockPropertyAccess access)
   return s;
 }
 
-std::string AdapterLib::PropertyTypeToString(MockPropertyType type)
+std::string
+adapters::mock::PropertyTypeToString(MockPropertyType type)
 {
   std::string s = "Unsupported";
   switch (type)
@@ -238,7 +242,8 @@ std::string AdapterLib::PropertyTypeToString(MockPropertyType type)
   return s;
 }
 
-std::string AdapterLib::PropertyAttributeIdToString(MockPropertyAttributeId attrId)
+std::string
+adapters::mock::PropertyAttributeIdToString(MockPropertyAttributeId attrId)
 {
   std::string s = "Unsupported";
   switch (attrId)

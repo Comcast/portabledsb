@@ -86,7 +86,8 @@ AllJoynStatus AllJoynProvider::Start()
   return AllJoynStatus(status);
 }
 
-void AllJoynProvider::Shutdown()
+void
+AllJoynProvider::Shutdown()
 {
   pthread_mutex_lock(&m_mutex);
   m_aboutQueueRun = false;
@@ -129,7 +130,8 @@ void AllJoynProvider::Shutdown()
   }
 }
 
-void AllJoynProvider::ProcessAboutAnnouncementQueue()
+void
+AllJoynProvider::ProcessAboutAnnouncementQueue()
 {
   typedef std::map<std::string, shared_ptr<AllJoynService> > service_map_type;
 
@@ -168,7 +170,8 @@ void AllJoynProvider::ProcessAboutAnnouncementQueue()
   }
 }
 
-void AllJoynProvider::RemoveSession(shared_ptr<AllJoynService> const& service)
+void
+AllJoynProvider::RemoveSession(shared_ptr<AllJoynService> const& service)
 {
   // TODO: Does this need to be on another thread? 
   service_vector_type::iterator itr;
@@ -186,7 +189,8 @@ void AllJoynProvider::RemoveSession(shared_ptr<AllJoynService> const& service)
 }
 
 
-void AllJoynProvider::AnnounceDiscovery(char const* serviceName, uint16_t /*version*/, ajn::SessionPort port,
+void
+AllJoynProvider::AnnounceDiscovery(char const* serviceName, uint16_t /*version*/, ajn::SessionPort port,
       ajn::MsgArg const& objectDescriptionArg, ajn::MsgArg const& aboutDataArg)
 {
   pthread_mutex_lock(&m_mutex);

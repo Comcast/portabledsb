@@ -8,7 +8,7 @@
 #include <map>
 #include <string>
 
-namespace Bridge
+namespace bridge
 {
   class IAdapter;
   class BridgeDevice;
@@ -80,10 +80,10 @@ namespace Bridge
     };
 
   private:
-    bool                              m_alljoynInitialized;
-    shared_ptr<IAdapter>              m_adapter;
-    BridgeDeviceList                  m_deviceList;
-    shared_ptr<AdapterSignalListener> m_adapterSignalListener;
+    bool                                      m_alljoynInitialized;
+    shared_ptr<IAdapter>                      m_adapter;
+    BridgeDeviceList                          m_deviceList;
+    shared_ptr<AdapterSignalListener>         m_adapterSignalListener;
     std::vector<IAdapter::RegistrationHandle> m_registeredSignalListeners;
   };
 }
