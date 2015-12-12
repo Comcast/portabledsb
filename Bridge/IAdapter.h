@@ -37,7 +37,7 @@ namespace bridge
   public:
     virtual ~IAdapterValue() { }
     virtual std::string GetName() = 0;
-    virtual common::Variant GetData() = 0;
+    virtual common::Variant const& GetData() = 0;
     virtual void SetData(common::Variant const& msg) = 0;
   };
 

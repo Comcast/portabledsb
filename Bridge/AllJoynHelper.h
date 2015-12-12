@@ -28,8 +28,7 @@ namespace bridge
 
     static QStatus GetAdapterObject(IAdapterValue& adapterValue, ajn::MsgArg const& msg, DeviceMain* deviceMain);
 
-    // TODO:
-    // static QStatus GetSignature(_In_ Windows::Foundation::PropertyType propertyType, _Out_ std::string &signature);
+    static QStatus GetSignature(common::Variant::DataType type, std::string& sig);
 
     static void EncodeBusObjectName(std::string const& s, std::string &builtName);
     static void EncodePropertyOrMethodOrSignalName(std::string const& s, std::string &builtName);
@@ -37,7 +36,7 @@ namespace bridge
     static void EncodeStringForServiceName(std::string const& s, std::string &encoded);
     static void EncodeStringForRootServiceName(std::string const& s, std::string &encoded);
     static void EncodeStringForAppName(std::string const& s, std::string &encodeString);
-    static std::string TimeChar(std::string const& s, char c);
+    static std::string TrimChar(std::string const& s, char c);
   };
 }
 

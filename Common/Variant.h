@@ -22,7 +22,19 @@ namespace common
       Int64,
       UInt64,
       Double,
-      String
+      String,
+
+      // array types
+      BooleanArray,
+      UInt8Array,
+      Int16Array,
+      UInt16Array,
+      Int32Array,
+      UInt32Array,
+      Int64Array,
+      UInt64Array,
+      DoubleArray,
+      StringArray,
     };
 
     Variant()               : m_type(DataType::Invalid) { m_data.v_uint64 = 0; }
@@ -35,6 +47,11 @@ namespace common
     Variant(int64_t x)      : m_type(DataType::Int64)   { m_data.v_int64 = x; }
     Variant(uint64_t t)     : m_type(DataType::UInt64)  { m_data.v_uint64 = t; }
     Variant(double d)       : m_type(DataType::Double)  { m_data.v_double = d; }
+
+    Variant(DataType t)     : m_type(t)
+    {
+      memset(&m_data, 0, sizeof(m_data));
+    }
 
     Variant(std::string const& s) : m_type(DataType::String)
     {
