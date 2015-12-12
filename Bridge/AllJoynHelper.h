@@ -16,10 +16,10 @@ namespace bridge
     static QStatus SetMsgArg(IAdapterValue const& adapterValue, ajn::MsgArg& msgArg);
     
     template<class T>
-    static QStatus SetMsgArg(ajn::MsgArg& msgArg, std::string const& signature, std::vector<T> const& arr);
+    static QStatus SetMsgArg(ajn::MsgArg& msgArg, std::string const& sig, std::vector<T> const& arr);
 
     template<class T>
-    static QStatus GetArrayFromMsgArg(ajn::MsgArg& msgArg, std::string const& signature, std::vector<T>& arr);
+    static QStatus GetArrayFromMsgArg(ajn::MsgArg& msgArg, std::string const& sig, std::vector<T>& arr);
 
     
     static QStatus SetMsgArgFromAdapterObject(IAdapterValue const& adapterValue, ajn::MsgArg& msg, DeviceMain* deviceMain);
@@ -38,5 +38,12 @@ namespace bridge
     static void EncodeStringForAppName(std::string const& s, std::string &encodeString);
     static std::string TrimChar(std::string const& s, char c);
   };
+
+  template<class T>
+  QStatus AllJoynHelper::SetMsgArg(ajn::MsgArg& msgArg, std::string const& sig, std::vector<T> const& arr)
+  {
+    QStatus st = ER_OK;
+    return st;
+  }
 }
 

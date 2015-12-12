@@ -3,9 +3,139 @@
 
 
 QStatus
-bridge::AllJoynHelper::SetMsgArg(IAdapterValue const& adapterValue, ajn::MsgArg& msgArg)
+bridge::AllJoynHelper::SetMsgArg(IAdapterValue const& adapterValue, ajn::MsgArg& m)
 {
-  return ER_NOT_IMPLEMENTED;
+  QStatus st = ER_OK;
+  std::string sig;
+  common::Variant const& val = adapterValue.GetData();
+
+  st = GetSignature(val.GetType(), sig);
+  if (st != ER_OK)
+    return st;
+
+  switch (val.GetType())
+  {
+    case common::Variant::DataType::Boolean:
+    {
+      bool b = val.ToBoolean();
+      st = m.Set(sig.c_str(), &b);
+    }
+    break;
+
+    case common::Variant::DataType::UInt8:
+    {
+      uint8_t i = val.ToUInt8();
+      st = m.Set(sig.c_str(), &i);
+    }
+    break;
+
+    case common::Variant::DataType::Int16:
+    {
+      int16_t i = val.ToInt16();
+      st = m.Set(sig.c_str(), &i);
+    }
+    break;
+
+    case common::Variant::DataType::UInt16:
+    {
+      uint16_t u = val.ToUInt16();
+      st = m.Set(sig.c_str(), &u);
+    }
+    break;
+
+    case common::Variant::DataType::Int32:
+    {
+      int32_t i = val.ToInt32();
+      st = m.Set(sig.c_str(), &i);
+    }
+    break;
+
+    case common::Variant::DataType::UInt32:
+    {
+      uint32_t u = val.ToUInt32();
+      st = m.Set(sig.c_str(), &u);
+    }
+    break;
+
+    case common::Variant::DataType::Int64:
+    {
+      int64_t l = val.ToInt64();
+      st = m.Set(sig.c_str(), &l);
+    }
+    break;
+
+    case common::Variant::DataType::UInt64:
+    {
+      uint64_t l = val.ToUInt64();
+      st = m.Set(sig.c_str(), &l);
+    }
+    break;
+
+    case common::Variant::DataType::Double:
+    {
+      double d = val.ToDouble();
+      st = m.Set(sig.c_str(), &d);
+    }
+    break;
+
+    case common::Variant::DataType::String:
+    {
+      std::string s = val.ToString();
+      if (!s.empty())
+      {
+        st = m.Set(sig.c_str(), s.c_str());
+        if (st == ER_OK)
+          m.Stabilize();
+      }
+      else
+      {
+        st = m.Set(sig.c_str(), "");
+      }
+    }
+    break;
+
+    case common::Variant::DataType::BooleanArray:
+      st = SetMsgArg<bool>(m, sig.c_str(), val.ToBooleanArray());
+    break;
+
+    case common::Variant::DataType::UInt8Array:
+      st = SetMsgArg<uint8_t>(m, sig.c_str(), val.ToUInt8Array());
+    break;
+
+    case common::Variant::DataType::Int16Array:
+      st = SetMsgArg<int16_t>(m, sig.c_str(), val.ToInt16Array());
+    break;
+
+    case common::Variant::DataType::UInt16Array:
+      st = SetMsgArg<uint16_t>(m, sig.c_str(), val.ToUInt16Array());
+    break;
+
+    case common::Variant::DataType::Int32Array:
+      st = SetMsgArg<int32_t>(m, sig.c_str(), val.ToInt32Array());
+    break;
+
+    case common::Variant::DataType::UInt32Array:
+      st = SetMsgArg<uint32_t>(m, sig.c_str(), val.ToUInt32Array());
+    break;
+
+    case common::Variant::DataType::Int64Array:
+      st = SetMsgArg<int64_t>(m, sig.c_str(), val.ToInt64Array());
+    break;
+
+    case common::Variant::DataType::UInt64Array:
+      st = SetMsgArg<uint64_t>(m, sig.c_str(), val.ToUInt64Array());
+    break;
+
+    case common::Variant::DataType::DoubleArray:
+      st = SetMsgArg<double>(m, sig.c_str(), val.ToDoubleArray());
+    break;
+
+    case common::Variant::DataType::StringArray:
+      st = SetMsgArg<std::string>(m, sig.c_str(), val.ToStringArray());
+    break;
+  }
+
+  return st;
 }
    
 QStatus
@@ -139,7 +269,6 @@ bridge::AllJoynHelper::EncodePropertyOrMethodOrSignalName(std::string const& s, 
       upperCaseNextChar = true;
     }
   }
-
 }
 
 void

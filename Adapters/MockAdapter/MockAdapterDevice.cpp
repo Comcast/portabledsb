@@ -298,7 +298,7 @@ std::string MockAdapterValue::GetName()
   return m_name;
 }
 
-common::Variant const& MockAdapterValue::GetData()
+common::Variant const& MockAdapterValue::GetData() const
 {
   return m_data;
 }

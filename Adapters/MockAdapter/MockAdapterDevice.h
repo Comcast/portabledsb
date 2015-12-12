@@ -94,7 +94,7 @@ namespace mock
     MockAdapterValue(std::string const& name);
 
     virtual std::string GetName();
-    virtual common::Variant const& GetData();
+    virtual common::Variant const& GetData() const;
     virtual void SetData(common::Variant const& v);
 
   private:
