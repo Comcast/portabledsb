@@ -40,10 +40,52 @@ namespace bridge
   };
 
   template<class T>
-  QStatus AllJoynHelper::SetMsgArg(ajn::MsgArg& msgArg, std::string const& sig, std::vector<T> const& arr)
+  QStatus AllJoynHelper::SetMsgArg(ajn::MsgArg& msg, std::string const& sig, std::vector<T> const& arr)
   {
     QStatus st = ER_OK;
+
+    if (!arr.empty())
+    {
+      st = msg.Set(sig.c_str(), arr.size(), &arr[0]);
+      msg.Stabilize();
+    }
+    else
+    {
+      T buff[1];
+      buff[0] = T();
+      st = msg.Set(sig.c_str(), 1, buff);
+      msg.Stabilize();
+    }
+
     return st;
   }
+
+  template<>
+  QStatus AllJoynHelper::SetMsgArg(ajn::MsgArg& msg, std::string const& sig, std::vector<std::string> const& arr)
+  {
+    QStatus st = ER_OK;
+
+    if (!arr.empty())
+    {
+      int n = static_cast<int>(arr.size());
+
+      typedef char const* value_type;
+      value_type* p = new value_type[n];
+
+      for (int i = 0; i < n; ++i)
+        p[i] = arr[i].c_str();
+        
+      st = msg.Set(sig.c_str(), n, p);
+      msg.Stabilize();
+    }
+    else
+    {
+      st = msg.Set(sig.c_str(), 1, "");
+      msg.Stabilize();
+    }
+
+    return st;
+  }
+ 
 }
 

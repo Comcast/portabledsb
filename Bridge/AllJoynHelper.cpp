@@ -1,5 +1,6 @@
 
 #include "AllJoynHelper.h"
+#include "DeviceMain.h"
 
 
 QStatus
@@ -15,6 +16,9 @@ bridge::AllJoynHelper::SetMsgArg(IAdapterValue const& adapterValue, ajn::MsgArg&
 
   switch (val.GetType())
   {
+    case common::Variant::DataType::Invalid:
+    break;
+
     case common::Variant::DataType::Boolean:
     {
       bool b = val.ToBoolean();
@@ -141,7 +145,12 @@ bridge::AllJoynHelper::SetMsgArg(IAdapterValue const& adapterValue, ajn::MsgArg&
 QStatus
 bridge::AllJoynHelper::SetMsgArgFromAdapterObject(IAdapterValue const& adapterValue, ajn::MsgArg& msg, DeviceMain* deviceMain)
 {
-  return ER_NOT_IMPLEMENTED;
+  // TODO:
+  QStatus st = ER_OK;
+  common::Variant const& val = adapterValue.GetData();
+  // std::string path = deviceMain->GetBusObjectPath(adapterValue);
+
+  return st;
 }
 
 QStatus
@@ -186,9 +195,7 @@ bridge::AllJoynHelper::GetAdapterObject(IAdapterValue& adapterValue, ajn::MsgArg
 QStatus
 bridge::AllJoynHelper::GetSignature(common::Variant::DataType type, std::string& sig)
 {
-  using namespace common;
-
-  #define setSignature(T, S) case Variant::DataType::T: sig = S; break
+  #define setSignature(T, S) case common::Variant::DataType::T: sig = S; break
 
   QStatus status = ER_OK;
   switch (type)

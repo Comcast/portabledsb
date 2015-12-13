@@ -1,9 +1,5 @@
 #include "Variant.h"
 
-namespace
-{
-  }
-
 common::Variant::Data::Data()
 {
   Type = DataType::Invalid;
