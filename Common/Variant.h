@@ -35,7 +35,7 @@ namespace common
       Int64Array,
       UInt64Array,
       DoubleArray,
-      StringArray,
+      StringArray
     };
 
     Variant();
@@ -53,12 +53,23 @@ namespace common
     Variant(std::string const& s);
     Variant(Variant const& other);
 
+    Variant(std::vector<bool> const& v);
+    Variant(std::vector<uint8_t> const& v);
+    Variant(std::vector<int16_t> const& v);
+    Variant(std::vector<uint16_t> const& v);
+    Variant(std::vector<int32_t> const& v);
+    Variant(std::vector<uint32_t> const& v);
+    Variant(std::vector<int64_t> const& v);
+    Variant(std::vector<uint64_t> const& v);
+    Variant(std::vector<double> const& v);
+    Variant(std::vector<std::string> const& v);
+
     Variant& operator=(Variant const& other);
 
     ~Variant();
 
     inline DataType GetType() const
-      { return m_type; }
+      { return m_data.Type; }
 
     inline bool ToBoolean(bool* ok = NULL) const
       { return Get<bool>(DataType::Boolean, ok); }
@@ -109,15 +120,15 @@ namespace common
       // no conversion for now
       switch (t)
       {
-        case DataType::Boolean: return m_data.v_bool;
-        case DataType::UInt8:   return m_data.v_uint8;
-        case DataType::Int16:   return m_data.v_int16;
-        case DataType::UInt16:  return m_data.v_uint16;
-        case DataType::Int32:   return m_data.v_int32;
-        case DataType::UInt32:  return m_data.v_uint32;
-        case DataType::Int64:   return m_data.v_int64;
-        case DataType::UInt64:  return m_data.v_uint64;
-        case DataType::Double:  return m_data.v_double;
+        case DataType::Boolean: return m_data.Item.v_bool;
+        case DataType::UInt8:   return m_data.Item.v_uint8;
+        case DataType::Int16:   return m_data.Item.v_int16;
+        case DataType::UInt16:  return m_data.Item.v_uint16;
+        case DataType::Int32:   return m_data.Item.v_int32;
+        case DataType::UInt32:  return m_data.Item.v_uint32;
+        case DataType::Int64:   return m_data.Item.v_int64;
+        case DataType::UInt64:  return m_data.Item.v_uint64;
+        case DataType::Double:  return m_data.Item.v_double;
         default:
           DSB_ASSERT(false);
           break;
@@ -137,10 +148,25 @@ namespace common
         *ok = false;
       return T();
     }
-   
-    DataType m_type;
 
-    union {
+    template<class T>
+    std::vector<T> GetArray(DataType t, bool *ok) const
+    {
+      if (CanConvert(t))
+      {
+        T* arr = (T *) m_data.Item.v_arr;
+
+        std::vector<T> v;
+        for (int i = 0; i < m_data.Size; ++i)
+          v.push_back(arr[i]);
+        return v;
+      }
+      if (ok)
+        *ok = false;
+      return std::vector<T>();
+    }
+
+    union DataItem {
       bool          v_bool;
       uint8_t       v_uint8;
       int16_t       v_int16;
@@ -151,8 +177,58 @@ namespace common
       uint64_t      v_uint64;
       double        v_double;
       std::string*  v_string;
-    } m_data;
+
+      // all arrays are stashed here
+      void*         v_arr;
+    };
+
+    struct Data
+    {
+      DataType Type;
+      DataItem Item;
+      int      Size;
+
+      Data();
+    };
+
+    Data m_data;
 
     void AssignFrom(Variant const& other);
+
+    template<class T>
+    void AssignFromArray(Data& to, Data const& from)
+    {
+      if (to.Item.v_arr)
+        free(to.Item.v_arr);
+
+      to.Item.v_arr = malloc(sizeof(T) * from.Size);
+
+      T* toVect = reinterpret_cast<T *>(to.Item.v_arr);
+      T* fromVect = reinterpret_cast<T *>(from.Item.v_arr);
+
+      for (int i = 0; i < to.Size; ++i)
+        toVect[i] = fromVect[i];
+    }
+
+    template<class T>
+    void AllocAndCopy(common::Variant::Data& d, std::vector<T> const& v)
+    {
+      d.Size = static_cast<int>(v.size());
+      if (d.Size > 0)
+      {
+        if (d.Item.v_arr)
+          free(d.Item.v_arr);
+
+        d.Item.v_arr = malloc(sizeof(T) * d.Size);
+
+        T* arr = reinterpret_cast<T *>(d.Item.v_arr);
+        for (int i = 0; i < d.Size; ++i)
+          arr[i] = v[i];
+      }
+      else
+      {
+        d.Item.v_arr = NULL;
+      }
+    }
   };
 }
