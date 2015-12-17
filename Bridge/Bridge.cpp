@@ -145,16 +145,29 @@ bridge::DeviceSystemBridge::InitializeDevices(bool update)
   if (ret != 0)
     goto Leave;
 
+  if (request)
+  {
+    ret = request->Wait(kWaitTimeoutForAdapterOperation);
+    if (ret != 0)
+    {
+      goto Leave;
+    }
+  }
+
   typedef AdapterDeviceVector::iterator iterator;
   for (iterator begin = deviceList.begin(), end = deviceList.end(); begin != end; ++begin)
   {
-    // TODO: get configuration for device
-
+    // TODO: get configuration for device, only expose visible devices
     if (update)
-      UpdateDevice(*begin, true);
+      ret = UpdateDevice(*begin, true);
+    else
+      ret = CreateDevice(*begin);
 
-    // unfinished
+    if (ret != 0)
+      DSBLOG_WARN("Failed to %s device: %d", update ? "update" : "create", ret);
   }
+
+  // TODO: Save bridge configuration to XML
 
 Leave:
   return ret == 0 ? ER_OK : ER_FAIL;
@@ -167,12 +180,14 @@ bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void*)
   shared_ptr<IAdapterDevice> adapterDevice;
 
   std::string const name = signal.GetName();
-  if (name == kDeviceArrivalSignal || name ==kDeviceArriaveDeviceHandle)
+  if (name == kDeviceArrivalSignal || name == kDeviceRemovalSignal)
   {
     AdapterValueVector params = signal.GetParams();
     for (AdapterValueVector::const_iterator itr = params.begin(); itr != params.end(); ++itr)
     {
-      if ((*itr)->GetName() == kDeviceArriaveDeviceHandle)
+      const shared_ptr<IAdapterValue>& param = (*itr);
+      const std::string& paramName = param->GetName();
+      if (paramName == kDeviceArrivalDeviceHandle || paramName == kDeviceRemovalDeviceHandle)
       {
         // TODO: figure out where this signal is generated and figure out how we're 
         // going to put an arbitrary pointer inside.
@@ -187,6 +202,7 @@ bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void*)
 
   if (name == kDeviceArrivalSignal)
   {
+    CreateDevice(adapterDevice);
   }
   else if (name == kDeviceRemovalSignal)
   {
