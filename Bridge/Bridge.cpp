@@ -10,7 +10,7 @@ namespace
 
   int32_t const kWaitTimeoutForAdapterOperation = 20000; //ms
   std::string const kDeviceArrivalSignal = "Device_Arrival";
-  std::string const kDeviceArriaveDeviceHandle = "Device_Handle";
+  std::string const kDeviceArrivalDeviceHandle = "Device_Handle";
   std::string const kDeviceRemovalSignal = "Device_Removal";
   std::string const kDeviceRemovalDeviceHandle = "Device_Handle";
 
@@ -24,6 +24,7 @@ bridge::DeviceSystemBridge::DeviceSystemBridge(shared_ptr<IAdapter> const& adapt
   : m_alljoynInitialized(false)
   , m_adapter(adapter)
   , m_adapterSignalListener(new AdapterSignalListener(*this))
+  , m_configManager(*this, *adapter)
 {
 }
 
@@ -48,6 +49,7 @@ bridge::DeviceSystemBridge::Initialize()
       DSBLOG_WARN("Failed to initialize AllJoyn: 0x%x", st);
       goto Leave;
     }
+    m_alljoynInitialized = true;
   }
 
   st = InitializeInternal();
@@ -68,7 +70,7 @@ bridge::DeviceSystemBridge::InitializeInternal()
 {
   QStatus st = ER_OK;
 
-  // st = m_configManager.Initialize(this);
+  st = m_configManager.Initialize();
   if (st != ER_OK)
     goto Leave;
 
@@ -76,6 +78,12 @@ bridge::DeviceSystemBridge::InitializeInternal()
   if (st != ER_OK)
   {
     DSBLOG_WARN("Failed to intialize adapter: 0x%x", st);
+    goto Leave;
+  }
+
+  st = m_configManager.ConnectToAllJoyn();
+  if (st != ER_OK)
+  {
     goto Leave;
   }
 
@@ -258,7 +266,7 @@ bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegister)
 QStatus
 bridge::DeviceSystemBridge::ShutdownInternal()
 {
-  // m_configManager.Shutdown();
+  m_configManager.Shutdown();
 
   if (m_adapter)
   {
