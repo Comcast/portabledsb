@@ -369,16 +369,16 @@ bridge::AllJoynHelper::EncodeStringForRootServiceName(std::string const& s, std:
   t = TrimChar(t, '.');
 }
 
-void
-bridge::AllJoynHelper::EncodeStringForAppName(std::string const& s, std::string &t)
+std::string
+bridge::AllJoynHelper::EncodeStringForAppName(std::string const& s)
 {
-  t.clear();
-
+  std::string t;
   for (char ch : s)
   {
     if (std::isalnum(ch))
       t += ch;
   }
+  return t;
 }
 
 std::string

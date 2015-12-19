@@ -305,9 +305,12 @@ bridge::DeviceSystemBridge::UpdateDevice(shared_ptr<IAdapterDevice> const& dev, 
 QStatus
 bridge::DeviceSystemBridge::CreateDevice(shared_ptr<IAdapterDevice> const& dev)
 {
-  shared_ptr<BridgeDevice> newDevice(new BridgeDevice());
+  if (!dev.get())
+    return ER_BAD_ARG_1;
+
+  shared_ptr<BridgeDevice> newDevice(new BridgeDevice(dev, m_adapter));
   
-  QStatus st = newDevice->Initialize(dev);
+  QStatus st = newDevice->Initialize();
   if (st == ER_OK)
     m_deviceList.insert(std::make_pair(GetKey(dev), newDevice));
 

@@ -1,6 +1,7 @@
 #include "DeviceMethod.h"
 
-bridge::DeviceMethod::DeviceMethod()
+bridge::DeviceMethod::DeviceMethod(DeviceMain& dev)
+  : m_parent(dev)
 {
 }
 
@@ -15,7 +16,7 @@ bridge::DeviceMethod::InvokeMethod(ajn::Message const&, ajn::MsgArg*, size_t)
 }
 
 QStatus
-bridge::DeviceMethod::Initialize(shared_ptr<DeviceMain> const&, shared_ptr<IAdapterMethod> const&)
+bridge::DeviceMethod::Initialize(shared_ptr<IAdapterMethod> const&)
 {
   return ER_NOT_IMPLEMENTED;
 }

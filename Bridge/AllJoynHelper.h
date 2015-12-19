@@ -35,7 +35,7 @@ namespace bridge
     static void EncodeStringForInterfaceName(std::string const& s, std::string& encoded);
     static void EncodeStringForServiceName(std::string const& s, std::string &encoded);
     static void EncodeStringForRootServiceName(std::string const& s, std::string &encoded);
-    static void EncodeStringForAppName(std::string const& s, std::string &encodeString);
+    static std::string EncodeStringForAppName(std::string const& s);
     static std::string TrimChar(std::string const& s, char c);
   };
 
