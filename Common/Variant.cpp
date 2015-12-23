@@ -1,4 +1,5 @@
 #include "Variant.h"
+#include <string.h>
 
 common::Variant::Data::Data()
 {

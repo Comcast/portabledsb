@@ -55,7 +55,7 @@ namespace
 
   common::Logger::Level sDefaultLoggingLevel = common::Logger::DSB_LOGLEVEL_INFO;
 
-  #ifdef __APPLE__
+  #if defined(__APPLE__) || defined(__linux__)
   #define ThreadId_FMT "%p"
   pthread_t GetCurrentThreadId() { return pthread_self(); }
   #else

@@ -24,7 +24,7 @@ ALLJOYN_INSTALL_DIR?=/Users/jgladi200/Work/alljoyn/alljoyn-15.09.00a-src/build/d
 
 CXXFLAGS=-D QCC_OS_GROUP_POSIX -Wall -Wextra -Wno-missing-field-initializers -Wno-deprecated-declarations -g -std=c++0x -I. -I$(ALLJOYN_INSTALL_DIR)/inc -I$(LIBXML_INC)
 CXXFLAGS+=-Wno-ignored-qualifiers
-LDFLAGS=-L $(ALLJOYN_INSTALL_DIR)/lib -lalljoyn -lcrypto -lxml2 
+LDFLAGS=-L $(ALLJOYN_INSTALL_DIR)/lib -lalljoyn -lcrypto -lxml2 -pthread -luuid
 DEV_PROVIDER_OBJS=$(patsubst %.cpp, %.o, $(SRCS))
 OBJS=$(DEV_PROVIDER_OBJS)
 
