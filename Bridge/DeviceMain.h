@@ -29,7 +29,7 @@ namespace bridge
     inline int GetIndexForMethod()
       { return m_indexForMethod++; }
 
-    inline std::string GetBusObjectPath(IAdapterProperty const& prop)
+    inline std::string GetBusObjectPath(IAdapterProperty const&)
       { return std::string(); }
 
   private:

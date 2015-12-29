@@ -143,11 +143,12 @@ bridge::AllJoynHelper::SetMsgArg(IAdapterValue const& adapterValue, ajn::MsgArg&
 }
    
 QStatus
-bridge::AllJoynHelper::SetMsgArgFromAdapterObject(IAdapterValue const& adapterValue, ajn::MsgArg& msg, DeviceMain* deviceMain)
+bridge::AllJoynHelper::SetMsgArgFromAdapterObject(IAdapterValue const& adapterValue, ajn::MsgArg&, DeviceMain*)
 {
   // TODO:
   QStatus st = ER_OK;
   common::Variant const& val = adapterValue.GetData();
+  QCC_UNUSED(val);
   // std::string path = deviceMain->GetBusObjectPath(adapterValue);
 
   return st;
@@ -187,7 +188,7 @@ bridge::AllJoynHelper::GetAdapterValue(IAdapterValue& adapterValue, ajn::MsgArg 
 }
 
 QStatus
-bridge::AllJoynHelper::GetAdapterObject(IAdapterValue& adapterValue, ajn::MsgArg const& msg, DeviceMain *deviceMain)
+bridge::AllJoynHelper::GetAdapterObject(IAdapterValue&, ajn::MsgArg const&, DeviceMain*)
 {
   return ER_NOT_IMPLEMENTED;
 }
