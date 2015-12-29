@@ -141,6 +141,33 @@ bridge::AllJoynHelper::SetMsgArg(IAdapterValue const& adapterValue, ajn::MsgArg&
 
   return st;
 }
+
+template<>
+QStatus bridge::AllJoynHelper::SetMsgArg(ajn::MsgArg& msg, std::string const& sig, std::vector<std::string> const& arr)
+{
+  QStatus st = ER_OK;
+
+  if (!arr.empty())
+  {
+    int n = static_cast<int>(arr.size());
+
+    typedef char const* value_type;
+    value_type* p = new value_type[n];
+
+    for (int i = 0; i < n; ++i)
+      p[i] = arr[i].c_str();
+
+    st = msg.Set(sig.c_str(), n, p);
+    msg.Stabilize();
+  }
+  else
+  {
+    st = msg.Set(sig.c_str(), 1, "");
+    msg.Stabilize();
+  }
+
+  return st;
+}
    
 QStatus
 bridge::AllJoynHelper::SetMsgArgFromAdapterObject(IAdapterValue const& adapterValue, ajn::MsgArg&, DeviceMain*)
