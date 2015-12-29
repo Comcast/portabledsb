@@ -28,14 +28,22 @@ LDFLAGS=-L $(ALLJOYN_INSTALL_DIR)/lib -lalljoyn -lcrypto -lxml2 -pthread -luuid
 DEV_PROVIDER_OBJS=$(patsubst %.cpp, %.o, $(SRCS))
 OBJS=$(DEV_PROVIDER_OBJS)
 
+ifeq ($V, 1)
+CXX_PRETTY = $(CXX)
+LD_PRETTY = $(CXX)
+else
+CXX_PRETTY = @echo " [CXX] $<" ; $(CXX)
+LD_PRETTY = @echo "[LINK] $@" ; $(CXX)
+endif
+
 all: moc-adapter
 
 clean:
 	$(RM) moc-adapter *.o DeviceProviders/*.o Bridge/*.o Common/*.o Adapters/MockAdapter/*.o \
     ZigBeeAdapter/*.o
 
-
-
 moc-adapter: $(OBJS)
-	$(CXX) -o $@ $^ $(LDFLAGS)
+	$(LD_PRETTY) -o $@ $^ $(LDFLAGS)
 
+%.o: %.cpp
+	$(CXX_PRETTY) $(CXXFLAGS) -c -o $@ $<
