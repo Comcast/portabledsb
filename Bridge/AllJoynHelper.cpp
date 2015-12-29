@@ -99,7 +99,10 @@ bridge::AllJoynHelper::SetMsgArg(IAdapterValue const& adapterValue, ajn::MsgArg&
     break;
 
     case common::Variant::DataType::BooleanArray:
-      st = SetMsgArg<bool>(m, sig.c_str(), val.ToBooleanArray());
+      /* Using vector<uint8_t> instead of vector<bool>, since vector<bool> is a
+       * bitfield and we can't access the underlying array easily.
+       * http://en.cppreference.com/w/cpp/container/vector_bool */
+      st = SetMsgArg<uint8_t>(m, sig.c_str(), val.ToUInt8Array());
     break;
 
     case common::Variant::DataType::UInt8Array:

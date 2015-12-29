@@ -46,9 +46,7 @@ namespace bridge
 
     if (!arr.empty())
     {
-      T const& ref = arr.front();
-      T const* p = &ref;
-      st = msg.Set(sig.c_str(), arr.size(), p);
+      st = msg.Set(sig.c_str(), arr.size(), arr.data());
       msg.Stabilize();
     }
     else
