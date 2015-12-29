@@ -55,12 +55,14 @@ namespace
 
   common::Logger::Level sDefaultLoggingLevel = common::Logger::DSB_LOGLEVEL_INFO;
 
-  #if defined(__APPLE__) || defined(__linux__)
+  #if defined(__APPLE__)
   #define ThreadId_FMT "%p"
   pthread_t GetCurrentThreadId() { return pthread_self(); }
+  #elif defined(__linux__)
+  #define ThreadId_FMT "%ld"
+  long GetCurrentThreadId() { return syscall(__NR_gettid); }
   #else
-  #define ThreadId_FMT "%d"
-  int32_t GetCurrentThreadId() { return syscall(__NR_gettid); }
+  #error ThreadId_FMT and GetCurrentThreadId() are not defined for your platform
   #endif
 }
 
