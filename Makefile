@@ -27,6 +27,7 @@ CXXFLAGS+=-Wno-ignored-qualifiers
 LDFLAGS=-L $(ALLJOYN_INSTALL_DIR)/lib -lalljoyn -lcrypto -lxml2 -pthread -luuid
 DEV_PROVIDER_OBJS=$(patsubst %.cpp, %.o, $(SRCS))
 OBJS=$(DEV_PROVIDER_OBJS)
+DEPS = $(OBJS:%.o=%.d)
 
 ifeq ($V, 1)
 CXX_PRETTY = $(CXX)
@@ -39,11 +40,12 @@ endif
 all: moc-adapter
 
 clean:
-	$(RM) moc-adapter *.o DeviceProviders/*.o Bridge/*.o Common/*.o Adapters/MockAdapter/*.o \
-    ZigBeeAdapter/*.o
+	$(RM) moc-adapter $(OBJS) $(DEPS)
 
 moc-adapter: $(OBJS)
 	$(LD_PRETTY) -o $@ $^ $(LDFLAGS)
 
 %.o: %.cpp
-	$(CXX_PRETTY) $(CXXFLAGS) -c -o $@ $<
+	$(CXX_PRETTY) $(CXXFLAGS) -MMD -c -o $@ $<
+
+-include $(DEPS)
