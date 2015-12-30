@@ -92,14 +92,14 @@ ConfigManager::ConnectToAllJoyn()
   st = m_busAttachment->Connect();
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to connect to AllJoyn bus: %d", st);
+    DSBLOG_WARN("Failed to connect to AllJoyn bus: %s", QCC_StatusText(st));
     return st;
   }
 
   st = m_busAttachment->RequestName(m_serviceName.c_str(), DBUS_NAME_FLAG_REPLACE_EXISTING | DBUS_NAME_FLAG_DO_NOT_QUEUE);
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to get name %s on AllJoyn bus: %d", m_serviceName.c_str(), st);
+    DSBLOG_WARN("Failed to get name %s on AllJoyn bus: %s", m_serviceName.c_str(), QCC_StatusText(st));
     return st;
   }
 
@@ -107,14 +107,14 @@ ConfigManager::ConnectToAllJoyn()
   st = m_busAttachment->BindSessionPort(m_sessionPort, sessionOpts, *this);
   if (!st)
   {
-    DSBLOG_WARN("Failed to bind session port: %d", st);
+    DSBLOG_WARN("Failed to bind session port: %s", QCC_StatusText(st));
     return st;
   }
 
   st = m_busAttachment->AdvertiseName(m_serviceName.c_str(), sessionOpts.transports);
   if (!st)
   {
-    DSBLOG_WARN("Failed to advertise service name: %d", st);
+    DSBLOG_WARN("Failed to advertise service name: %s", QCC_StatusText(st));
     return st;
   }
 
@@ -159,7 +159,7 @@ ConfigManager::SessionJoined(ajn::SessionPort, ajn::SessionId id, const char*)
   QStatus st = m_busAttachment->SetSessionListener(id, this);
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to set session listener: %d", st);
+    DSBLOG_WARN("Failed to set session listener: %s", QCC_StatusText(st));
     return;
   }
 
@@ -167,7 +167,7 @@ ConfigManager::SessionJoined(ajn::SessionPort, ajn::SessionId id, const char*)
   st = m_busAttachment->SetLinkTimeout(id, timeout);
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to set session link timeout to %" PRIu32 ": %d", timeout, st);
+    DSBLOG_WARN("Failed to set session link timeout to %" PRIu32 ": %s", timeout, QCC_StatusText(st));
     return;
   }
 }

@@ -46,7 +46,7 @@ bridge::DeviceSystemBridge::Initialize()
     st = AllJoynInit();
     if (st != ER_OK)
     {
-      DSBLOG_WARN("Failed to initialize AllJoyn: 0x%x", st);
+      DSBLOG_WARN("Failed to initialize AllJoyn: %s", QCC_StatusText(st));
       goto Leave;
     }
     m_alljoynInitialized = true;
@@ -77,7 +77,7 @@ bridge::DeviceSystemBridge::InitializeInternal()
   st = InitializeAdapter();
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to intialize adapter: 0x%x", st);
+    DSBLOG_WARN("Failed to intialize adapter: %s", QCC_StatusText(st));
     goto Leave;
   }
 
@@ -90,14 +90,14 @@ bridge::DeviceSystemBridge::InitializeInternal()
   st = InitializeDevices();
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to initialize devices: 0x%x", st);
+    DSBLOG_WARN("Failed to initialize devices: %s", QCC_StatusText(st));
     goto Leave;
   }
 
   st = RegisterAdapterSignalHandlers(true);
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to register adapter signal handlers: 0x%x", st);
+    DSBLOG_WARN("Failed to register adapter signal handlers: %s", QCC_StatusText(st));
     goto Leave;
   }
 
@@ -113,7 +113,7 @@ bridge::DeviceSystemBridge::Shutdown()
   st = ShutdownInternal();
   if (st != ER_OK)
   {
-    DSBLOG_WARN("failed to shutdown internal: 0x%x", st);
+    DSBLOG_WARN("failed to shutdown internal: %s", QCC_StatusText(st));
     return st;
   }
 
@@ -234,7 +234,7 @@ bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegister)
         int ret = m_adapter->RegisterSignalListener((*itr)->GetName(), m_adapterSignalListener, NULL, handle);
         if (ret != 0)
         {
-          DSBLOG_WARN("failed to register signal listener on adapter: 0x%x", st);
+          DSBLOG_WARN("failed to register signal listener on adapter: %s", QCC_StatusText(st));
           if (st == ER_OK)
             ret = st;
         }
@@ -253,7 +253,7 @@ bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegister)
       int ret = m_adapter->UnregisterSignalListener(*begin);
       if (ret != 0)
       {
-        DSBLOG_WARN("failed to unregister signal listener on adapter: 0x%x", st);
+        DSBLOG_WARN("failed to unregister signal listener on adapter: %s", QCC_StatusText(st));
         if (st == ER_OK)
           st = ER_FAIL;
       }
@@ -296,7 +296,7 @@ bridge::DeviceSystemBridge::UpdateDevice(shared_ptr<IAdapterDevice> const& dev, 
   {
     m_deviceList.erase(itr);
     if ((st = itr->second->Shutdown()) != ER_OK)
-      DSBLOG_WARN("failed to shutdown BridgeDevice: 0x%x", st);
+      DSBLOG_WARN("failed to shutdown BridgeDevice: %s", QCC_StatusText(st));
   }
 
   return st;

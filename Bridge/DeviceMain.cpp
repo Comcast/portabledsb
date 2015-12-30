@@ -46,7 +46,7 @@ bridge::DeviceMain::Initialize()
   st = AddInterface(*m_interfaceDescription);
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to add interface to bus object: %d", st);
+    DSBLOG_WARN("Failed to add interface to bus object: %s", QCC_StatusText(st));
     return st;
   }
 
@@ -62,7 +62,7 @@ bridge::DeviceMain::Initialize()
     st = AddMethodHandler(member, static_cast<ajn::MessageReceiver::MethodHandler>(&DeviceMain::AJMethod));
     if (st != ER_OK)
     {
-      DSBLOG_WARN("Failed to add method handler: %d", st);
+      DSBLOG_WARN("Failed to add method handler: %s", QCC_StatusText(st));
       return st;
     }
   }
@@ -70,7 +70,7 @@ bridge::DeviceMain::Initialize()
   st = m_parent.GetBusAttachment().RegisterBusObject(*this);
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to register bus object: %d", st);
+    DSBLOG_WARN("Failed to register bus object: %s", QCC_StatusText(st));
     return st;
   }
 
