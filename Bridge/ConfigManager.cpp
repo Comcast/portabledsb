@@ -10,8 +10,8 @@ namespace
 
   // TODO: make this configurable;
   std::string const kBridgeConfigFile = "BridgeConfig.xml";
-  int const kMaxConnectionAttempts = 60;
-  int const kReconnectDelay = 500;
+  //int const kMaxConnectionAttempts = 60;
+  //int const kReconnectDelay = 500;
   int const kDSBServicePort = 1000;
   uint32_t const kSessionLinkTimeout = 30; // seconds
 }
@@ -128,13 +128,13 @@ ConfigManager::BuildServiceName()
 }
 
 bool
-ConfigManager::AcceptSessionJoiner(ajn::SessionPort port, const char *joiner, const ajn::SessionOpts&)
+ConfigManager::AcceptSessionJoiner(ajn::SessionPort port, const char*, const ajn::SessionOpts&)
 {
   return port == m_sessionPort;
 }
 
 void
-ConfigManager::SessionJoined(ajn::SessionPort port, ajn::SessionId id, const char *joiner)
+ConfigManager::SessionJoined(ajn::SessionPort, ajn::SessionId id, const char*)
 {
   m_busAttachment->EnableConcurrentCallbacks();
   QStatus st = m_busAttachment->SetSessionListener(id, this);
@@ -154,7 +154,7 @@ ConfigManager::SessionJoined(ajn::SessionPort port, ajn::SessionId id, const cha
 }
 
 void
-ConfigManager::SessionMemberRemoved(ajn::SessionId, const char *uniqueName)
+ConfigManager::SessionMemberRemoved(ajn::SessionId, const char*)
 {
   // TODO: Reset auth access
   // TODO: End CSP file transfer

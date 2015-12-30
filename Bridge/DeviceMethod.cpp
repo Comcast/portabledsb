@@ -9,31 +9,25 @@ bridge::DeviceMethod::~DeviceMethod()
 }
 
 uint32_t
-bridge::DeviceMethod::InvokeMethod(
-  ajn::Message const&   msg,
-  ajn::MsgArg*          outargs,
-  size_t                numOutArgs)
+bridge::DeviceMethod::InvokeMethod(ajn::Message const&, ajn::MsgArg*, size_t)
 {
   return 0;
 }
 
 QStatus
-bridge::DeviceMethod::Initialize(shared_ptr<DeviceMain> const& parent, shared_ptr<IAdapterMethod> const& adapterMethod)
+bridge::DeviceMethod::Initialize(shared_ptr<DeviceMain> const&, shared_ptr<IAdapterMethod> const&)
 {
   return ER_NOT_IMPLEMENTED;
 }
 
 QStatus
-bridge::DeviceMethod::SetName(std::string const& name)
+bridge::DeviceMethod::SetName(std::string const&)
 {
   return ER_NOT_IMPLEMENTED;
 }
 
 QStatus
-bridge::DeviceMethod::BuildSignature(
-  AdapterValueVector const&     valueList,
-  std::string&                  signature,
-  std::string&                  parameterNames)
+bridge::DeviceMethod::BuildSignature(AdapterValueVector const&, std::string&, std::string&)
 {
   return ER_NOT_IMPLEMENTED;
 }

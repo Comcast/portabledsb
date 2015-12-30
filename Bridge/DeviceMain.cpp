@@ -18,7 +18,7 @@ bridge::DeviceMain::Shutdown()
 }
 
 QStatus
-bridge::DeviceMain::Initialize(shared_ptr<BridgeDevice> const& parent)
+bridge::DeviceMain::Initialize(shared_ptr<BridgeDevice> const&)
 {
   QStatus st = ER_OK;
   return st;
@@ -31,7 +31,7 @@ bridge::DeviceMain::IsMethodNameUnique(std::string const& name)
 }
 
 bool
-bridge::DeviceMain::IsSignalNameUnique(std::string const& name)
+bridge::DeviceMain::IsSignalNameUnique(std::string const&)
 {
   // TODO:
   return false;
