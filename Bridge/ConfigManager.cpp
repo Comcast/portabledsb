@@ -105,14 +105,14 @@ ConfigManager::ConnectToAllJoyn()
 
   ajn::SessionOpts sessionOpts(ajn::SessionOpts::TRAFFIC_MESSAGES, true, ajn::SessionOpts::PROXIMITY_ANY, ajn::TRANSPORT_ANY);
   st = m_busAttachment->BindSessionPort(m_sessionPort, sessionOpts, *this);
-  if (!st)
+  if (st != ER_OK)
   {
     DSBLOG_WARN("Failed to bind session port: %s", QCC_StatusText(st));
     return st;
   }
 
   st = m_busAttachment->AdvertiseName(m_serviceName.c_str(), sessionOpts.transports);
-  if (!st)
+  if (st != ER_OK)
   {
     DSBLOG_WARN("Failed to advertise service name: %s", QCC_StatusText(st));
     return st;
