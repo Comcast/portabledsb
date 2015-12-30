@@ -1,5 +1,7 @@
-#include "Bridge/ConfigManager.h"
-#include "Bridge/IAdapter.h"
+#include "ConfigManager.h"
+
+#include "AllJoynHelper.h"
+#include "IAdapter.h"
 #include "Common/Log.h"
 
 using namespace bridge;
@@ -90,29 +92,29 @@ ConfigManager::ConnectToAllJoyn()
   st = m_busAttachment->Connect();
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to connect to AllJoyn bus: %d", st);
+    DSBLOG_WARN("Failed to connect to AllJoyn bus: %s", QCC_StatusText(st));
     return st;
   }
 
   st = m_busAttachment->RequestName(m_serviceName.c_str(), DBUS_NAME_FLAG_REPLACE_EXISTING | DBUS_NAME_FLAG_DO_NOT_QUEUE);
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to get name %s on AllJoyn bus: %d", m_serviceName.c_str(), st);
+    DSBLOG_WARN("Failed to get name %s on AllJoyn bus: %s", m_serviceName.c_str(), QCC_StatusText(st));
     return st;
   }
 
   ajn::SessionOpts sessionOpts(ajn::SessionOpts::TRAFFIC_MESSAGES, true, ajn::SessionOpts::PROXIMITY_ANY, ajn::TRANSPORT_ANY);
   st = m_busAttachment->BindSessionPort(m_sessionPort, sessionOpts, *this);
-  if (!st)
+  if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to bind session port: %d", st);
+    DSBLOG_WARN("Failed to bind session port: %s", QCC_StatusText(st));
     return st;
   }
 
   st = m_busAttachment->AdvertiseName(m_serviceName.c_str(), sessionOpts.transports);
-  if (!st)
+  if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to advertise service name: %d", st);
+    DSBLOG_WARN("Failed to advertise service name: %s", QCC_StatusText(st));
     return st;
   }
 
@@ -124,7 +126,24 @@ ConfigManager::ConnectToAllJoyn()
 QStatus
 ConfigManager::BuildServiceName()
 {
-  return ER_NOT_IMPLEMENTED;
+  m_serviceName.clear();
+
+  std::string tmp = AllJoynHelper::EncodeStringForRootServiceName(m_adapter.GetExposedAdapterPrefix());
+  if (tmp.empty()) {
+    return ER_BUS_BAD_BUS_NAME;
+  }
+
+  m_serviceName = tmp + ".DeviceSystemBridge";
+
+  tmp = AllJoynHelper::EncodeStringForServiceName(m_adapter.GetAdapterName());
+  if (tmp.empty()) {
+    m_serviceName.empty();
+    return ER_BUS_BAD_BUS_NAME;
+  }
+
+  m_serviceName += ".";
+  m_serviceName += tmp;
+  return ER_OK;
 }
 
 bool
@@ -140,7 +159,7 @@ ConfigManager::SessionJoined(ajn::SessionPort, ajn::SessionId id, const char*)
   QStatus st = m_busAttachment->SetSessionListener(id, this);
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to set session listener: %d", st);
+    DSBLOG_WARN("Failed to set session listener: %s", QCC_StatusText(st));
     return;
   }
 
@@ -148,7 +167,7 @@ ConfigManager::SessionJoined(ajn::SessionPort, ajn::SessionId id, const char*)
   st = m_busAttachment->SetLinkTimeout(id, timeout);
   if (st != ER_OK)
   {
-    DSBLOG_WARN("Failed to set session link timeout to %" PRIu32 ": %d", timeout, st);
+    DSBLOG_WARN("Failed to set session link timeout to %" PRIu32 ": %s", timeout, QCC_StatusText(st));
     return;
   }
 }

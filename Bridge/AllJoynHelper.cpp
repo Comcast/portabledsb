@@ -322,12 +322,11 @@ bridge::AllJoynHelper::EncodeStringForInterfaceName(std::string const& s, std::s
   t = TrimChar(t, '.');
 }
 
-void
-bridge::AllJoynHelper::EncodeStringForServiceName(std::string const& s, std::string &t)
+std::string
+bridge::AllJoynHelper::EncodeStringForServiceName(std::string const& s)
 {
+  std::string t;
   std::string temp;
-
-  t.clear();
 
   for (char ch : s)
   {
@@ -341,14 +340,14 @@ bridge::AllJoynHelper::EncodeStringForServiceName(std::string const& s, std::str
       t += '_';
     t += temp;
   }
+  return t;
 }
 
-void
-bridge::AllJoynHelper::EncodeStringForRootServiceName(std::string const& s, std::string &t)
+std::string
+bridge::AllJoynHelper::EncodeStringForRootServiceName(std::string const& s)
 {
+  std::string t;
   char curr = '\0';
-
-  t.clear();
 
   for (char ch : s)
   {
@@ -367,18 +366,19 @@ bridge::AllJoynHelper::EncodeStringForRootServiceName(std::string const& s, std:
   }
 
   t = TrimChar(t, '.');
+  return t;
 }
 
-void
-bridge::AllJoynHelper::EncodeStringForAppName(std::string const& s, std::string &t)
+std::string
+bridge::AllJoynHelper::EncodeStringForAppName(std::string const& s)
 {
-  t.clear();
-
+  std::string t;
   for (char ch : s)
   {
     if (std::isalnum(ch))
       t += ch;
   }
+  return t;
 }
 
 std::string

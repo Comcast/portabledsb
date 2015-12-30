@@ -88,7 +88,7 @@ common::Logger::IsLevelEnabled(char const* module, Level level)
 }
 
 void
-common::Logger::VaLog(const char* module, Level level, const char* /*file*/, int /*line*/,
+common::Logger::VaLog(const char* module, Level level, const char* file, int line,
   const char* format, va_list args)
 {
   struct tm result;
@@ -99,7 +99,7 @@ common::Logger::VaLog(const char* module, Level level, const char* /*file*/, int
   size_t n = strftime(buff, sizeof(buff) - 1, "%Y-%m-%dT%T", &result);
   if (n > 0)
     buff[n] = '\0';
-  fprintf(gLog, "%s (%5s) Thread-" ThreadId_FMT " [%s] - ", buff, LevelToString(level), GetCurrentThreadId(), module);
+  fprintf(gLog, "%s (%5s) Thread-" ThreadId_FMT " [%s:%s:%d] - ", buff, LevelToString(level), GetCurrentThreadId(), module, file, line);
   vfprintf(gLog, format, args);
   fprintf(gLog, "\n");
 }

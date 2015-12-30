@@ -52,3 +52,5 @@ namespace common
 #define DSBLOG_WARN(FORMAT, ...) DSBLOG(DSB_LOGLEVEL_WARN, __dsb_logger_module_name__, FORMAT, ##__VA_ARGS__)
 #define DSBLOG_ERROR(FORMAT, ...) DSBLOG(DSB_LOGLEVEL_ERROR, __dsb_logger_module_name__, FORMAT, ##__VA_ARGS__)
 
+#define DSBLOG_NOT_IMPLEMENTED() DSBLOG_WARN("%s has not been implemented", __func__);
+
