@@ -95,6 +95,7 @@ QStatus
 bridge::DeviceMain::CreateMethodsAndSignals()
 {
   // TODO
+  DSBLOG_NOT_IMPLEMENTED();
   return ER_NOT_IMPLEMENTED;
 }
 

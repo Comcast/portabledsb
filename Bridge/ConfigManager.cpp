@@ -124,6 +124,7 @@ ConfigManager::ConnectToAllJoyn()
 QStatus
 ConfigManager::BuildServiceName()
 {
+  DSBLOG_NOT_IMPLEMENTED();
   return ER_NOT_IMPLEMENTED;
 }
 
