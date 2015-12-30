@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/defines.h"
+#include "Common/Guid.h"
 #include "Common/Variant.h"
 
 #include <string>
@@ -80,6 +81,14 @@ namespace bridge
     virtual void AdapterSignalHandler(IAdapterSignal const& signal, void* argp) = 0;
   };
 
+  class IAdapterIcon
+  {
+  public:
+    virtual std::vector<uint8_t> GetImage() = 0;
+    virtual std::string GetMimeType() = 0;
+    virtual std::string GetUrl() = 0;
+  };
+
   class IAdapterDevice
   {
   public:
@@ -91,6 +100,7 @@ namespace bridge
     virtual std::string GetFirmwareVersion() = 0;
     virtual std::string GetSerialNumber() = 0;
     virtual std::string GetDescription() = 0;
+    virtual shared_ptr<IAdapterIcon> GetIcon() = 0;
 
     virtual AdapterPropertyVector const& GetProperties() const = 0;
     virtual AdapterMethodVector const& GetMethods() const = 0;
@@ -125,7 +135,7 @@ namespace bridge
     virtual std::string GetVersion() = 0;
     virtual std::string GetExposedAdapterPrefix() = 0;
     virtual std::string GetExposedApplicationName() = 0;
-    virtual std::string GetExposedApplicationGuid() = 0;
+    virtual common::Guid GetExposedApplicationGuid() = 0;
     virtual AdapterSignalVector GetSignals() = 0;
 
     virtual int32_t Initialize() = 0;
