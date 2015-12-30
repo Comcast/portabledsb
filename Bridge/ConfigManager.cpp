@@ -1,5 +1,7 @@
-#include "Bridge/ConfigManager.h"
-#include "Bridge/IAdapter.h"
+#include "ConfigManager.h"
+
+#include "AllJoynHelper.h"
+#include "IAdapter.h"
 #include "Common/Log.h"
 
 using namespace bridge;
@@ -124,8 +126,24 @@ ConfigManager::ConnectToAllJoyn()
 QStatus
 ConfigManager::BuildServiceName()
 {
-  DSBLOG_NOT_IMPLEMENTED();
-  return ER_NOT_IMPLEMENTED;
+  m_serviceName.clear();
+
+  std::string tmp = AllJoynHelper::EncodeStringForRootServiceName(m_adapter.GetExposedAdapterPrefix());
+  if (tmp.empty()) {
+    return ER_BUS_BAD_BUS_NAME;
+  }
+
+  m_serviceName = tmp + ".DeviceSystemBridge";
+
+  tmp = AllJoynHelper::EncodeStringForServiceName(m_adapter.GetAdapterName());
+  if (tmp.empty()) {
+    m_serviceName.empty();
+    return ER_BUS_BAD_BUS_NAME;
+  }
+
+  m_serviceName += ".";
+  m_serviceName += tmp;
+  return ER_OK;
 }
 
 bool

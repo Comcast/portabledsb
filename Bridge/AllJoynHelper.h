@@ -33,9 +33,9 @@ namespace bridge
     static void EncodeBusObjectName(std::string const& s, std::string &builtName);
     static void EncodePropertyOrMethodOrSignalName(std::string const& s, std::string &builtName);
     static void EncodeStringForInterfaceName(std::string const& s, std::string& encoded);
-    static void EncodeStringForServiceName(std::string const& s, std::string &encoded);
-    static void EncodeStringForRootServiceName(std::string const& s, std::string &encoded);
-    static std::string EncodeStringForAppName(std::string const& s);
+    static std::string EncodeStringForServiceName(std::string const&);
+    static std::string EncodeStringForRootServiceName(std::string const&);
+    static std::string EncodeStringForAppName(std::string const&);
     static std::string TrimChar(std::string const& s, char c);
   };
 
