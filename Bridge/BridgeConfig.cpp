@@ -50,7 +50,7 @@ namespace
     if (!msg)
       msg = "<unknown error>";
 
-    common::Logger::Write(__dsb_logger_module_name__, level, __FILE__, __LINE__, "libxml: %s", msg);
+    common::Logger::Write("libxml", level, error->file, error->line, "%s", msg);
   }
 
   void installXmlLogger()
