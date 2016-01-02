@@ -38,12 +38,12 @@ namespace common
 
 #define DSBLOG_WITH_LEVEL(LEVEL, FORMAT, ...) \
     do { if (common::Logger::IsLevelEnabled(__dsb_logger_module_name__, LEVEL)) { \
-        common::Logger::Write(__dsb_logger_module_name__, LEVEL, __FILE__, __LINE__ - 2, FORMAT, ##__VA_ARGS__); \
+        common::Logger::Write(__dsb_logger_module_name__, LEVEL, __FILE__, __LINE__, FORMAT, ##__VA_ARGS__); \
     } } while (0)
 
 #define DSBLOG(LEVEL, NAME, FORMAT, ...) \
     do { if (common::Logger::IsLevelEnabled(NAME, common::Logger::LEVEL)) { \
-        common::Logger::Write(NAME, common::Logger::LEVEL, __FILE__, __LINE__ - 2, FORMAT, ##__VA_ARGS__); \
+        common::Logger::Write(NAME, common::Logger::LEVEL, __FILE__, __LINE__, FORMAT, ##__VA_ARGS__); \
     } } while (0)
 
 
