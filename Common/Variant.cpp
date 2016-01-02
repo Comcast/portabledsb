@@ -1,5 +1,20 @@
 #include "Variant.h"
 #include <string.h>
+#include <sstream>
+
+namespace
+{
+  template<class TFrom, class TOut>
+  void printArray(std::stringstream& buff, void* arr, int n)
+  {
+    TFrom* typed_array = reinterpret_cast<TFrom *>(arr);
+    for (int i = 0; i < n; ++i)
+    {
+      if (i > 0) buff << ',';
+      buff << static_cast<TOut>(typed_array[i]);
+    }
+  }
+}
 
 common::Variant::Data::Data()
 {
@@ -181,10 +196,10 @@ common::Variant::Variant(Variant const& other)
 
 common::Variant::~Variant()
 {
-  if (m_data.Item.v_string)
+  if (m_data.Type == DataType::String && m_data.Item.v_string)
     delete m_data.Item.v_string;
 
-  if (m_data.Item.v_arr)
+  if (IsArray() && m_data.Item.v_arr)
     free(m_data.Item.v_arr);
 }
 
@@ -192,10 +207,22 @@ common::Variant&
 common::Variant::operator=(Variant const& other)
 {
   if (&other != this)
-  {
     AssignFrom(other);
-  }
   return *this;
+}
+
+bool
+common::Variant::IsArray() const
+{
+  // relies on knowing order of enum
+  return GetType() > DataType::String;
+}
+
+int
+common::Variant::Length() const
+{
+  if (!IsArray()) return -1;
+  return m_data.Size;
 }
 
 std::vector<bool>
@@ -338,6 +365,31 @@ common::Variant::CanConvert(DataType t) const
 std::string
 common::Variant::ToString(bool* ok) const
 {
+  if (IsArray())
+  {
+    std::stringstream buff;
+    buff << '[';
+    switch (m_data.Type)
+    {
+      case DataType::Invalid: break;
+      case DataType::BooleanArray: printArray<bool, bool>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::UInt8Array: printArray<uint8_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::Int16Array: printArray<int16_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::UInt16Array: printArray<uint16_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::Int32Array: printArray<int32_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::UInt32Array: printArray<uint32_t, uint32_t>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::Int64Array: printArray<int64_t, int64_t>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::UInt64Array: printArray<uint64_t, uint64_t>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::DoubleArray: printArray<double, double>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::StringArray: printArray<std::string, std::string>(buff, m_data.Item.v_arr, m_data.Size); break;
+      default:
+        assert(false);
+        break;
+    }
+    buff << ']';
+    return buff.str();
+  }
+
   // string handled special to allow for other data types
   // to be converted later.
   if (CanConvert(DataType::String))

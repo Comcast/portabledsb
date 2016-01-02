@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <string.h>
 #include <stdlib.h>
 #include <string>
 #include <vector>
@@ -67,6 +68,10 @@ namespace common
     Variant& operator=(Variant const& other);
 
     ~Variant();
+
+    bool IsArray() const;
+    int  Length() const;
+
 
     inline DataType GetType() const
       { return m_data.Type; }
@@ -140,7 +145,7 @@ namespace common
     {
       if (CanConvert(t))
       {
-        if (*ok)
+        if (ok)
           *ok = true;
         return Convert<T>(t);
       }
@@ -198,10 +203,13 @@ namespace common
     template<class T>
     void AssignFromArray(Data& to, Data const& from)
     {
-      if (to.Item.v_arr)
+      if (IsArray() && to.Item.v_arr)
         free(to.Item.v_arr);
 
+      memset(&to.Item, 0, sizeof(to.Item));
       to.Item.v_arr = malloc(sizeof(T) * from.Size);
+      to.Size = from.Size;
+      to.Type = from.Type;
 
       T* toVect = reinterpret_cast<T *>(to.Item.v_arr);
       T* fromVect = reinterpret_cast<T *>(from.Item.v_arr);
@@ -216,9 +224,10 @@ namespace common
       d.Size = static_cast<int>(v.size());
       if (d.Size > 0)
       {
-        if (d.Item.v_arr)
+        if (IsArray() && d.Item.v_arr)
           free(d.Item.v_arr);
 
+        memset(&d.Item, 0, sizeof(d.Item));
         d.Item.v_arr = malloc(sizeof(T) * d.Size);
 
         T* arr = reinterpret_cast<T *>(d.Item.v_arr);
