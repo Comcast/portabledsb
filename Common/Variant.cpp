@@ -14,6 +14,34 @@ namespace
       buff << static_cast<TOut>(typed_array[i]);
     }
   }
+
+  template<class T>
+  void releaseArray(void* p)
+  {
+    T* arr = reinterpret_cast<T *>(p);
+    delete [] arr;
+  }
+
+  void freeArray2(void* p, common::Variant::DataType t)
+  {
+    typedef common::Variant::DataType dt;
+    switch (t)
+    {
+      case dt::BooleanArray:  releaseArray<bool>(p); break;
+      case dt::UInt8Array:    releaseArray<uint8_t>(p); break;
+      case dt::Int16Array:    releaseArray<int16_t>(p); break;
+      case dt::UInt16Array:   releaseArray<uint16_t>(p); break;
+      case dt::Int32Array:    releaseArray<int32_t>(p); break;
+      case dt::UInt32Array:   releaseArray<uint32_t>(p); break;
+      case dt::Int64Array:    releaseArray<int64_t>(p); break;
+      case dt::UInt64Array:   releaseArray<uint64_t>(p); break;
+      case dt::DoubleArray:   releaseArray<double>(p); break;
+      case dt::StringArray:   releaseArray<std::string>(p); break;
+      default:
+        assert(false);
+        break;
+    }
+  }
 }
 
 common::Variant::Data::Data()
@@ -200,7 +228,7 @@ common::Variant::~Variant()
     delete m_data.Item.v_string;
 
   if (IsArray() && m_data.Item.v_arr)
-    free(m_data.Item.v_arr);
+    freeArray2(m_data.Item.v_arr, m_data.Type);
 }
 
 common::Variant&

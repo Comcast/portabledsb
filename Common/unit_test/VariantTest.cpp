@@ -69,13 +69,25 @@ TEST(Variant, UInt8Array) {
   EXPECT_EQ(std::string("[10,20]"), v1.ToString());
 }
 
+TEST(Variant, StringArray)
+{
+  std::vector<std::string> a1;
+  a1.push_back("a");
+  a1.push_back("b");
+
+  common::Variant v1(a1);
+  common::Variant v2 = v1;
+
+  EXPECT_TRUE(v1.IsArray());
+  EXPECT_EQ(v1.Length(), 2);
+}
+
 TEST(VariantTest, String) {
   EXPECT_EQ(std::string("hello world"), TestVariant_StdString("hello world"));
   EXPECT_EQ(std::string(""), TestVariant_StdString(""));
   EXPECT_EQ(std::string(), TestVariant_StdString(""));
 }
 
-#if 0
 TEST(VariantTest, StringCopyAssign) {
   common::Variant v1;
   common::Variant v2;
@@ -90,7 +102,6 @@ TEST(VariantTest, StringCopyAssign) {
   v1 = v2;
   EXPECT_EQ(v1.ToString(), v2.ToString());
 }
-#endif
 
 int main(int argc, char* argv[])
 {

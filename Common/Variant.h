@@ -117,6 +117,20 @@ namespace common
     std::string ToString(bool* ok = NULL) const;
 
   private:
+    template<class T>
+    static void* allocArray(int n)
+    {
+      T* p = new T[n];
+      return reinterpret_cast<void *>(p);
+    }
+
+    template<class T>
+    static void freeArray(void* p)
+    {
+      T* arr = reinterpret_cast<T *>(p);
+      delete [] arr;
+    }
+
     bool CanConvert(DataType t) const;
 
     template<class T>
@@ -204,12 +218,12 @@ namespace common
     void AssignFromArray(Data& to, Data const& from)
     {
       if (IsArray() && to.Item.v_arr)
-        free(to.Item.v_arr);
+        freeArray<T>(to.Item.v_arr);
 
       memset(&to.Item, 0, sizeof(to.Item));
-      to.Item.v_arr = malloc(sizeof(T) * from.Size);
       to.Size = from.Size;
       to.Type = from.Type;
+      to.Item.v_arr = allocArray<T>(from.Size);
 
       T* toVect = reinterpret_cast<T *>(to.Item.v_arr);
       T* fromVect = reinterpret_cast<T *>(from.Item.v_arr);
@@ -225,10 +239,10 @@ namespace common
       if (d.Size > 0)
       {
         if (IsArray() && d.Item.v_arr)
-          free(d.Item.v_arr);
+          freeArray<T>(d.Item.v_arr);
 
         memset(&d.Item, 0, sizeof(d.Item));
-        d.Item.v_arr = malloc(sizeof(T) * d.Size);
+        d.Item.v_arr = allocArray<T>(d.Size);
 
         T* arr = reinterpret_cast<T *>(d.Item.v_arr);
         for (int i = 0; i < d.Size; ++i)
