@@ -116,6 +116,8 @@ namespace common
 
     std::string ToString() const;
 
+    bool CanConvert(DataType t) const;
+
   private:
     template<class T>
     static void* allocArray(int n)
@@ -130,8 +132,6 @@ namespace common
       T* arr = reinterpret_cast<T *>(p);
       delete [] arr;
     }
-
-    bool CanConvert(DataType t) const;
 
     template<class T>
     T Convert(DataType t) const

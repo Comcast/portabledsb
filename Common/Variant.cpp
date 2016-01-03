@@ -386,8 +386,26 @@ common::Variant::AssignFrom(Variant const& other)
 bool
 common::Variant::CanConvert(DataType t) const
 {
-  // TODO: better type conversion
-  return m_data.Type == t;
+  if (m_data.Type == t)
+    return true;
+
+  bool canConvert = false;
+  switch (m_data.Type)
+  {
+    case DataType::Invalid:  break;
+    case DataType::Boolean: if (!canConvert) canConvert = (t == DataType::Boolean);
+    case DataType::UInt8:   if (!canConvert) canConvert = (t == DataType::UInt8);
+    case DataType::Int16:   if (!canConvert) canConvert = (t == DataType::Int16);
+    case DataType::UInt16:  if (!canConvert) canConvert = (t == DataType::UInt16);
+    case DataType::Int32:   if (!canConvert) canConvert = (t == DataType::Int32);
+    case DataType::UInt32:  if (!canConvert) canConvert = (t == DataType::UInt32);
+    case DataType::Int64:   if (!canConvert) canConvert = (t == DataType::Int64);
+    case DataType::UInt64:  if (!canConvert) canConvert = (t == DataType::UInt64);
+      break;
+    default: assert(false);
+      break;
+  }
+  return canConvert;
 }
 
 std::string

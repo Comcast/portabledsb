@@ -116,6 +116,33 @@ TEST(VariantTest, StringCopyAssign) {
   EXPECT_EQ(v1.ToString(), v2.ToString());
 }
 
+TEST(Variant, Convert)
+{
+  common::Variant v1( (uint8_t) 12 );
+
+  EXPECT_FALSE(v1.CanConvert(common::Variant::DataType::Boolean));
+  EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::UInt8));
+
+  // maybe extend Variant to do runtime checking. i.e int64_t == 10 is convertable to
+  // int8_t, etc.
+  EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::UInt16));
+  EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::UInt32));
+  EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::UInt64));
+  EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::Int16));
+  EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::Int32));
+  EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::Int64));
+
+  v1 = (uint32_t) 12345;
+  EXPECT_FALSE(v1.CanConvert(common::Variant::DataType::Boolean));
+  EXPECT_FALSE(v1.CanConvert(common::Variant::DataType::UInt8));
+  EXPECT_FALSE(v1.CanConvert(common::Variant::DataType::UInt16));
+  EXPECT_FALSE(v1.CanConvert(common::Variant::DataType::Int16));
+  EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::UInt32));
+  EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::UInt64));
+  EXPECT_FALSE(v1.CanConvert(common::Variant::DataType::Int32));
+  EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::Int64));
+}
+
 int main(int argc, char* argv[])
 {
   testing::InitGoogleTest(&argc, argv);
