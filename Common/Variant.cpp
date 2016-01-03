@@ -391,7 +391,7 @@ common::Variant::CanConvert(DataType t) const
 }
 
 std::string
-common::Variant::ToString(bool* ok) const
+common::Variant::ToString() const
 {
   if (IsArray())
   {
@@ -418,17 +418,28 @@ common::Variant::ToString(bool* ok) const
     return buff.str();
   }
 
-  // string handled special to allow for other data types
-  // to be converted later.
-  if (CanConvert(DataType::String))
+  if (m_data.Type == DataType::String)
   {
-    if (ok)
-      *ok = true;
-    if (m_data.Item.v_string)
-      return *m_data.Item.v_string;
-    return std::string();
+    return (m_data.Item.v_string != NULL)
+      ? *m_data.Item.v_string
+      : std::string();
   }
-  if (ok)
-    *ok = false;
-  return std::string();
+
+  std::stringstream buff;
+  switch (m_data.Type)
+  {
+    case DataType::Boolean:   buff << m_data.Item.v_bool; break;
+    case DataType::UInt8:     buff << (int) m_data.Item.v_uint8; break;
+    case DataType::Int16:     buff << m_data.Item.v_int16; break;
+    case DataType::UInt16:    buff << m_data.Item.v_uint16; break;
+    case DataType::Int32:     buff << m_data.Item.v_int32; break;
+    case DataType::UInt32:    buff << m_data.Item.v_uint32; break;
+    case DataType::Int64:     buff << m_data.Item.v_int64; break;
+    case DataType::UInt64:    buff << m_data.Item.v_uint64; break;
+    case DataType::Double:    buff << m_data.Item.v_double; break;
+    default:
+      assert(false);
+      break;
+  }
+  return buff.str();
 }

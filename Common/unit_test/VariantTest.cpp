@@ -88,6 +88,19 @@ TEST(VariantTest, String) {
   EXPECT_EQ(std::string(), TestVariant_StdString(""));
 }
 
+TEST(VariantTest, ToString)
+{
+  common::Variant v1;
+  v1 = (uint8_t) 234;
+  EXPECT_EQ("234", v1.ToString());
+
+  v1 = (int) 1234567;
+  EXPECT_EQ("1234567", v1.ToString());
+
+  v1 = (uint64_t) 18446744073709551615ul;;
+  EXPECT_EQ("18446744073709551615", v1.ToString());
+}
+
 TEST(VariantTest, StringCopyAssign) {
   common::Variant v1;
   common::Variant v2;

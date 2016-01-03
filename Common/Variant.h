@@ -114,7 +114,7 @@ namespace common
     std::vector<double>       ToDoubleArray(bool* ok = NULL) const;
     std::vector<std::string>  ToStringArray(bool* ok = NULL) const;
 
-    std::string ToString(bool* ok = NULL) const;
+    std::string ToString() const;
 
   private:
     template<class T>
@@ -159,12 +159,10 @@ namespace common
     {
       if (CanConvert(t))
       {
-        if (ok)
-          *ok = true;
+        if (ok) *ok = true;
         return Convert<T>(t);
       }
-      if (ok)
-        *ok = false;
+      if (ok) *ok = false;
       return T();
     }
 
