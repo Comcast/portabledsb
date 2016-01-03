@@ -2,6 +2,15 @@
 #include <gtest/gtest.h>
 #include <Variant.h>
 
+template<class T>
+std::vector<T> makeVect(int n, int start = 0)
+{
+  std::vector<T> v;
+  for (int i = start; i < start + n; ++i)
+    v.push_back(i);
+  return v;
+}
+
 bool TestVariant_Boolean1()
 {
   common::Variant v(true);
@@ -45,9 +54,7 @@ TEST(VariantTest, UInt8) {
 }
 
 TEST(Variant, UInt8Array) {
-  std::vector<uint8_t> arr;
-  for (int i = 0; i < 10; ++i)
-    arr.push_back(i);
+  std::vector<uint8_t> arr = makeVect<uint8_t>(10);
 
   common::Variant v1(arr);
   EXPECT_EQ(v1.ToUInt8Array(), arr);
@@ -141,6 +148,35 @@ TEST(Variant, Convert)
   EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::UInt64));
   EXPECT_FALSE(v1.CanConvert(common::Variant::DataType::Int32));
   EXPECT_TRUE(v1.CanConvert(common::Variant::DataType::Int64));
+}
+
+TEST(Variant, OperatorLessThan)
+{
+  common::Variant v1;
+  common::Variant v2;
+
+  EXPECT_FALSE(v1 < v2);
+
+  v2 = (int32_t) 10;
+  EXPECT_TRUE(v1 < v2);
+
+  v1 = (int32_t) 11;
+  EXPECT_TRUE(v2 < v1);
+
+  v2 = (uint8_t) 12;
+  EXPECT_TRUE(v2 < v1);
+
+  v1 = (uint8_t) 11;
+  EXPECT_TRUE(v1 < v2);
+
+  v1 = makeVect<int16_t>(10);
+  v2 = makeVect<int16_t>(10);
+  EXPECT_FALSE(v1 < v2);
+  EXPECT_FALSE(v2 < v1);
+
+  v2 = makeVect<int16_t>(10, 2);
+  EXPECT_TRUE(v1 < v2);
+  EXPECT_FALSE(v2 < v1);
 }
 
 int main(int argc, char* argv[])

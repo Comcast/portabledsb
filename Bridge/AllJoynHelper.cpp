@@ -16,7 +16,7 @@ bridge::AllJoynHelper::SetMsgArg(IAdapterValue const& adapterValue, ajn::MsgArg&
 
   switch (val.GetType())
   {
-    case common::Variant::DataType::Invalid:
+    case common::Variant::DataType::Null:
     break;
 
     case common::Variant::DataType::Boolean:

@@ -42,11 +42,32 @@ namespace
         break;
     }
   }
+
+  template<class T>
+  int vectorCompare(void* arg1, int n1, void* arg2, int n2)
+  {
+    T const* v1 = reinterpret_cast< T const * >(arg1);
+    T const* v2 = reinterpret_cast< T const * >(arg2);
+
+    if (!v1&& v2) return -1;
+    if (v1&& !v2) return 1;
+
+    if (n1 < n2) return -1;
+    if (n1 > n2) return 1;
+
+    for (int i = 0; i < n1; ++i)
+    {
+      if (v1[i] != v2[i])
+        return v1[i] < v2[i] ? -1 : 1;
+    }
+
+    return 0;
+  }
 }
 
 common::Variant::Data::Data()
 {
-  Type = DataType::Invalid;
+  Type = DataType::Null;
   memset(&Item, 0, sizeof(m_data.Item));
   Size = 0;
 }
@@ -318,7 +339,7 @@ common::Variant::AssignFrom(Variant const& other)
 {
   switch (other.m_data.Type)
   {
-    case DataType::Invalid: break;
+    case DataType::Null: break;
     case DataType::Boolean: m_data.Item.v_bool = other.m_data.Item.v_bool; break;
     case DataType::UInt8:   m_data.Item.v_uint8 = other.m_data.Item.v_uint8; break;
     case DataType::Int16:   m_data.Item.v_int16 = other.m_data.Item.v_int16; break;
@@ -392,7 +413,7 @@ common::Variant::CanConvert(DataType t) const
   bool canConvert = false;
   switch (m_data.Type)
   {
-    case DataType::Invalid:  break;
+    case DataType::Null:  break;
     case DataType::Boolean: if (!canConvert) canConvert = (t == DataType::Boolean);
     case DataType::UInt8:   if (!canConvert) canConvert = (t == DataType::UInt8);
     case DataType::Int16:   if (!canConvert) canConvert = (t == DataType::Int16);
@@ -417,17 +438,17 @@ common::Variant::ToString() const
     buff << '[';
     switch (m_data.Type)
     {
-      case DataType::Invalid: break;
-      case DataType::BooleanArray: printArray<bool, bool>(buff, m_data.Item.v_arr, m_data.Size); break;
-      case DataType::UInt8Array: printArray<uint8_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
-      case DataType::Int16Array: printArray<int16_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
-      case DataType::UInt16Array: printArray<uint16_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
-      case DataType::Int32Array: printArray<int32_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
-      case DataType::UInt32Array: printArray<uint32_t, uint32_t>(buff, m_data.Item.v_arr, m_data.Size); break;
-      case DataType::Int64Array: printArray<int64_t, int64_t>(buff, m_data.Item.v_arr, m_data.Size); break;
-      case DataType::UInt64Array: printArray<uint64_t, uint64_t>(buff, m_data.Item.v_arr, m_data.Size); break;
-      case DataType::DoubleArray: printArray<double, double>(buff, m_data.Item.v_arr, m_data.Size); break;
-      case DataType::StringArray: printArray<std::string, std::string>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::Null: break;
+      case DataType::BooleanArray:  printArray<bool, bool>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::UInt8Array:    printArray<uint8_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::Int16Array:    printArray<int16_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::UInt16Array:   printArray<uint16_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::Int32Array:    printArray<int32_t, int>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::UInt32Array:   printArray<uint32_t, uint32_t>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::Int64Array:    printArray<int64_t, int64_t>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::UInt64Array:   printArray<uint64_t, uint64_t>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::DoubleArray:   printArray<double, double>(buff, m_data.Item.v_arr, m_data.Size); break;
+      case DataType::StringArray:   printArray<std::string, std::string>(buff, m_data.Item.v_arr, m_data.Size); break;
       default:
         assert(false);
         break;
@@ -460,4 +481,81 @@ common::Variant::ToString() const
       break;
   }
   return buff.str();
+}
+
+bool
+common::Variant::operator < (Variant const& rhs) const
+{
+  bool lessThan = false;
+  if (m_data.Type == rhs.m_data.Type)
+  {
+    switch (m_data.Type)
+    {
+      case DataType::Null:
+        lessThan = false;
+        break;
+      case DataType::Boolean:
+      case DataType::UInt8:
+      case DataType::Int16:
+      case DataType::UInt16:
+      case DataType::Int32:
+      case DataType::UInt32:
+      case DataType::Int64:
+      case DataType::UInt64:
+        lessThan = m_data.Item.v_uint64 < rhs.m_data.Item.v_uint64;
+        break;
+      case DataType::Double:
+        lessThan = m_data.Item.v_double < rhs.m_data.Item.v_double;
+        break;
+      case DataType::String:
+        if (m_data.Item.v_string == NULL)
+          lessThan = rhs.m_data.Item.v_string != NULL;
+        else if (rhs.m_data.Item.v_string == NULL)
+          lessThan = false;
+        else
+          lessThan = *m_data.Item.v_string < *rhs.m_data.Item.v_string;
+        break;
+      case DataType::BooleanArray:
+        lessThan = vectorCompare<bool>(m_data.Item.v_arr, m_data.Size, rhs.m_data.Item.v_arr, rhs.m_data.Size) < 0;
+        break;
+      case DataType::UInt8Array:
+        lessThan = vectorCompare<uint8_t>(m_data.Item.v_arr, m_data.Size, rhs.m_data.Item.v_arr, rhs.m_data.Size) < 0;
+        break;
+      case DataType::Int16Array:
+        lessThan = vectorCompare<int16_t>(m_data.Item.v_arr, m_data.Size, rhs.m_data.Item.v_arr, rhs.m_data.Size) < 0;;
+        break;
+      case DataType::UInt16Array:
+        lessThan = vectorCompare<uint16_t>(m_data.Item.v_arr, m_data.Size, rhs.m_data.Item.v_arr, rhs.m_data.Size) < 0;
+        break;
+      case DataType::Int32Array:
+        lessThan = vectorCompare<int32_t>(m_data.Item.v_arr, m_data.Size, rhs.m_data.Item.v_arr, rhs.m_data.Size) < 0;
+        break;
+      case DataType::UInt32Array:
+        lessThan = vectorCompare<uint32_t>(m_data.Item.v_arr, m_data.Size, rhs.m_data.Item.v_arr, rhs.m_data.Size) < 0;
+        break;
+      case DataType::Int64Array:
+        lessThan = vectorCompare<int64_t>(m_data.Item.v_arr, m_data.Size, rhs.m_data.Item.v_arr, rhs.m_data.Size) < 0;
+        break;
+      case DataType::UInt64Array:
+        lessThan = vectorCompare<uint64_t>(m_data.Item.v_arr, m_data.Size, rhs.m_data.Item.v_arr, rhs.m_data.Size) < 0;
+        break;
+      case DataType::DoubleArray:
+        lessThan = vectorCompare<double>(m_data.Item.v_arr, m_data.Size, rhs.m_data.Item.v_arr, rhs.m_data.Size) < 0;
+        break;
+      case DataType::StringArray:
+        lessThan = vectorCompare<std::string>(m_data.Item.v_arr, m_data.Size, rhs.m_data.Item.v_arr, rhs.m_data.Size) < 0;
+        break;
+      default:
+        assert(false);
+        break;
+    }
+  }
+  else
+  {
+    if (m_data.Type == DataType::Null)
+      lessThan = rhs.m_data.Type != DataType::Null;
+    else
+      lessThan = m_data.Type < rhs.m_data.Type;
+  }
+  return lessThan;
 }

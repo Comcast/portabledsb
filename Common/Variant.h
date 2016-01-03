@@ -14,7 +14,7 @@ namespace common
   public:
    enum class DataType
    {
-      Invalid,
+      Null,
       Boolean,
       UInt8,
       Int16,
@@ -69,9 +69,13 @@ namespace common
 
     ~Variant();
 
+    bool operator < (Variant const& rhs) const;
+    // inline bool operator!=(const X& lhs, const X& rhs){return !operator==(lhs,rhs);}
+    // inline bool operator==(const X& lhs, const X& rhs){ /* do actual comparison */ }
+
+
     bool IsArray() const;
     int  Length() const;
-
 
     inline DataType GetType() const
       { return m_data.Type; }
