@@ -3,7 +3,7 @@
 
 namespace
 {
-  common::Guid const kDefaultAppGuid = common::Guid::FromString("DA9C7763-C3E0-4B3B-B190-5BEF8DF96E4D");
+  common::Guid const kDefaultAppGuid = common::Guid::Parse("DA9C7763-C3E0-4B3B-B190-5BEF8DF96E4D");
   char const* kDefaultLanguageForAbout = "en";
   char const* kUnknownAdapter = "Unknown Device";
   char const* kUnknownManufacturer = "Unknown";
@@ -108,7 +108,7 @@ AllJoynAbout::ReadDeviceId(std::string&)
 QStatus
 AllJoynAbout::CreateAndSaveDeviceId(std::string& deviceId)
 {
-  common::Guid guid = common::Guid::Create();
+  common::Guid guid = common::Guid::NewGuid();
   deviceId = guid.ToString();
 
   // TODO: need to persist this configuration 
