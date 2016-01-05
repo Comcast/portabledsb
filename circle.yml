@@ -1,16 +1,16 @@
 machine:
   environment:
-    ALLJOYN_INSTALL_DIR: \$(HOME)/alljoyn-15.09.00a-src/build/linux/x86_64/release/dist/cpp
-    GTEST_DIR: \$(HOME)/gtest
+    ALLJOYN_INSTALL_DIR: /home/ubuntu/alljoyn-15.09.00a-src/build/linux/x86_64/release/dist/cpp
+    GTEST_DIR: /home/ubuntu/gtest
 
 dependencies:
   pre:
     - sudo apt-get update
     - sudo apt-get install libcap-dev scons libgtest-dev
-    - if [[ ! -e ~/gtest ]] ; then
-        cd ~ ;
-        cp -r /usr/src/gtest . ;
-        cd gtest ;
+    - if [[ ! -e "$GTEST_DIR" ]] ; then
+        cd "$GTEST_DIR/.." ;
+        cp -r /usr/src/gtest "$GTEST_DIR" ;
+        cd "$GTEST_DIR" ;
         cmake -DCMAKE_BUILD_TYPE=RELEASE . ;
         make ;
       fi
@@ -20,6 +20,7 @@ dependencies:
         tar -xf alljoyn-15.09.00a-src.tar.gz ;
       fi ;
       cd ~/alljoyn-15.09.00a-src ;
+      unset GTEST_DIR ;
       scons BINDINGS=cpp OS=linux CPU=x86_64 VARIANT=release BUILD_SERVICE_SAMPLES=off WS=off BT=off ICE=off -j4
 
   post:
