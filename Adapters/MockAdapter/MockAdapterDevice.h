@@ -75,6 +75,9 @@ namespace mock
     MockAdapterProperty(MockPropertyDescriptor const& desc, weak_ptr<MockAdapterDevice> const& parent);
 
     virtual std::string GetName();
+    virtual std::string GetInterfaceHint()
+      { return std::string(""); }
+
     virtual bridge::AdapterValueVector GetAttributes();
 
     shared_ptr<MockAdapterDevice> GetParent()

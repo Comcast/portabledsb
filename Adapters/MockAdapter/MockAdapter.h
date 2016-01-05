@@ -29,6 +29,12 @@ namespace mock
     virtual int32_t Initialize();
     virtual int32_t Shutdown();
 
+    virtual int32_t GetConfiguration(std::vector<uint8_t>* /*configData*/)
+      { return 0; }
+
+    virtual int32_t SetConfiguration(std::vector<uint8_t> const& /*configData*/)
+      { return 0; }
+
     virtual int32_t EnumDevices(
       bridge::EnumDeviceOptions opts,
       bridge::AdapterDeviceVector& deviceList,
