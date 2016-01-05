@@ -181,15 +181,15 @@ AllJoynAbout::SetDescription(char const* s)
 }
 
 QStatus
-AllJoynAbout::AddObject(ajn::BusObject& obj, ajn::InterfaceDescription const* ifc)
+AllJoynAbout::AddObject(ajn::BusObject& obj, ajn::InterfaceDescription const& ifc)
 {
-  return obj.SetAnnounceFlag(ifc, ajn::BusObject::ANNOUNCED);
+  return obj.SetAnnounceFlag(&ifc, ajn::BusObject::ANNOUNCED);
 }
 
 QStatus
-AllJoynAbout::RemoveObject(ajn::BusObject& obj, ajn::InterfaceDescription const* ifc)
+AllJoynAbout::RemoveObject(ajn::BusObject& obj, ajn::InterfaceDescription const& ifc)
 {
-  return obj.SetAnnounceFlag(ifc, ajn::BusObject::UNANNOUNCED);
+  return obj.SetAnnounceFlag(&ifc, ajn::BusObject::UNANNOUNCED);
 }
 
 QStatus
