@@ -18,9 +18,9 @@ dependencies:
         cd ~ ;
         wget --no-check-certificate https://allseenalliance.org/releases/alljoyn/15.09/alljoyn-15.09.00a-src.tar.gz ;
         tar -xf alljoyn-15.09.00a-src.tar.gz ;
-        cd alljoyn-15.09.00a-src ;
-        scons BINDINGS=cpp OS=linux CPU=x86_64 VARIANT=release BUILD_SERVICE_SAMPLES=off WS=off BT=off ICE=off -j4 ;
-      fi
+      fi ;
+      cd ~/alljoyn-15.09.00a-src ;
+      scons BINDINGS=cpp OS=linux CPU=x86_64 VARIANT=release BUILD_SERVICE_SAMPLES=off WS=off BT=off ICE=off -j4
 
   post:
     - make -j4
