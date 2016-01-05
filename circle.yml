@@ -1,0 +1,22 @@
+machine:
+  environment:
+    ALLJOYN_INSTALL_DIR: ~/alljoyn-15.09.00a-src/build/linux/x86_64/release/dist/cpp
+
+dependencies:
+  pre:
+    - sudo apt-get update
+    - sudo apt-get install libcap-dev scons
+    - if [[ ! -e ~/alljoyn-15.09.00a-src ]] ; then
+        cd ~ ;
+        wget --no-check-certificate https://allseenalliance.org/releases/alljoyn/15.09/alljoyn-15.09.00a-src.tar.gz ;
+        tar -xf alljoyn-15.09.00a-src.tar.gz ;
+        cd alljoyn-15.09.00a-src ;
+        scons BINDINGS=cpp OS=linux CPU=x86_64 VARIANT=release BUILD_SERVICE_SAMPLES=off WS=off BT=off ICE=off -j4 ;
+      fi
+
+  post:
+    - make ALLJOYN_INSTALL_DIR=~/alljoyn-15.09.00a-src/build/linux/x86_64/release/dist/cpp
+
+  cache_directories:
+    - "~/alljoyn-15.09.00a-src"
+
