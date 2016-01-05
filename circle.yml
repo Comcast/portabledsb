@@ -1,11 +1,12 @@
 machine:
   environment:
-    ALLJOYN_INSTALL_DIR: ~/alljoyn-15.09.00a-src/build/linux/x86_64/release/dist/cpp
+    ALLJOYN_INSTALL_DIR: \$(HOME)/alljoyn-15.09.00a-src/build/linux/x86_64/release/dist/cpp
+    GTEST_DIR: \$(HOME)/gtest
 
 dependencies:
   pre:
     - sudo apt-get update
-    - sudo apt-get install libcap-dev scons
+    - sudo apt-get install libcap-dev scons libgtest-dev
     - if [[ ! -e ~/alljoyn-15.09.00a-src ]] ; then
         cd ~ ;
         wget --no-check-certificate https://allseenalliance.org/releases/alljoyn/15.09/alljoyn-15.09.00a-src.tar.gz ;
@@ -13,10 +14,22 @@ dependencies:
         cd alljoyn-15.09.00a-src ;
         scons BINDINGS=cpp OS=linux CPU=x86_64 VARIANT=release BUILD_SERVICE_SAMPLES=off WS=off BT=off ICE=off -j4 ;
       fi
+    - if [[ ! -e ~/gtest ]] ; then
+        cd ~ ;
+        cp -r /usr/src/gtest . ;
+        cd gtest ;
+        cmake -DCMAKE_BUILD_TYPE=RELEASE . ;
+        make ;
+      fi
 
   post:
-    - make ALLJOYN_INSTALL_DIR=~/alljoyn-15.09.00a-src/build/linux/x86_64/release/dist/cpp
+    - make -j4
+    - make tests -j4
 
   cache_directories:
     - "~/alljoyn-15.09.00a-src"
+    - "~/gtest"
 
+test:
+  override:
+    - make check
