@@ -3,6 +3,12 @@ machine:
     ALLJOYN_INSTALL_DIR: /home/ubuntu/alljoyn-15.09.00a-src/build/linux/x86_64/release/dist/cpp
     GTEST_DIR: /home/ubuntu/gtest
 
+  pre:
+    - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 10
+    - sudo update-alternatives --set gcc /usr/bin/gcc-4.8
+    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 10
+    - sudo update-alternatives --set g++ /usr/bin/g++-4.8
+
 dependencies:
   pre:
     - sudo apt-get update
