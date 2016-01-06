@@ -20,8 +20,13 @@ You will need libaries and development headers for:
   * [The AllJoyn standard core (C++)](https://allseenalliance.org/framework/download) v15.09a
   * libxml2
   * OpenSSL's libcrypto
+  * libuuid
 
 See: [AllJoyn's instructions for building on Linux](https://allseenalliance.org/framework/documentation/develop/building/linux)
+
+### Ubuntu
+
+    sudo apt-get install build-essential libcap-dev uuid-dev libxml2-dev libssl-dev
 
 ## Building
 
