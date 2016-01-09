@@ -32,10 +32,30 @@ See: [AllJoyn's instructions for building on Linux](https://allseenalliance.org/
 
 Right now we're only building on OSX/Linux.
 
- 1. export ALLJOYN_INSTALL_DIR=[path to your build of alljoyn core]
- 2. make [options]
+ 1. `export ALLJOYN_INSTALL_DIR=[path to your build of alljoyn core]`
+ 2. `make [options]`
 
 `[options]`
 
   * DEBUG -- debug build (-g) otherwise -O2 is used
   * V     -- verbose output (skip if you want cleaner output)
+  * ALLJOYN_INSTALL_DIR -- The path to where you build the AllJoyn standard core (C++). Example: `~/workspace/alljoyn/build/linux/x86_64/release/dist/cpp/bin`
+  * LIBXML_INC -- The path to libxml2's includes. Example: `/usr/include/libxml2`
+
+All of these options can be set as environment variables. For example, if you always want to do verbose builds, add this to your `~/.bashrc`:
+
+    export V=1
+
+(Since this is a standard Autotools parameter, this will effect most makefiles).
+
+## Running
+
+To run, run `alljoyn-daemon` from the AllJoyn core C++ build (in a directory like `alljoyn/build/linux/x86_64/release/dist/cpp/bin`).
+
+Then run:
+
+    ./moc-adapter
+
+It should remain running until you hit "enter" on your keyboard.
+
+If you want to inspect it, a good tool called `seesions` can be found in the same directory as `alljoyn-daemon`. It will show About announcements, and can possibly do more (needs to be investigated).
