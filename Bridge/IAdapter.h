@@ -26,6 +26,7 @@ namespace bridge
   class IAdapterMethod;
   class IAdapterSignal;
   class IAdapterDevice;
+  class IAdapterLog;
 
   typedef std::vector< shared_ptr<IAdapterValue> >    AdapterValueVector;
   typedef std::vector< shared_ptr<IAdapterProperty> > AdapterPropertyVector;
@@ -47,6 +48,23 @@ namespace bridge
     Never,
     Always,
     AlwaysWithNoValue
+  };
+
+  enum class AdapterLogLevel
+  {
+    Off = -1,
+    Debug = 1,
+    Info = 2,
+    Warn = 3,
+    Error = 4,
+    Fatal = 5
+  };
+
+  class IAdapterLog
+  {
+  public:
+    virtual void Write(AdapterLogLevel level, char const* file, int line, char const* format, ...) = 0;
+    virtual bool IsLevelEnabled(AdapterLogLevel level) = 0;
   };
 
   class IAdapterAttribute
@@ -167,7 +185,7 @@ namespace bridge
     virtual int32_t SetConfiguration(std::vector<uint8_t> const& configData) = 0;
     virtual int32_t GetConfiguration(std::vector<uint8_t>* configData) = 0;
 
-    virtual int32_t Initialize() = 0;
+    virtual int32_t Initialize(shared_ptr<IAdapterLog> const& log) = 0;
     virtual int32_t Shutdown() = 0;
 
     virtual int32_t EnumDevices(

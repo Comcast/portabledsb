@@ -75,10 +75,11 @@ bridge::AdapterSignalVector adapters::mock::MockAdapter::GetSignals()
 
 
 int32_t
-adapters::mock::MockAdapter::Initialize()
+adapters::mock::MockAdapter::Initialize(shared_ptr<bridge::IAdapterLog> const& log)
 {
   CreateMockDevices();
   CreateSignals();
+  m_log = log;
   return ER_OK;
 }
 

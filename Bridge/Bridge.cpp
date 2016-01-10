@@ -1,6 +1,8 @@
 #include "Bridge.h"
 #include "Common/Log.h"
 #include "Bridge/BridgeDevice.h"
+#include "Bridge/Log.h"
+
 #include <qcc/Debug.h>
 #include <alljoyn/Init.h>
 
@@ -197,7 +199,9 @@ bridge::DeviceSystemBridge::InitializeAdapter()
     DSBLOG_ERROR("can't initialize null adapter");
     return ER_FAIL;
   }
-  int ret = m_adapter->Initialize();
+
+  shared_ptr<IAdapterLog> log(new AdapterLog("adapter"));
+  int ret = m_adapter->Initialize(log);
   return ret == 0 ? ER_OK : ER_FAIL;
 }
 

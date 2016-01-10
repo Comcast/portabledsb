@@ -26,7 +26,7 @@ namespace mock
     virtual common::Guid GetExposedApplicationGuid();
     virtual bridge::AdapterSignalVector GetSignals();
 
-    virtual int32_t Initialize();
+    virtual int32_t Initialize(shared_ptr<bridge::IAdapterLog> const& log);
     virtual int32_t Shutdown();
 
     virtual int32_t GetConfiguration(std::vector<uint8_t>* /*configData*/)
@@ -84,6 +84,7 @@ namespace mock
     std::string m_exposedAdapterPrefix;
     std::string m_exposedApplicationName;
     common::Guid m_exposedApplicationGuid;
+    shared_ptr<bridge::IAdapterLog> m_log;
 
     std::vector< shared_ptr<MockAdapterDevice> > m_devices;
     std::vector< shared_ptr<MockAdapterSignal> > m_signals;

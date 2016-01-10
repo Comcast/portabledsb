@@ -28,7 +28,6 @@ namespace common
 
     static bool IsLevelEnabled(const char* module, Level level);
 
-  private:
     static void VaLog(const char* module, Level level, const char* file, int line, const char* format, va_list args);
   };
 }
