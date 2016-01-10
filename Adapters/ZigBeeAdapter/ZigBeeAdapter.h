@@ -13,7 +13,7 @@ namespace zigbee
   class Method : public bridge::IAdapterMethod
   {
   public:
-    Method(weak_ptr<Device> const& target, std::string const& name);
+    Method(std::weak_ptr<Device> const& target, std::string const& name);
 
   public:
     virtual std::string GetName() const;
@@ -25,14 +25,14 @@ namespace zigbee
     virtual void SetInputParams(bridge::AdapterValueVector const& params);
     virtual void SetOutputParams(bridge::AdapterValueVector const& params);
 
-    void AddInputParam(shared_ptr<bridge::IAdapterValue> const& p);
-    void AddOutputParam(shared_ptr<bridge::IAdapterValue> const& p);
+    void AddInputParam(std::shared_ptr<bridge::IAdapterValue> const& p);
+    void AddOutputParam(std::shared_ptr<bridge::IAdapterValue> const& p);
 
     virtual int32_t GetResult();
     void SetResult(int32_t st);
 
   private:
-    shared_ptr<Device> GetParent() const
+    std::shared_ptr<Device> GetParent() const
       { return m_parent.lock(); }
 
   private:
@@ -40,7 +40,7 @@ namespace zigbee
     std::string                   m_description;
     bridge::AdapterValueVector    m_inputParams;
     bridge::AdapterValueVector    m_outputParams;
-    weak_ptr<Device>              m_parent;
+    std::weak_ptr<Device>              m_parent;
     int32_t                       m_result;
   };
 
@@ -64,34 +64,34 @@ namespace zigbee
     virtual int32_t EnumDevices(
       bridge::EnumDeviceOptions opts,
       bridge::AdapterDeviceVector& deviceList,
-      shared_ptr<bridge::IAdapterIoRequest>* req);
+      std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
     virtual int32_t GetProperty(
-      shared_ptr<bridge::IAdapterProperty>& prop,
-      shared_ptr<bridge::IAdapterIoRequest>* req);
+      std::shared_ptr<bridge::IAdapterProperty>& prop,
+      std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
     virtual int32_t SetProperty(
-      shared_ptr<bridge::IAdapterProperty> const& prop,
-      shared_ptr<bridge::IAdapterIoRequest>* req);
+      std::shared_ptr<bridge::IAdapterProperty> const& prop,
+      std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
     virtual int32_t GetPropertyValue(
-      shared_ptr<bridge::IAdapterProperty> const& prop,
+      std::shared_ptr<bridge::IAdapterProperty> const& prop,
       std::string const& attributeName,
-      shared_ptr<bridge::IAdapterValue>& value,
-      shared_ptr<bridge::IAdapterIoRequest>* req);
+      std::shared_ptr<bridge::IAdapterValue>& value,
+      std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
     virtual int32_t SetPropertyValue(
-      shared_ptr<bridge::IAdapterProperty> const& prop,
-      shared_ptr<bridge::IAdapterValue> const& value,
-      shared_ptr<bridge::IAdapterIoRequest>* req);
+      std::shared_ptr<bridge::IAdapterProperty> const& prop,
+      std::shared_ptr<bridge::IAdapterValue> const& value,
+      std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
     virtual int32_t CallMethod(
-      shared_ptr<bridge::IAdapterMethod>& method,
-      shared_ptr<bridge::IAdapterIoRequest>* req);
+      std::shared_ptr<bridge::IAdapterMethod>& method,
+      std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
     virtual int32_t RegisterSignalListener(
       std::string const& signalName,
-      shared_ptr<bridge::IAdapterSignalListener> const& listener,
+      std::shared_ptr<bridge::IAdapterSignalListener> const& listener,
       void* argp,
       bridge::IAdapter::RegistrationHandle& handle);
 

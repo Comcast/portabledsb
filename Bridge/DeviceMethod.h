@@ -17,7 +17,7 @@ namespace bridge
     DeviceMethod(DeviceMain&);
     virtual ~DeviceMethod();
 
-    QStatus Initialize(shared_ptr<IAdapterMethod> const& adapterMethod);
+    QStatus Initialize(std::shared_ptr<IAdapterMethod> const& adapterMethod);
 
     // TODO: error code?
     // TODO: should that first arg be constant?
@@ -36,7 +36,7 @@ namespace bridge
     std::string                     m_inSignature;
     std::string                     m_outSignature;
     std::string                     m_parameterNames;
-    shared_ptr<IAdapterMethod>      m_adapterMethod;
+    std::shared_ptr<IAdapterMethod>      m_adapterMethod;
   };
 }
 

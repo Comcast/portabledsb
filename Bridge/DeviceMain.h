@@ -17,7 +17,7 @@ namespace bridge
   class DeviceMain : public ajn::BusObject
   {
   public:
-    DeviceMain(BridgeDevice& parent, const shared_ptr<IAdapterDevice>&);
+    DeviceMain(BridgeDevice& parent, const std::shared_ptr<IAdapterDevice>&);
     virtual ~DeviceMain();
 
     QStatus Initialize();

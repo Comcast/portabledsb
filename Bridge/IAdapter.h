@@ -5,6 +5,7 @@
 #include "Common/Variant.h"
 
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -28,11 +29,11 @@ namespace bridge
   class IAdapterDevice;
   class IAdapterLog;
 
-  typedef std::vector< shared_ptr<IAdapterValue> >    AdapterValueVector;
-  typedef std::vector< shared_ptr<IAdapterProperty> > AdapterPropertyVector;
-  typedef std::vector< shared_ptr<IAdapterMethod> >   AdapterMethodVector;
-  typedef std::vector< shared_ptr<IAdapterSignal> >   AdapterSignalVector;
-  typedef std::vector< shared_ptr<IAdapterDevice> >   AdapterDeviceVector;
+  typedef std::vector< std::shared_ptr<IAdapterValue> >    AdapterValueVector;
+  typedef std::vector< std::shared_ptr<IAdapterProperty> > AdapterPropertyVector;
+  typedef std::vector< std::shared_ptr<IAdapterMethod> >   AdapterMethodVector;
+  typedef std::vector< std::shared_ptr<IAdapterSignal> >   AdapterSignalVector;
+  typedef std::vector< std::shared_ptr<IAdapterDevice> >   AdapterDeviceVector;
   typedef std::map< std::string, std::string>         AnnotationMap;
 
   enum class AccessType
@@ -70,7 +71,7 @@ namespace bridge
   class IAdapterAttribute
   {
   public:
-    virtual shared_ptr<IAdapterValue> GetValue() = 0;
+    virtual std::shared_ptr<IAdapterValue> GetValue() = 0;
     virtual AnnotationMap GetAnnotations() = 0;
     virtual AccessType GetAccess() = 0;
     virtual SignalBehavior GetChangeOfValueBehavior() = 0;
@@ -144,7 +145,7 @@ namespace bridge
     virtual std::string GetFirmwareVersion() = 0;
     virtual std::string GetSerialNumber() = 0;
     virtual std::string GetDescription() = 0;
-    virtual shared_ptr<IAdapterIcon> GetIcon() = 0;
+    virtual std::shared_ptr<IAdapterIcon> GetIcon() = 0;
 
     virtual AdapterPropertyVector const& GetProperties() const = 0;
     virtual AdapterMethodVector const& GetMethods() const = 0;
@@ -185,40 +186,40 @@ namespace bridge
     virtual int32_t SetConfiguration(std::vector<uint8_t> const& configData) = 0;
     virtual int32_t GetConfiguration(std::vector<uint8_t>* configData) = 0;
 
-    virtual int32_t Initialize(shared_ptr<IAdapterLog> const& log) = 0;
+    virtual int32_t Initialize(std::shared_ptr<IAdapterLog> const& log) = 0;
     virtual int32_t Shutdown() = 0;
 
     virtual int32_t EnumDevices(
       EnumDeviceOptions opts,
       AdapterDeviceVector& deviceList,
-      shared_ptr<IAdapterIoRequest>* req) = 0;
+      std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
     virtual int32_t GetProperty(
-      shared_ptr<IAdapterProperty>& prop,
-      shared_ptr<IAdapterIoRequest>* req) = 0;
+      std::shared_ptr<IAdapterProperty>& prop,
+      std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
     virtual int32_t SetProperty(
-      shared_ptr<IAdapterProperty> const& prop,
-      shared_ptr<IAdapterIoRequest>* req) = 0;
+      std::shared_ptr<IAdapterProperty> const& prop,
+      std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
     virtual int32_t GetPropertyValue(
-      shared_ptr<IAdapterProperty> const& prop,
+      std::shared_ptr<IAdapterProperty> const& prop,
       std::string const& attributeName,
-      shared_ptr<IAdapterValue>& value,
-      shared_ptr<IAdapterIoRequest>* req) = 0;
+      std::shared_ptr<IAdapterValue>& value,
+      std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
     virtual int32_t SetPropertyValue(
-      shared_ptr<IAdapterProperty> const& prop,
-      shared_ptr<IAdapterValue> const& value,
-      shared_ptr<IAdapterIoRequest>* req) = 0;
+      std::shared_ptr<IAdapterProperty> const& prop,
+      std::shared_ptr<IAdapterValue> const& value,
+      std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
     virtual int32_t CallMethod(
-      shared_ptr<IAdapterMethod>& method,
-      shared_ptr<IAdapterIoRequest>* req) = 0;
+      std::shared_ptr<IAdapterMethod>& method,
+      std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
     virtual int32_t RegisterSignalListener(
       std::string const& signalName,
-      shared_ptr<IAdapterSignalListener> const& listener,
+      std::shared_ptr<IAdapterSignalListener> const& listener,
       void* argp, 
       RegistrationHandle& handle) = 0;
 
@@ -231,7 +232,7 @@ namespace bridge
   class AdapterAttribute : public IAdapterAttribute
   {
   public:
-    AdapterAttribute(shared_ptr<IAdapterValue> const& value, AnnotationMap const& annotations,
+    AdapterAttribute(std::shared_ptr<IAdapterValue> const& value, AnnotationMap const& annotations,
       AccessType accessType, SignalBehavior signalBehavior)
         : m_adapterValue(value)
         , m_annotationMap(annotations)
@@ -242,7 +243,7 @@ namespace bridge
     }
 
   public:
-    virtual shared_ptr<IAdapterValue> GetValue()
+    virtual std::shared_ptr<IAdapterValue> GetValue()
       { return m_adapterValue; }
 
     virtual AnnotationMap GetAnnotations()
@@ -255,7 +256,7 @@ namespace bridge
       { return m_signalBehavior; }
 
   private:
-    shared_ptr<IAdapterValue> m_adapterValue;
+    std::shared_ptr<IAdapterValue> m_adapterValue;
     AnnotationMap             m_annotationMap;
     AccessType                m_accessType;
     SignalBehavior            m_signalBehavior;

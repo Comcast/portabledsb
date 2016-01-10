@@ -16,7 +16,7 @@ namespace
   std::string const kDeviceRemovalSignal = "Device_Removal";
   std::string const kDeviceRemovalDeviceHandle = "Device_Handle";
 
-  inline bridge::BridgeDeviceList::key_type GetKey(shared_ptr<bridge::IAdapterDevice> const& dev)
+  inline bridge::BridgeDeviceList::key_type GetKey(std::shared_ptr<bridge::IAdapterDevice> const& dev)
   {
     return dev.get();
   }
@@ -54,22 +54,22 @@ namespace
     }
   }
 
-  shared_ptr<bridge::DeviceSystemBridge> gBridge;
+  std::shared_ptr<bridge::DeviceSystemBridge> gBridge;
 }
 
-shared_ptr<bridge::DeviceSystemBridge>
+std::shared_ptr<bridge::DeviceSystemBridge>
 bridge::DeviceSystemBridge::GetInstance()
 {
   return gBridge;
 }
 
 void
-bridge::DeviceSystemBridge::InitializeSingleton(shared_ptr<IAdapter> const& adapter)
+bridge::DeviceSystemBridge::InitializeSingleton(std::shared_ptr<IAdapter> const& adapter)
 {
   gBridge.reset(new DeviceSystemBridge(adapter));
 }
 
-bridge::DeviceSystemBridge::DeviceSystemBridge(shared_ptr<IAdapter> const& adapter)
+bridge::DeviceSystemBridge::DeviceSystemBridge(std::shared_ptr<IAdapter> const& adapter)
   : m_alljoynInitialized(false)
   , m_adapter(adapter)
   , m_adapterSignalListener(new AdapterSignalListener(*this))
@@ -200,7 +200,7 @@ bridge::DeviceSystemBridge::InitializeAdapter()
     return ER_FAIL;
   }
 
-  shared_ptr<IAdapterLog> log(new AdapterLog("adapter"));
+  std::shared_ptr<IAdapterLog> log(new AdapterLog("adapter"));
   int ret = m_adapter->Initialize(log);
   return ret == 0 ? ER_OK : ER_FAIL;
 }
@@ -209,7 +209,7 @@ QStatus
 bridge::DeviceSystemBridge::InitializeDevices(bool update)
 {
   AdapterDeviceVector deviceList;
-  shared_ptr<IAdapterIoRequest> request;
+  std::shared_ptr<IAdapterIoRequest> request;
 
   EnumDeviceOptions opts = EnumDeviceOptions::CacheOnly;
   if (update)
@@ -252,7 +252,7 @@ void
 bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void*)
 {
   // TODO
-  shared_ptr<IAdapterDevice> adapterDevice;
+  std::shared_ptr<IAdapterDevice> adapterDevice;
 
   std::string const name = signal.GetName();
   if (name == kDeviceArrivalSignal || name == kDeviceRemovalSignal)
@@ -260,7 +260,7 @@ bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void*)
     AdapterValueVector params = signal.GetParams();
     for (AdapterValueVector::const_iterator itr = params.begin(); itr != params.end(); ++itr)
     {
-      const shared_ptr<IAdapterValue>& param = (*itr);
+      const std::shared_ptr<IAdapterValue>& param = (*itr);
       const std::string& paramName = param->GetName();
       if (paramName == kDeviceArrivalDeviceHandle || paramName == kDeviceRemovalDeviceHandle)
       {
@@ -350,7 +350,7 @@ bridge::DeviceSystemBridge::ShutdownInternal()
 }
 
 QStatus
-bridge::DeviceSystemBridge::UpdateDevice(shared_ptr<IAdapterDevice> const& dev, bool exposedOnAllJoynBus)
+bridge::DeviceSystemBridge::UpdateDevice(std::shared_ptr<IAdapterDevice> const& dev, bool exposedOnAllJoynBus)
 {
   QStatus st = ER_OK;
 
@@ -370,12 +370,12 @@ bridge::DeviceSystemBridge::UpdateDevice(shared_ptr<IAdapterDevice> const& dev, 
 }
 
 QStatus
-bridge::DeviceSystemBridge::CreateDevice(shared_ptr<IAdapterDevice> const& dev)
+bridge::DeviceSystemBridge::CreateDevice(std::shared_ptr<IAdapterDevice> const& dev)
 {
   if (!dev.get())
     return ER_BAD_ARG_1;
 
-  shared_ptr<BridgeDevice> newDevice(new BridgeDevice(dev, m_adapter));
+  std::shared_ptr<BridgeDevice> newDevice(new BridgeDevice(dev, m_adapter));
   
   QStatus st = newDevice->Initialize();
   if (st == ER_OK)

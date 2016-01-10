@@ -77,50 +77,50 @@ int32_t
 adapter::zigbee::Adapter::EnumDevices(
     bridge::EnumDeviceOptions,
     bridge::AdapterDeviceVector&,
-    shared_ptr<bridge::IAdapterIoRequest>*)
+    std::shared_ptr<bridge::IAdapterIoRequest>*)
 {
   return -1;
 }
 
 int32_t
 adapter::zigbee::Adapter::GetProperty(
-    shared_ptr<bridge::IAdapterProperty>&,
-    shared_ptr<bridge::IAdapterIoRequest>*)
+    std::shared_ptr<bridge::IAdapterProperty>&,
+    std::shared_ptr<bridge::IAdapterIoRequest>*)
 {
   return -1;
 }
 
 int32_t
 adapter::zigbee::Adapter::SetProperty(
-    shared_ptr<bridge::IAdapterProperty> const&,
-    shared_ptr<bridge::IAdapterIoRequest>*)
+    std::shared_ptr<bridge::IAdapterProperty> const&,
+    std::shared_ptr<bridge::IAdapterIoRequest>*)
 {
   return -1;
 }
 
 int32_t
 adapter::zigbee::Adapter::GetPropertyValue(
-    shared_ptr<bridge::IAdapterProperty> const&,
+    std::shared_ptr<bridge::IAdapterProperty> const&,
     std::string const&,
-    shared_ptr<bridge::IAdapterValue>&,
-    shared_ptr<bridge::IAdapterIoRequest>*)
+    std::shared_ptr<bridge::IAdapterValue>&,
+    std::shared_ptr<bridge::IAdapterIoRequest>*)
 {
   return -1;
 }
 
 int32_t
 adapter::zigbee::Adapter::SetPropertyValue(
-    shared_ptr<bridge::IAdapterProperty> const&,
-    shared_ptr<bridge::IAdapterValue> const&,
-    shared_ptr<bridge::IAdapterIoRequest>*)
+    std::shared_ptr<bridge::IAdapterProperty> const&,
+    std::shared_ptr<bridge::IAdapterValue> const&,
+    std::shared_ptr<bridge::IAdapterIoRequest>*)
 {
   return -1;
 }
 
 int32_t
 adapter::zigbee::Adapter::CallMethod(
-    shared_ptr<bridge::IAdapterMethod>&,
-    shared_ptr<bridge::IAdapterIoRequest>*)
+    std::shared_ptr<bridge::IAdapterMethod>&,
+    std::shared_ptr<bridge::IAdapterIoRequest>*)
 {
   return -1;
 }
@@ -128,7 +128,7 @@ adapter::zigbee::Adapter::CallMethod(
 int32_t
 adapter::zigbee::Adapter::RegisterSignalListener(
   std::string const&,
-  shared_ptr<bridge::IAdapterSignalListener> const&,
+  std::shared_ptr<bridge::IAdapterSignalListener> const&,
   void*,
   bridge::IAdapter::RegistrationHandle&)
 {
