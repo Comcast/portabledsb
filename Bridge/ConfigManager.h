@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Common/defines.h"
 #include "Bridge/BridgeConfig.h"
 
 #include <alljoyn/BusAttachment.h>

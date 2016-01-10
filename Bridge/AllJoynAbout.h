@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Common/defines.h"
 #include "Common/Guid.h"
 
 #include <alljoyn/AboutData.h>

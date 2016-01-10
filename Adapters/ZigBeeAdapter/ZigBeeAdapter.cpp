@@ -61,19 +61,19 @@ adapter::zigbee::Adapter::GetSignals()
   return bridge::AdapterSignalVector();
 }
 
-int32_t
+bridge::AdapterStatus
 adapter::zigbee::Adapter::Initialize()
 {
   return -1;
 }
 
-int32_t
+bridge::AdapterStatus
 adapter::zigbee::Adapter::Shutdown()
 {
   return -1;
 }
 
-int32_t
+bridge::AdapterStatus
 adapter::zigbee::Adapter::EnumDevices(
     bridge::EnumDeviceOptions,
     bridge::AdapterDeviceVector&,
@@ -82,7 +82,7 @@ adapter::zigbee::Adapter::EnumDevices(
   return -1;
 }
 
-int32_t
+bridge::AdapterStatus
 adapter::zigbee::Adapter::GetProperty(
     std::shared_ptr<bridge::IAdapterProperty>&,
     std::shared_ptr<bridge::IAdapterIoRequest>*)
@@ -90,7 +90,7 @@ adapter::zigbee::Adapter::GetProperty(
   return -1;
 }
 
-int32_t
+bridge::AdapterStatus
 adapter::zigbee::Adapter::SetProperty(
     std::shared_ptr<bridge::IAdapterProperty> const&,
     std::shared_ptr<bridge::IAdapterIoRequest>*)
@@ -98,7 +98,7 @@ adapter::zigbee::Adapter::SetProperty(
   return -1;
 }
 
-int32_t
+bridge::AdapterStatus
 adapter::zigbee::Adapter::GetPropertyValue(
     std::shared_ptr<bridge::IAdapterProperty> const&,
     std::string const&,
@@ -108,7 +108,7 @@ adapter::zigbee::Adapter::GetPropertyValue(
   return -1;
 }
 
-int32_t
+bridge::AdapterStatus
 adapter::zigbee::Adapter::SetPropertyValue(
     std::shared_ptr<bridge::IAdapterProperty> const&,
     std::shared_ptr<bridge::IAdapterValue> const&,
@@ -117,7 +117,7 @@ adapter::zigbee::Adapter::SetPropertyValue(
   return -1;
 }
 
-int32_t
+bridge::AdapterStatus
 adapter::zigbee::Adapter::CallMethod(
     std::shared_ptr<bridge::IAdapterMethod>&,
     std::shared_ptr<bridge::IAdapterIoRequest>*)
@@ -125,7 +125,7 @@ adapter::zigbee::Adapter::CallMethod(
   return -1;
 }
 
-int32_t
+bridge::AdapterStatus
 adapter::zigbee::Adapter::RegisterSignalListener(
   std::string const&,
   std::shared_ptr<bridge::IAdapterSignalListener> const&,
@@ -135,7 +135,7 @@ adapter::zigbee::Adapter::RegisterSignalListener(
   return -1;
 }
 
-int32_t
+bridge::AdapterStatus
 adapter::zigbee::Adapter::UnregisterSignalListener(bridge::IAdapter::RegistrationHandle const&)
 {
   return -1;

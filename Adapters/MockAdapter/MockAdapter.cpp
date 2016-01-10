@@ -74,7 +74,7 @@ bridge::AdapterSignalVector adapters::mock::MockAdapter::GetSignals()
 }
 
 
-int32_t
+bridge::AdapterStatus
 adapters::mock::MockAdapter::Initialize(std::shared_ptr<bridge::IAdapterLog> const& log)
 {
   CreateMockDevices();
@@ -84,7 +84,7 @@ adapters::mock::MockAdapter::Initialize(std::shared_ptr<bridge::IAdapterLog> con
 }
 
 
-int32_t
+bridge::AdapterStatus
 adapters::mock::MockAdapter::Shutdown()
 {
   m_vendor.clear();
@@ -101,7 +101,7 @@ adapters::mock::MockAdapter::Shutdown()
 }
 
 
-int32_t
+bridge::AdapterStatus
 adapters::mock::MockAdapter::EnumDevices(
     bridge::EnumDeviceOptions /*opts*/,
     bridge::AdapterDeviceVector& deviceList,
@@ -118,7 +118,7 @@ adapters::mock::MockAdapter::EnumDevices(
 }
 
 
-int32_t
+bridge::AdapterStatus
 adapters::mock::MockAdapter::GetProperty(
     std::shared_ptr<bridge::IAdapterProperty>& prop,
     std::shared_ptr<bridge::IAdapterIoRequest>* req)
@@ -144,7 +144,7 @@ adapters::mock::MockAdapter::GetProperty(
 }
 
 
-int32_t
+bridge::AdapterStatus
 adapters::mock::MockAdapter::SetProperty(
     std::shared_ptr<bridge::IAdapterProperty> const& prop,
     std::shared_ptr<bridge::IAdapterIoRequest>* req)
@@ -170,7 +170,7 @@ adapters::mock::MockAdapter::SetProperty(
 }
 
 
-int32_t
+bridge::AdapterStatus
 adapters::mock::MockAdapter::GetPropertyValue(
     std::shared_ptr<bridge::IAdapterProperty> const& prop,
     std::string const& attributeName,
@@ -194,7 +194,7 @@ adapters::mock::MockAdapter::GetPropertyValue(
 }
 
 
-int32_t
+bridge::AdapterStatus
 adapters::mock::MockAdapter::SetPropertyValue(
     std::shared_ptr<bridge::IAdapterProperty> const& prop,
     std::shared_ptr<bridge::IAdapterValue> const& value,
@@ -217,7 +217,7 @@ adapters::mock::MockAdapter::SetPropertyValue(
 }
 
 
-int32_t
+bridge::AdapterStatus
 adapters::mock::MockAdapter::CallMethod(
     std::shared_ptr<bridge::IAdapterMethod>& method,
     std::shared_ptr<bridge::IAdapterIoRequest>* req)
@@ -234,7 +234,7 @@ adapters::mock::MockAdapter::CallMethod(
 }
 
 
-int32_t
+bridge::AdapterStatus
 adapters::mock::MockAdapter::RegisterSignalListener(
     std::string const& signalName,
     std::shared_ptr<bridge::IAdapterSignalListener> const& listener,
@@ -250,10 +250,10 @@ adapters::mock::MockAdapter::RegisterSignalListener(
   return ER_OK;
 }
 
-int32_t
+bridge::AdapterStatus
 adapters::mock::MockAdapter::UnregisterSignalListener(bridge::IAdapter::RegistrationHandle const& h)
 {
-  int32_t st = ER_FAIL;
+  bridge::AdapterStatus st = ER_FAIL;
   for (SignalMap::iterator begin = m_signalListeners.begin(), end = m_signalListeners.end();
     begin != end; ++begin)
   {
@@ -296,10 +296,10 @@ adapters::mock::MockAdapter::CreateSignals()
   m_signals.push_back(signal);
 }
 
-int32_t
+bridge::AdapterStatus
 adapters::mock::MockAdapter::NotifySignalListeners(std::shared_ptr<MockAdapterSignal> const& signal)
 {
-  int32_t st = ER_FAIL;
+  bridge::AdapterStatus st = ER_FAIL;
   if (!signal)
     return st;
 

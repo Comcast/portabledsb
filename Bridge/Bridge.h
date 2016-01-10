@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Common/defines.h"
 #include "Bridge/IAdapter.h"
 #include "Bridge/ConfigManager.h"
 

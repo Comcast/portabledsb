@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Common/defines.h"
 #include "DeviceProviders/AllJoynStatus.h"
 
 #include <alljoyn/AboutListener.h>

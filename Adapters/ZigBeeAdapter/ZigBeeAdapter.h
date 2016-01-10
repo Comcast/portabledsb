@@ -58,44 +58,44 @@ namespace zigbee
     virtual common::Guid GetExposedApplicationGuid();
     virtual bridge::AdapterSignalVector GetSignals();
 
-    virtual int32_t Initialize();
-    virtual int32_t Shutdown();
+    virtual bridge::AdapterStatus Initialize();
+    virtual bridge::AdapterStatus Shutdown();
 
-    virtual int32_t EnumDevices(
+    virtual bridge::AdapterStatus EnumDevices(
       bridge::EnumDeviceOptions opts,
       bridge::AdapterDeviceVector& deviceList,
       std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
-    virtual int32_t GetProperty(
+    virtual bridge::AdapterStatus GetProperty(
       std::shared_ptr<bridge::IAdapterProperty>& prop,
       std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
-    virtual int32_t SetProperty(
+    virtual bridge::AdapterStatus SetProperty(
       std::shared_ptr<bridge::IAdapterProperty> const& prop,
       std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
-    virtual int32_t GetPropertyValue(
+    virtual bridge::AdapterStatus GetPropertyValue(
       std::shared_ptr<bridge::IAdapterProperty> const& prop,
       std::string const& attributeName,
       std::shared_ptr<bridge::IAdapterValue>& value,
       std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
-    virtual int32_t SetPropertyValue(
+    virtual bridge::AdapterStatus SetPropertyValue(
       std::shared_ptr<bridge::IAdapterProperty> const& prop,
       std::shared_ptr<bridge::IAdapterValue> const& value,
       std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
-    virtual int32_t CallMethod(
+    virtual bridge::AdapterStatus CallMethod(
       std::shared_ptr<bridge::IAdapterMethod>& method,
       std::shared_ptr<bridge::IAdapterIoRequest>* req);
 
-    virtual int32_t RegisterSignalListener(
+    virtual bridge::AdapterStatus RegisterSignalListener(
       std::string const& signalName,
       std::shared_ptr<bridge::IAdapterSignalListener> const& listener,
       void* argp,
       bridge::IAdapter::RegistrationHandle& handle);
 
-    virtual int32_t UnregisterSignalListener(
+    virtual bridge::AdapterStatus UnregisterSignalListener(
       bridge::IAdapter::RegistrationHandle const& h);
   };
 }

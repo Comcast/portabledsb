@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Common/defines.h"
-
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/ProxyBusObject.h>
 #include <alljoyn/SessionListener.h>

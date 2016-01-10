@@ -1,16 +1,24 @@
 #pragma once
 
-#include "Common/defines.h"
 #include "Common/Guid.h"
 #include "Common/Variant.h"
 
+#include <condition_variable>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 
 namespace bridge
 {
+  typedef uint32_t AdapterStatus;
+
+  inline bool IsOk(AdapterStatus st)
+  {
+    return st == 0;
+  }
+
   std::string const kDeviceArrivalSignal = "Device_Arrival";
   std::string const kDeviceArravalHandle = "Device_Handle";
   std::string const kDeviceRemovalSignal = "Device_Removal";
@@ -155,10 +163,10 @@ namespace bridge
   class IAdapterIoRequest
   {
   public:
-    virtual int32_t Status() = 0;;
-    virtual int32_t Wait(uint32_t timeoutMillis) = 0;
+    virtual ~IAdapterIoRequest() { }
+    virtual int32_t GetStatus() = 0;;
+    virtual int32_t Wait(uint32_t timeoutMillis = std::numeric_limits<uint32_t>::max()) = 0;
     virtual int32_t Cancel() = 0;
-    virtual int32_t Release() = 0;
   };
 
   enum class EnumDeviceOptions
@@ -172,6 +180,7 @@ namespace bridge
   protected:
     IAdapter() { }
   public:
+
     typedef int32_t RegistrationHandle;
 
     virtual ~IAdapter() { }
@@ -183,47 +192,47 @@ namespace bridge
     virtual common::Guid GetExposedApplicationGuid() = 0;
     virtual AdapterSignalVector GetSignals() = 0;
 
-    virtual int32_t SetConfiguration(std::vector<uint8_t> const& configData) = 0;
-    virtual int32_t GetConfiguration(std::vector<uint8_t>* configData) = 0;
+    virtual AdapterStatus SetConfiguration(std::vector<uint8_t> const& configData) = 0;
+    virtual AdapterStatus GetConfiguration(std::vector<uint8_t>* configData) = 0;
 
-    virtual int32_t Initialize(std::shared_ptr<IAdapterLog> const& log) = 0;
-    virtual int32_t Shutdown() = 0;
+    virtual AdapterStatus Initialize(std::shared_ptr<IAdapterLog> const& log) = 0;
+    virtual AdapterStatus Shutdown() = 0;
 
-    virtual int32_t EnumDevices(
+    virtual AdapterStatus EnumDevices(
       EnumDeviceOptions opts,
       AdapterDeviceVector& deviceList,
       std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual int32_t GetProperty(
+    virtual AdapterStatus GetProperty(
       std::shared_ptr<IAdapterProperty>& prop,
       std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual int32_t SetProperty(
+    virtual AdapterStatus SetProperty(
       std::shared_ptr<IAdapterProperty> const& prop,
       std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual int32_t GetPropertyValue(
+    virtual AdapterStatus GetPropertyValue(
       std::shared_ptr<IAdapterProperty> const& prop,
       std::string const& attributeName,
       std::shared_ptr<IAdapterValue>& value,
       std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual int32_t SetPropertyValue(
+    virtual AdapterStatus SetPropertyValue(
       std::shared_ptr<IAdapterProperty> const& prop,
       std::shared_ptr<IAdapterValue> const& value,
       std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual int32_t CallMethod(
+    virtual AdapterStatus CallMethod(
       std::shared_ptr<IAdapterMethod>& method,
       std::shared_ptr<IAdapterIoRequest>* req) = 0;
 
-    virtual int32_t RegisterSignalListener(
+    virtual AdapterStatus RegisterSignalListener(
       std::string const& signalName,
       std::shared_ptr<IAdapterSignalListener> const& listener,
       void* argp, 
       RegistrationHandle& handle) = 0;
 
-    virtual int32_t UnregisterSignalListener(RegistrationHandle const& h) = 0;
+    virtual AdapterStatus UnregisterSignalListener(RegistrationHandle const& h) = 0;
   };
 
 
@@ -281,6 +290,73 @@ namespace bridge
   private:
     std::string       m_name;
     common::Variant   m_data;
+  };
+
+  class AdapterIoRequest : public IAdapterIoRequest
+  {
+  public:
+    AdapterIoRequest()
+      : m_status(0)
+      , m_canceled(false)
+      , m_completed(false)
+    {
+    }
+
+    virtual ~AdapterIoRequest()
+    {
+    }
+
+    virtual int32_t GetStatus()
+      { return m_status; }
+
+    virtual int32_t Wait(uint32_t millis = std::numeric_limits<uint32_t>::max())
+    {
+      if (millis != std::numeric_limits<uint32_t>::max())
+      {
+        auto delay = std::chrono::system_clock::now() + std::chrono::milliseconds(millis);
+
+        std::unique_lock<std::mutex> lk(m_mutex);
+        if (m_cond.wait_until(lk, delay, [this] { return this->m_canceled || this->m_completed; }))
+          return 0;
+        else
+          return -1; // timedout
+      }
+      else
+      {
+        std::unique_lock<std::mutex> lk(m_mutex);
+        m_cond.wait(lk, [this] { return this->m_canceled || this->m_completed; });
+      }
+
+      return 0;
+    }
+
+    virtual int32_t Cancel()
+    {
+      std::unique_lock<std::mutex> lk(m_mutex);
+      m_canceled = true;
+      m_completed = true;
+      lk.unlock();
+      m_cond.notify_all();
+
+      return 0;
+    }
+
+    void SetComplete(int32_t status)
+    {
+      std::unique_lock<std::mutex> lk(m_mutex);
+      m_status = status;
+      m_canceled = false;
+      m_completed = true;
+      lk.unlock();
+      m_cond.notify_all();
+    }
+
+  private:
+    int32_t                   m_status;
+    bool                      m_canceled;
+    bool                      m_completed;
+    std::mutex                m_mutex;
+    std::condition_variable   m_cond;
   };
 }
 
