@@ -20,7 +20,7 @@ namespace
 
 adapters::mock::MockAdapter::MockAdapter()
   : m_vendor("Acme")
-  , m_adapterName("DSB Mock Adapter")
+  , m_adapterName("MockAdapter")
   , m_exposedAdapterPrefix("com." + m_vendor)
   , m_exposedApplicationName("DeviceSystemBridge")
   , m_exposedApplicationGuid(common::Guid::Parse("C27BC425-0058-4829-8775-441B5D8740C0"))

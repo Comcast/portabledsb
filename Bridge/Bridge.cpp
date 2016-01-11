@@ -23,23 +23,23 @@ namespace
 
   void alljoynLogger(DbgMsgType type, char const* module, char const* msg, void* /*ctx*/)
   {
-    common::Logger::Level level = common::Logger::DSB_LOGLEVEL_INFO;
+    common::LogLevel level = common::LogLevel::Info;
     switch (type)
     {
       case DBG_LOCAL_ERROR:
       case DBG_REMOTE_ERROR:
-        level = common::Logger::DSB_LOGLEVEL_ERROR;
+        level = common::LogLevel::Error;
         break;
       case DBG_HIGH_LEVEL:
-        level = common::Logger::DSB_LOGLEVEL_WARN;
+        level = common::LogLevel::Warn;
         break;
       case DBG_GEN_MESSAGE:
-        level = common::Logger::DSB_LOGLEVEL_INFO;
+        level = common::LogLevel::Info;
         break;
       case DBG_API_TRACE:
       case DBG_REMOTE_DATA:
       case DBG_LOCAL_DATA:
-        level = common::Logger::DSB_LOGLEVEL_DEBUG;
+        level = common::LogLevel::Debug;
     }
     common::Logger::Write("alljoyn", level, NULL, 0, "[%s] %s", module, msg);
   }
@@ -200,7 +200,7 @@ bridge::DeviceSystemBridge::InitializeAdapter()
     return ER_FAIL;
   }
 
-  std::shared_ptr<IAdapterLog> log(new AdapterLog("adapter"));
+  std::shared_ptr<IAdapterLog> log(new AdapterLog(m_adapter->GetAdapterName()));
   int ret = m_adapter->Initialize(log);
   return ret == 0 ? ER_OK : ER_FAIL;
 }

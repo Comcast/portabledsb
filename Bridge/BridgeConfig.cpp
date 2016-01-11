@@ -21,21 +21,13 @@ namespace
     if (!error)
       return;
 
-    common::Logger::Level level = common::Logger::DSB_LOGLEVEL_INFO;
+    common::LogLevel level = common::LogLevel::Info;
     switch (error->level)
     {
-      case XML_ERR_NONE:
-        level = common::Logger::DSB_LOGLEVEL_DEBUG;
-        break;
-      case XML_ERR_WARNING:
-        level = common::Logger::DSB_LOGLEVEL_WARN;
-        break;
-      case XML_ERR_ERROR:
-        level = common::Logger::DSB_LOGLEVEL_ERROR;
-        break;
-      case XML_ERR_FATAL:
-        level = common::Logger::DSB_LOGLEVEL_FATAL;
-        break;
+      case XML_ERR_NONE: level = common::LogLevel::Debug; break;
+      case XML_ERR_WARNING: level = common::LogLevel::Warn; break;
+      case XML_ERR_ERROR: level = common::LogLevel::Error; break;
+      case XML_ERR_FATAL: level = common::LogLevel::Fatal; break;
     }
 
     // remove newline. I hate blank lines in logfiles.

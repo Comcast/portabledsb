@@ -65,6 +65,8 @@ int main(int /*argc*/, char* /*argv*/ [])
 
   std::shared_ptr<bridge::IAdapter> adapter = DSB()->GetAdapter();
 
+  common::Logger::SetLevel(adapter->GetAdapterName(), common::LogLevel::Debug);
+
   bridge::AdapterDeviceVector deviceList;
   std::shared_ptr<bridge::IAdapterIoRequest> req;
 

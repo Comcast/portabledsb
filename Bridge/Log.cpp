@@ -3,17 +3,17 @@
 
 namespace
 {
-  common::Logger::Level toLogLevel(bridge::AdapterLogLevel level)
+  common::LogLevel toLogLevel(bridge::AdapterLogLevel level)
   {
-    common::Logger::Level l = common::Logger::DSB_LOGLEVEL_OFF;
+    common::LogLevel l = common::LogLevel::Off;
     switch (level)
     {
-      case bridge::AdapterLogLevel::Off:    l = common::Logger::DSB_LOGLEVEL_OFF; break;
-      case bridge::AdapterLogLevel::Debug:  l = common::Logger::DSB_LOGLEVEL_DEBUG; break;
-      case bridge::AdapterLogLevel::Info:   l = common::Logger::DSB_LOGLEVEL_INFO; break;
-      case bridge::AdapterLogLevel::Warn:   l = common::Logger::DSB_LOGLEVEL_WARN; break;
-      case bridge::AdapterLogLevel::Error:  l = common::Logger::DSB_LOGLEVEL_ERROR; break;
-      case bridge::AdapterLogLevel::Fatal:  l = common::Logger::DSB_LOGLEVEL_FATAL; break;
+      case bridge::AdapterLogLevel::Off:    l = common::LogLevel::Off; break;
+      case bridge::AdapterLogLevel::Debug:  l = common::LogLevel::Debug; break;
+      case bridge::AdapterLogLevel::Info:   l = common::LogLevel::Info; break;
+      case bridge::AdapterLogLevel::Warn:   l = common::LogLevel::Warn; break;
+      case bridge::AdapterLogLevel::Error:  l = common::LogLevel::Error; break;
+      case bridge::AdapterLogLevel::Fatal:  l = common::LogLevel::Fatal; break;
     }
     return l;
   }
@@ -36,7 +36,7 @@ bridge::AdapterLog::Write(AdapterLogLevel level, char const* file, int line, cha
 bool
 bridge::AdapterLog::IsLevelEnabled(AdapterLogLevel level)
 {
-  common::Logger::Level l = toLogLevel(level);
+  common::LogLevel l = toLogLevel(level);
   return common::Logger::IsLevelEnabled(m_module.c_str(), l);
 }
 
