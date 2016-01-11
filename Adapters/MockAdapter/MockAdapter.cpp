@@ -4,8 +4,9 @@
 #include "MockAdapterDevice.h"
 #include "Common/Log.h"
 
-#include <vector>
 #include <algorithm>
+#include <sstream>
+#include <vector>
 
 namespace
 {
@@ -313,5 +314,17 @@ adapters::mock::MockAdapter::NotifySignalListeners(std::shared_ptr<MockAdapterSi
   }
 
   return st;
+}
+
+std::string
+adapters::mock::MockAdapter::GetStatusText(bridge::AdapterStatus st)
+{
+  if (st == 0)
+    return std::string("ok");
+
+  std::stringstream buff;
+  buff << "MockError:";
+  buff << static_cast<uint32_t>(st);
+  return buff.str();
 }
 

@@ -26,6 +26,8 @@ namespace mock
     virtual common::Guid GetExposedApplicationGuid();
     virtual bridge::AdapterSignalVector GetSignals();
 
+    virtual std::string GetStatusText(bridge::AdapterStatus st);
+
     virtual bridge::AdapterStatus Initialize(std::shared_ptr<bridge::IAdapterLog> const& log);
     virtual bridge::AdapterStatus Shutdown();
 

@@ -164,9 +164,10 @@ namespace bridge
   {
   public:
     virtual ~IAdapterIoRequest() { }
-    virtual int32_t GetStatus() = 0;;
-    virtual int32_t Wait(uint32_t timeoutMillis = std::numeric_limits<uint32_t>::max()) = 0;
-    virtual int32_t Cancel() = 0;
+
+    virtual AdapterStatus GetStatus() = 0;;
+    virtual AdapterStatus Wait(uint32_t timeoutMillis = std::numeric_limits<uint32_t>::max()) = 0;
+    virtual AdapterStatus Cancel() = 0;
   };
 
   enum class EnumDeviceOptions
@@ -191,6 +192,8 @@ namespace bridge
     virtual std::string GetExposedApplicationName() = 0;
     virtual common::Guid GetExposedApplicationGuid() = 0;
     virtual AdapterSignalVector GetSignals() = 0;
+
+    virtual std::string GetStatusText(AdapterStatus st) = 0;
 
     virtual AdapterStatus SetConfiguration(std::vector<uint8_t> const& configData) = 0;
     virtual AdapterStatus GetConfiguration(std::vector<uint8_t>* configData) = 0;
@@ -306,10 +309,10 @@ namespace bridge
     {
     }
 
-    virtual int32_t GetStatus()
+    virtual AdapterStatus GetStatus()
       { return m_status; }
 
-    virtual int32_t Wait(uint32_t millis = std::numeric_limits<uint32_t>::max())
+    virtual AdapterStatus Wait(uint32_t millis = std::numeric_limits<uint32_t>::max())
     {
       if (millis != std::numeric_limits<uint32_t>::max())
       {
@@ -330,7 +333,7 @@ namespace bridge
       return 0;
     }
 
-    virtual int32_t Cancel()
+    virtual AdapterStatus Cancel()
     {
       std::unique_lock<std::mutex> lk(m_mutex);
       m_canceled = true;
@@ -341,7 +344,7 @@ namespace bridge
       return 0;
     }
 
-    void SetComplete(int32_t status)
+    void SetComplete(AdapterStatus status)
     {
       std::unique_lock<std::mutex> lk(m_mutex);
       m_status = status;
@@ -352,7 +355,7 @@ namespace bridge
     }
 
   private:
-    int32_t                   m_status;
+    AdapterStatus             m_status;
     bool                      m_canceled;
     bool                      m_completed;
     std::mutex                m_mutex;

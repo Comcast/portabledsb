@@ -1,12 +1,10 @@
 #ifndef __DEVICE_MAIN_H__
 #define __DEVICE_MAIN_H__
 
+#include "Bridge/AllJoynHeaders.h"
+#include "Bridge/IAdapter.h"
+
 #include <map>
-
-#include <alljoyn/BusObject.h>
-#include <alljoyn/InterfaceDescription.h>
-
-#include "IAdapter.h"
 
 namespace bridge
 {

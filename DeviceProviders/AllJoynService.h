@@ -1,8 +1,11 @@
 #pragma once
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #include <alljoyn/BusAttachment.h>
 #include <alljoyn/ProxyBusObject.h>
 #include <alljoyn/SessionListener.h>
+#pragma GCC diagnostic pop
 
 #include <map>
 #include <memory>

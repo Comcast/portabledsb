@@ -1,12 +1,7 @@
 #pragma once
 
 #include "Common/Guid.h"
-
-#include <alljoyn/AboutData.h>
-#include <alljoyn/AboutObj.h>
-#include <alljoyn/BusAttachment.h>
-#include <alljoyn/InterfaceDescription.h>
-#include <alljoyn/Status.h>
+#include "Bridge/AllJoynHeaders.h"
 
 #include <memory>
 

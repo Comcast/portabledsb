@@ -2,7 +2,10 @@
 
 #include "DeviceProviders/AllJoynStatus.h"
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #include <alljoyn/AboutListener.h>
+#pragma GCC diagnostic pop
 
 #include <map>
 #include <memory>

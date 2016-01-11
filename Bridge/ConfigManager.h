@@ -1,11 +1,7 @@
 #pragma once
 
 #include "Bridge/BridgeConfig.h"
-
-#include <alljoyn/BusAttachment.h>
-#include <alljoyn/BusListener.h>
-#include <alljoyn/SessionListener.h>
-#include <alljoyn/SessionPortListener.h>
+#include "Bridge/AllJoynHeaders.h"
 
 #include <memory>
 

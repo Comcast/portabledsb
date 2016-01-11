@@ -208,6 +208,8 @@ bridge::DeviceSystemBridge::InitializeAdapter()
 QStatus
 bridge::DeviceSystemBridge::InitializeDevices(bool update)
 {
+  QStatus st = ER_OK;
+
   AdapterDeviceVector deviceList;
   std::shared_ptr<IAdapterIoRequest> request;
 
@@ -215,16 +217,24 @@ bridge::DeviceSystemBridge::InitializeDevices(bool update)
   if (update)
     opts = EnumDeviceOptions::ForceRefresh;
 
-  int ret = m_adapter->EnumDevices(opts, deviceList, &request);
+  AdapterStatus adapterStatus  = m_adapter->EnumDevices(opts, deviceList, &request);
+  if (!IsOk(adapterStatus))
+  {
+    DSBLOG_WARN("failed to enumerate devices: %d", m_adapter->GetStatusText(adapterStatus).c_str());
 
-  if (ret != 0)
+    // TODO: we need some translation from AdapterStatus to QStatus
+    st = ER_FAIL;
     goto Leave;
+  }
 
   if (request)
   {
-    ret = request->Wait(kWaitTimeoutForAdapterOperation);
-    if (ret != 0)
+    adapterStatus = request->Wait(kWaitTimeoutForAdapterOperation);
+    if (!IsOk(adapterStatus))
     {
+      DSBLOG_WARN("failed to wait for async i/o request: %s", m_adapter->GetStatusText(adapterStatus).c_str());
+
+      st = ER_FAIL;
       goto Leave;
     }
   }
@@ -234,18 +244,18 @@ bridge::DeviceSystemBridge::InitializeDevices(bool update)
   {
     // TODO: get configuration for device, only expose visible devices
     if (update)
-      ret = UpdateDevice(*begin, true);
+      st = UpdateDevice(*begin, true);
     else
-      ret = CreateDevice(*begin);
+      st = CreateDevice(*begin);
 
-    if (ret != 0)
-      DSBLOG_WARN("Failed to %s device: %d", update ? "update" : "create", ret);
+    if (st != ER_OK)
+      DSBLOG_WARN("Failed to %s device: %s", update ? "update" : "create", QCC_StatusText(st));
   }
 
   // TODO: Save bridge configuration to XML
 
 Leave:
-  return ret == 0 ? ER_OK : ER_FAIL;
+  return st;
 }
 
 void

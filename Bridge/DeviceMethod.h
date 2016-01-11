@@ -1,11 +1,9 @@
 #ifndef __DEVICE_METHOD_H__
 #define __DEVICE_METHOD_H__
 
-#include "IAdapter.h"
+#include "Bridge/IAdapter.h"
+#include "Bridge/AllJoynHeaders.h"
 
-#include <alljoyn/Message.h>
-#include <alljoyn/MsgArg.h>
-#include <alljoyn/Status.h>
 
 namespace bridge
 {
