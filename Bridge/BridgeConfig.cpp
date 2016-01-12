@@ -1,6 +1,8 @@
 #include "BridgeConfig.h"
 #include "Common/Log.h"
 
+#include <memory>
+#include <mutex>
 #include <string>
 #include <sstream>
 #include <string.h>
@@ -145,6 +147,23 @@ namespace
     DSBLOG_INFO("%s == %s", xpath, content.c_str());
     return content;
   }
+
+  class LibXmlInitializer
+  {
+  public:
+    LibXmlInitializer()
+    {
+      xmlInitParser();
+    }
+
+    ~LibXmlInitializer()
+    {
+      xmlCleanupParser();
+    }
+  };
+
+  std::once_flag libXmlInit;
+  std::shared_ptr<LibXmlInitializer> libXmlInitializer;
 }
 
 bridge::BridgeConfig::BridgeConfig()
@@ -166,7 +185,10 @@ bridge::BridgeConfig::FromFile(std::string const& fileName)
 
   m_fileName = fileName;
   installXmlLogger();
-  xmlInitParser();
+
+  std::call_once(libXmlInit, [] {
+    if (!libXmlInitializer) libXmlInitializer.reset(new LibXmlInitializer());
+  });
 
   xmlDocPtr doc = xmlParseFile(m_fileName.c_str());
   if (!doc)
