@@ -2,6 +2,7 @@
 
 #include "MockDevices.h"
 #include "MockAdapterDevice.h"
+#include "MockAdapterSignal.h"
 #include "Common/Log.h"
 
 #include <algorithm>

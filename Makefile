@@ -17,6 +17,10 @@ SRCS=DeviceProviders/AllJoynProvider.cpp \
      Adapters/MockAdapter/MockAdapter.cpp \
      Adapters/MockAdapter/MockDevices.cpp \
      Adapters/MockAdapter/MockAdapterDevice.cpp \
+     Adapters/MockAdapter/MockAdapterMethod.cpp \
+     Adapters/MockAdapter/MockAdapterProperty.cpp \
+     Adapters/MockAdapter/MockAdapterSignal.cpp \
+     Adapters/MockAdapter/MockAdapterValue.cpp \
      Adapters/ZigBeeAdapter/ZigBeeAdapter.cpp \
      main.cpp
 
