@@ -99,7 +99,7 @@ bridge::DeviceSystemBridge::Initialize()
     if (st != ER_OK)
     {
       DSBLOG_WARN("initialize AllJoyn failed: %s", QCC_StatusText(st));
-      goto Leave;
+      return st;
     }
 
     m_alljoynInitialized = true;
@@ -107,13 +107,7 @@ bridge::DeviceSystemBridge::Initialize()
 
   st = InitializeInternal();
   if (st != ER_OK)
-    goto Leave;
-
-Leave:
-  if (st != ER_OK)
-  {
-    Shutdown();
-  }
+    m_alljoynInitialized = false;
 
   return st;
 }
@@ -121,7 +115,7 @@ Leave:
 QStatus
 bridge::DeviceSystemBridge::InitializeInternal()
 {
-  QStatus st = ER_OK;
+  QStatus st;
 
   DSBLOG_INFO("initialize configuration manager");
   st = m_configManager.Initialize();
@@ -129,7 +123,7 @@ bridge::DeviceSystemBridge::InitializeInternal()
   if (st != ER_OK)
   {
     DSBLOG_WARN("initialize configuration manager failed: %s", QCC_StatusText(st));
-    goto Leave;
+    return st;
   }
 
   DSBLOG_INFO("initialize adapter");
@@ -138,7 +132,7 @@ bridge::DeviceSystemBridge::InitializeInternal()
   if (st != ER_OK)
   {
     DSBLOG_WARN("initialize adapter failed: %s", QCC_StatusText(st));
-    goto Leave;
+    return st;
   }
 
   DSBLOG_INFO("connect to AllJoyn router");
@@ -147,7 +141,7 @@ bridge::DeviceSystemBridge::InitializeInternal()
   if (st != ER_OK)
   {
     DSBLOG_INFO("connect to AllJoyn router failed: %s", QCC_StatusText(st));
-    goto Leave;
+    return st;
   }
 
   DSBLOG_INFO("initialize devices");
@@ -155,7 +149,7 @@ bridge::DeviceSystemBridge::InitializeInternal()
   if (st != ER_OK)
   {
     DSBLOG_WARN("initialize devices failed: %s", QCC_StatusText(st));
-    goto Leave;
+    return st;
   }
 
   DSBLOG_INFO("registering signal handlers");
@@ -163,10 +157,9 @@ bridge::DeviceSystemBridge::InitializeInternal()
   if (st != ER_OK)
   {
     DSBLOG_WARN("register signal handlers failed: %s", QCC_StatusText(st));
-    goto Leave;
+    return st;
   }
 
-Leave:
   return st;
 }
 
@@ -208,8 +201,6 @@ bridge::DeviceSystemBridge::InitializeAdapter()
 QStatus
 bridge::DeviceSystemBridge::InitializeDevices(bool update)
 {
-  QStatus st = ER_OK;
-
   AdapterDeviceVector deviceList;
   std::shared_ptr<IAdapterIoRequest> request;
 
@@ -223,8 +214,7 @@ bridge::DeviceSystemBridge::InitializeDevices(bool update)
     DSBLOG_WARN("failed to enumerate devices: %d", m_adapter->GetStatusText(adapterStatus).c_str());
 
     // TODO: we need some translation from AdapterStatus to QStatus
-    st = ER_FAIL;
-    goto Leave;
+    return ER_FAIL;
   }
 
   if (request)
@@ -233,9 +223,7 @@ bridge::DeviceSystemBridge::InitializeDevices(bool update)
     if (!IsOk(adapterStatus))
     {
       DSBLOG_WARN("failed to wait for async i/o request: %s", m_adapter->GetStatusText(adapterStatus).c_str());
-
-      st = ER_FAIL;
-      goto Leave;
+      return ER_FAIL;
     }
   }
 
@@ -243,19 +231,22 @@ bridge::DeviceSystemBridge::InitializeDevices(bool update)
   for (iterator begin = deviceList.begin(), end = deviceList.end(); begin != end; ++begin)
   {
     // TODO: get configuration for device, only expose visible devices
+    QStatus st;
     if (update)
       st = UpdateDevice(*begin, true);
     else
       st = CreateDevice(*begin);
 
     if (st != ER_OK)
+    {
       DSBLOG_WARN("Failed to %s device: %s", update ? "update" : "create", QCC_StatusText(st));
+      return st;
+    }
   }
 
   // TODO: Save bridge configuration to XML
 
-Leave:
-  return st;
+  return ER_OK;
 }
 
 void
@@ -281,20 +272,15 @@ bridge::DeviceSystemBridge::OnAdapterSignal(IAdapterSignal const& signal, void*)
       }
 
       if (!adapterDevice)
-        goto Leave;
+        return;
     }
   }
 
   if (name == kDeviceArrivalSignal)
-  {
     CreateDevice(adapterDevice);
-  }
+
   else if (name == kDeviceRemovalSignal)
-  {
     UpdateDevice(adapterDevice, false);
-  }
-Leave:
-  return;
 }
 
 QStatus
