@@ -46,17 +46,17 @@ bridge::BridgeDevice::Initialize()
   // create Device service name
   st = BuildServiceName();
   if (st != ER_OK)
-    goto leave;
+    return st;
 
   // init alljoyn
   st = InitializeAllJoyn();
   if (st != ER_OK)
-    goto leave;
+    return st;
 
   // initialize about service
   st = m_about.Initialize(m_busAttachment);
   if (st != ER_OK)
-    goto leave;
+    return st;
 
   // set device info in about
   m_about.SetApplicationName(m_adapter->GetExposedApplicationName().c_str());
@@ -76,22 +76,22 @@ bridge::BridgeDevice::Initialize()
   // create device properties
   st = CreateDeviceProperties();
   if (st != ER_OK)
-    goto leave;
+    return st;
 
   // create main device
   st = m_deviceMain.Initialize();
   if (st != ER_OK)
-    goto leave;
+    return st;
 
   // Create a control panel if requested by the caller.
   st = InitControlPanel();
   if (st != ER_OK)
-    goto leave;
+    return st;
   
   // Create Lighting Service if requested
   st = InitLightingService();
   if (st != ER_OK)
-    goto leave;
+    return st;
 
   interface = m_deviceMain.GetInterfaceDescription();
   if (!interface)
@@ -104,20 +104,15 @@ bridge::BridgeDevice::Initialize()
   // connect to AllJoyn
   st = ConnectToAllJoyn();
   if (st != ER_OK)
-    goto leave;
+    return st;
 
   // register signals
   st = RegisterSignalHandlers(true);
   if (st != ER_OK)
-    goto leave;
+    return st;
 
   // announce
-  m_about.Announce();
-
-leave:
-  if (st != ER_OK)
-    Shutdown();
-  return st;
+  return m_about.Announce();
 }
 
 QStatus

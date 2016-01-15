@@ -19,44 +19,19 @@ bridge::DeviceMethod::~DeviceMethod()
 }
 
 uint32_t
-bridge::DeviceMethod::InvokeMethod(ajn::Message& msg, ajn::MsgArg* outArgs, size_t* numOutArgs)
+bridge::DeviceMethod::InvokeMethod(ajn::Message& msg, std::vector<ajn::MsgArg>& outArgs)
 {
-  int       i = 0;
-  uint32_t  adapterStatus = 0;
-  QStatus   status = ER_OK;
+  int i = 0;
+  QStatus status = ER_OK;
   std::shared_ptr<IAdapterIoRequest> request;
 
-  if (outArgs)
-    *outArgs = nullptr;
-
-  if (numOutArgs)
-    *numOutArgs = 0;
-
-  if (!m_adapterMethod->GetOutputParams().empty())
-  {
-    if (outArgs == nullptr)
-      adapterStatus = 1;
-    if (numOutArgs == nullptr)
-      adapterStatus = 2;
-
-    // TODO: I don't like all these goto's. Why not just use exception handling?
-    if (adapterStatus != 0)
-      goto leave;
-
-    // TODO: make sure this gets deleted [] by caller. Should we just use vector with
-    // std::shared_ptr<>?
-    outArgs = new ajn::MsgArg[m_adapterMethod->GetOutputParams().size()];
-    *numOutArgs = m_adapterMethod->GetOutputParams().size();
-  }
+  outArgs.clear();
 
   for (std::shared_ptr<IAdapterValue> const& param : m_adapterMethod->GetInputParams())
   {
     ajn::MsgArg const* inArg = msg->GetArg(i++);
     if (inArg == nullptr)
-    {
-      adapterStatus = 1;
-      goto leave;
-    }
+      return 1;
 
     // TODO: this seems odd. The GetAdapterValue() populates the param argument with the
     // data from the inArg. Why wouldn't we create a temporary based on the incoming
@@ -66,13 +41,10 @@ bridge::DeviceMethod::InvokeMethod(ajn::Message& msg, ajn::MsgArg* outArgs, size
     // completion at any given time
     status = AllJoynHelper::GetAdapterValue(*param, *inArg);
     if (status != ER_OK)
-    {
-      adapterStatus = 1;
-      goto leave;
-    }
+      return 1;
   }
 
-  // TODO: we're ingoring the return value here
+  // TODO: we're ignoring the return value here
   bridge::DeviceSystemBridge::GetInstance()->GetAdapter()
     ->CallMethod(m_adapterMethod, &request);
 
@@ -84,18 +56,11 @@ bridge::DeviceMethod::InvokeMethod(ajn::Message& msg, ajn::MsgArg* outArgs, size
   for (std::shared_ptr<IAdapterValue> const& param : m_adapterMethod->GetOutputParams())
   {
     status = AllJoynHelper::SetMsgArg(*param, outArgs[i]);
-    // TODO: check status
+    if (status != ER_OK)
+      return 1;
   }
 
-  leave:
-    if (adapterStatus != 0)
-    {
-      delete [] outArgs;
-      if (numOutArgs)
-        *numOutArgs = 0;
-    }
-
-  return adapterStatus;
+  return 0;
 }
 
 QStatus

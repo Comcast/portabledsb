@@ -19,7 +19,7 @@ namespace bridge
 
     // TODO: error code?
     // TODO: should that first arg be constant?
-    uint32_t InvokeMethod(ajn::Message& msg, ajn::MsgArg* outArgs, size_t* numOutArgs);
+    uint32_t InvokeMethod(ajn::Message& msg, std::vector<ajn::MsgArg>& outArgs);
 
     inline std::string const& GetName() const
       { return m_exposedName; }
