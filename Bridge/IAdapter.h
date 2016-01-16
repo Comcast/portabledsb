@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Common/Guid.h"
+#include "Common/Log.h"
 #include "Common/Variant.h"
 
 #include <condition_variable>
@@ -35,7 +36,6 @@ namespace bridge
   class IAdapterMethod;
   class IAdapterSignal;
   class IAdapterDevice;
-  class IAdapterLog;
 
   typedef std::vector< std::shared_ptr<IAdapterValue> >    AdapterValueVector;
   typedef std::vector< std::shared_ptr<IAdapterProperty> > AdapterPropertyVector;
@@ -57,23 +57,6 @@ namespace bridge
     Never,
     Always,
     AlwaysWithNoValue
-  };
-
-  enum class AdapterLogLevel
-  {
-    Off = -1,
-    Debug = 1,
-    Info = 2,
-    Warn = 3,
-    Error = 4,
-    Fatal = 5
-  };
-
-  class IAdapterLog
-  {
-  public:
-    virtual void Write(AdapterLogLevel level, char const* file, int line, char const* format, ...) = 0;
-    virtual bool IsLevelEnabled(AdapterLogLevel level) = 0;
   };
 
   class IAdapterAttribute
@@ -198,7 +181,7 @@ namespace bridge
     virtual AdapterStatus SetConfiguration(std::vector<uint8_t> const& configData) = 0;
     virtual AdapterStatus GetConfiguration(std::vector<uint8_t>* configData) = 0;
 
-    virtual AdapterStatus Initialize(std::shared_ptr<IAdapterLog> const& log) = 0;
+    virtual AdapterStatus Initialize(std::shared_ptr<common::Logger> const& log) = 0;
     virtual AdapterStatus Shutdown() = 0;
 
     virtual AdapterStatus EnumDevices(

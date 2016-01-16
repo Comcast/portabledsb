@@ -77,7 +77,7 @@ bridge::AdapterSignalVector adapters::mock::MockAdapter::GetSignals()
 
 
 bridge::AdapterStatus
-adapters::mock::MockAdapter::Initialize(std::shared_ptr<bridge::IAdapterLog> const& log)
+adapters::mock::MockAdapter::Initialize(std::shared_ptr<common::Logger> const& log)
 {
   CreateMockDevices();
   CreateSignals();

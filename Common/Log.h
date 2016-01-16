@@ -7,6 +7,7 @@
 #endif
 
 #include <stdarg.h>
+#include <memory>
 #include <string>
 
 namespace common
@@ -24,28 +25,41 @@ namespace common
   class Logger
   {
   public:
-    static void SetLevel(std::string const& module, LogLevel level);
+    static std::shared_ptr<Logger> GetLogger(std::string const& name);
 
-    static void Write(std::string const& module, LogLevel level, const char* file,
-        int line, const char* format, ...) PRINTF_FORMAT(6, 7);
+    Logger(std::string const& name);
 
-    static bool IsLevelEnabled(std::string const& module, LogLevel level);
+    void Write(LogLevel level, const char* file, int line, const char* format, ...)
+      PRINTF_FORMAT(5, 6);
 
-    static void VaLog(std::string const& module, LogLevel level, const char* file,
-      int line, const char* format, va_list args);
+    void VaLog(LogLevel level, const char* file, int line, const char* format, va_list args);
+
+    bool IsLevelEnabled(std::string const& module, LogLevel level);
+
+    std::string const& GetName() const
+      { return m_name; }
+
+    void SetLevel(LogLevel level);
+
+    static void SetDefaultLevel(LogLevel level);
+  private:
+    LogLevel    m_level;
+    std::string m_name;
   };
 }
 
 #define DSB_DECLARE_LOGNAME(LOGNAME) std::string const __dsb_logger_module_name__ = #LOGNAME
 
 #define DSBLOG_WITH_LEVEL(LEVEL, FORMAT, ...) \
-    do { if (common::Logger::IsLevelEnabled(__dsb_logger_module_name__, LEVEL)) { \
-        common::Logger::Write(__dsb_logger_module_name__, LEVEL, __FILE__, __LINE__, FORMAT, ##__VA_ARGS__); \
+    do { std::shared_ptr<common::Logger> log = common::Logger::GetLogger(__dsb_logger_module_name__); \
+      if (log->IsLevelEnabled(LEVEL)) { \
+        log->Write(LEVEL, __FILE__, __LINE__, FORMAT, ##__VA_ARGS__); \
     } } while (0)
 
 #define DSBLOG(LEVEL, NAME, FORMAT, ...) \
-    do { if (common::Logger::IsLevelEnabled(NAME, common::LogLevel::LEVEL)) { \
-        common::Logger::Write(NAME, common::LogLevel::LEVEL, __FILE__, __LINE__, FORMAT, ##__VA_ARGS__); \
+    do { std::shared_ptr<common::Logger> log = common::Logger::GetLogger(NAME); \
+      if (log->IsLevelEnabled(NAME, common::LogLevel::LEVEL)) { \
+        log->Write(common::LogLevel::LEVEL, __FILE__, __LINE__, FORMAT, ##__VA_ARGS__); \
     } } while (0)
 
 

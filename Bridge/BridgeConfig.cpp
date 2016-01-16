@@ -20,6 +20,7 @@ namespace
 
   void libXmlGenericErrorFunc(void* /*ctx*/, xmlErrorPtr error)
   {
+    static std::string logName = "libxml";
     if (!error)
       return;
 
@@ -44,7 +45,7 @@ namespace
     if (!msg)
       msg = "<unknown error>";
 
-    common::Logger::Write("libxml", level, error->file, error->line, "%s", msg);
+    common::Logger::GetLogger(logName)->Write(level, error->file, error->line, "%s", msg);
   }
 
   void installXmlLogger()

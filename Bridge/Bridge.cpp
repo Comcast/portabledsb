@@ -1,7 +1,6 @@
 #include "Bridge.h"
 #include "Common/Log.h"
 #include "Bridge/BridgeDevice.h"
-#include "Bridge/Log.h"
 
 #include <qcc/Debug.h>
 #include <alljoyn/Init.h>
@@ -23,6 +22,8 @@ namespace
 
   void alljoynLogger(DbgMsgType type, char const* module, char const* msg, void* /*ctx*/)
   {
+    static std::string logName = "alljoyn";
+    
     common::LogLevel level = common::LogLevel::Info;
     switch (type)
     {
@@ -41,7 +42,8 @@ namespace
       case DBG_LOCAL_DATA:
         level = common::LogLevel::Debug;
     }
-    common::Logger::Write("alljoyn", level, NULL, 0, "[%s] %s", module, msg);
+
+    common::Logger::GetLogger(logName)->Write(level, NULL, 0, "[%s] %s", module, msg);
   }
 
   void RegisterAllJoynLogger()
@@ -193,7 +195,7 @@ bridge::DeviceSystemBridge::InitializeAdapter()
     return ER_FAIL;
   }
 
-  std::shared_ptr<IAdapterLog> log(new AdapterLog(m_adapter->GetAdapterName()));
+  std::shared_ptr<common::Logger> log = common::Logger::GetLogger(m_adapter->GetAdapterName());
   int ret = m_adapter->Initialize(log);
   return ret == 0 ? ER_OK : ER_FAIL;
 }

@@ -28,7 +28,7 @@ namespace mock
 
     virtual std::string GetStatusText(bridge::AdapterStatus st);
 
-    virtual bridge::AdapterStatus Initialize(std::shared_ptr<bridge::IAdapterLog> const& log);
+    virtual bridge::AdapterStatus Initialize(std::shared_ptr<common::Logger> const& log);
     virtual bridge::AdapterStatus Shutdown();
 
     virtual bridge::AdapterStatus GetConfiguration(std::vector<uint8_t>* /*configData*/)
@@ -86,7 +86,7 @@ namespace mock
     std::string m_exposedAdapterPrefix;
     std::string m_exposedApplicationName;
     common::Guid m_exposedApplicationGuid;
-    std::shared_ptr<bridge::IAdapterLog> m_log;
+    std::shared_ptr<common::Logger> m_log;
 
     std::vector< std::shared_ptr<MockAdapterDevice> > m_devices;
     std::vector< std::shared_ptr<MockAdapterSignal> > m_signals;
