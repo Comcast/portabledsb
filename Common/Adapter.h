@@ -31,48 +31,48 @@ namespace adapter
 
     virtual adapter::Status SetConfiguration(
       std::vector<uint8_t> const& configData,
-      std::shared_ptr<IoRequest> const& req) = 0;
+      IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status GetConfiguration(
       std::vector<uint8_t>& configData,
-      std::shared_ptr<IoRequest> const& req) = 0;
+      IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status GetBasicInformation(
       ItemInformation& info,
-      std::shared_ptr<IoRequest> const& req) = 0;
+      IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status Initialize(
       std::shared_ptr<adapter::Log> const& log,
-      std::shared_ptr<IoRequest> const& req) = 0;
+      IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status Shutdown(
-      std::shared_ptr<IoRequest> const& req) = 0;
+      IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status GetSignals(
       Signal::Vector& signals,
-      std::shared_ptr<IoRequest> const& req) = 0;
+      IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status EnumDevices(
       EnumDeviceOptions opts,
       Device::Vector& devices,
-      std::shared_ptr<IoRequest> const& req) = 0;
+      IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status GetProperty(
       Interface const& ifc,
       Property const& prop,
       Value& value,
-      std::shared_ptr<IoRequest> const& req) = 0;
+      IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status SetProperty(
       Interface const& ifc,
       Property const& prop,
       Value const& value,
-      std::shared_ptr<IoRequest> const& req) = 0;
+      IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status InvokeMethod(
       Interface const& ifc,
       Method const& method,
-      std::shared_ptr<IoRequest> const& req) = 0;
+      IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status RegisterSignalListener(
         std::string const& signalName,

@@ -29,9 +29,9 @@ namespace
 
   DSB_DECLARE_LOGNAME(Main);
 
-  inline std::shared_ptr<bridge::DeviceSystemBridge> DSB()
+  inline std::shared_ptr<bridge::Bridge> DSB()
   {
-    std::shared_ptr<bridge::DeviceSystemBridge> b = bridge::DeviceSystemBridge::GetInstance();
+    std::shared_ptr<bridge::Bridge> b = bridge::Bridge::GetInstance();
     assert(b.get() != nullptr);
     return b;
   }
@@ -45,7 +45,7 @@ namespace
 
   void PrintDevice(adapter::Adapter& adapter, adapter::Device const& dev)
   {
-    std::cout << "Device [" << dev.GetBasicInformation().GetName() << "]" << std::endl;
+    std::cout << "Device [" << dev.GetBasicInfo().GetName() << "]" << std::endl;
     for (auto ifc : dev.GetInterfaces())
     {
       std::cout << "InterfaceName:" << ifc.GetName() << std::endl;
@@ -115,27 +115,18 @@ int main(int /*argc*/, char* /*argv*/ [])
   config.RemoveObject("/my/bus/object2");
   config.ToFile("/tmp/test2.xml");
   #endif
+  adapter::Log::SetDefaultLevel(adapter::LogLevel::Debug);
 
-  QStatus st = ER_OK;
+  bridge::Bridge::InitializeSingleton(std::shared_ptr<adapter::Adapter>(new adapters::mock::MockAdapter()));
 
-  bridge::DeviceSystemBridge::InitializeSingleton(
-      std::shared_ptr<adapter::Adapter>(new adapters::mock::MockAdapter()));
-
-  st = DSB()->Initialize();
-  if (st != ER_OK)
-  {
-    DSBLOG_ERROR("failed to initialize bridge: %s", QCC_StatusText(st));
-    return 1;
-  }
+  DSB()->Initialize();
 
   std::shared_ptr<adapter::Adapter> adapter = DSB()->GetAdapter();
 
   adapter::ItemInformation info;
   adapter->GetBasicInformation(info, std::shared_ptr<adapter::IoRequest>());
 
-  adapter::Log::GetLog(info.GetName())->SetLevel(adapter::LogLevel::Debug);
-
-
+  #if 0
   adapter::Device::Vector devices;
   std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
   adapter->EnumDevices(adapter::EnumDeviceOptions::ForceRefresh, devices, req);
@@ -150,6 +141,7 @@ int main(int /*argc*/, char* /*argv*/ [])
 
   for (auto const& device : devices)
     PrintDevice(*adapter, device);
+  #endif
 
   getchar();
   return 0;

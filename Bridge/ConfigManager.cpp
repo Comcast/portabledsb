@@ -19,7 +19,7 @@ namespace
   uint32_t const kSessionLinkTimeout = 30; // seconds
 }
 
-ConfigManager::ConfigManager(DeviceSystemBridge& bridge, adapter::Adapter& adapter)
+ConfigManager::ConfigManager(Bridge& bridge, adapter::Adapter& adapter)
   : m_parent(bridge)
   , m_adapter(adapter)
   , m_sessionPort(kDSBServicePort)
@@ -134,7 +134,7 @@ ConfigManager::BuildServiceName()
     return ER_BUS_BAD_BUS_NAME;
   }
 
-  m_serviceName = tmp + ".DeviceSystemBridge";
+  m_serviceName = tmp + ".Bridge";
 
   std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
 

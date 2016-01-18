@@ -34,7 +34,7 @@ adapters::mock::MockAdapter::CreateDoorWindowSensor()
   info.SetDescription("Door/Window sensor");
 
   adapter::Device dev;
-  dev.SetBasicInformation(info);
+  dev.SetBasicInfo(info);
 
   AddClusterToDevice(dev, 0x0000); // basic
   AddClusterToDevice(dev, 0x000f); // binary input

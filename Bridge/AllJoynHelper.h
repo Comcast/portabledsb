@@ -28,7 +28,7 @@ namespace bridge
 
     static QStatus GetAdapterObject(adapter::Value& adapterValue, ajn::MsgArg const& msg, DeviceMain* deviceMain);
 
-    static QStatus GetSignature(adapter::TypeId type, std::string& sig);
+    static std::string GetSignature(adapter::TypeId type);
 
     static void EncodeBusObjectName(std::string const& s, std::string &builtName);
     static void EncodePropertyOrMethodOrSignalName(std::string const& s, std::string &builtName);

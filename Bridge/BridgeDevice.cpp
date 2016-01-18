@@ -151,7 +151,7 @@ bridge::BridgeDevice::BuildServiceName()
   m_serviceName = m_rootStringForAllJoynNames;
 
   //add device name
-  tmp = AllJoynHelper::EncodeStringForServiceName(m_device.GetBasicInformation().GetName());
+  tmp = AllJoynHelper::EncodeStringForServiceName(m_device.GetBasicInfo().GetName());
   if (!tmp.empty())
   {
     m_serviceName += ".";
@@ -159,7 +159,7 @@ bridge::BridgeDevice::BuildServiceName()
   }
 
   // add serial number to service name if not empty
-  tmp = AllJoynHelper::EncodeStringForServiceName(m_device.GetBasicInformation().GetSerialNumber());
+  tmp = AllJoynHelper::EncodeStringForServiceName(m_device.GetBasicInfo().GetSerialNumber());
   if (!tmp.empty())
   {
     m_serviceName += ".";

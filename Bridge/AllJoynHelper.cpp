@@ -1,6 +1,7 @@
 
 #include "AllJoynHelper.h"
 #include "DeviceMain.h"
+#include "Common/Assert.h"
 
 
 QStatus
@@ -10,9 +11,7 @@ bridge::AllJoynHelper::SetMsgArg(adapter::Value const& adapterValue, ajn::MsgArg
   std::string sig;
   adapter::Variant const& val = adapterValue.GetValue();
 
-  st = GetSignature(val.GetType(), sig);
-  if (st != ER_OK)
-    return st;
+  sig = GetSignature(val.GetType());
 
   switch (val.GetType())
   {
@@ -193,9 +192,7 @@ bridge::AllJoynHelper::GetValue(adapter::Value& adapterValue, ajn::MsgArg const&
 
   // TODO: why not just hard-code signatures? GetSignature is never used outside
   // AllJoynHelper
-  st = GetSignature(val.GetType(), sig);
-  if (st != ER_OK)
-    return st;
+  sig = GetSignature(val.GetType());
 
   switch (val.GetType())
   {
@@ -223,12 +220,13 @@ bridge::AllJoynHelper::GetAdapterObject(adapter::Value&, ajn::MsgArg const&, Dev
   return ER_NOT_IMPLEMENTED;
 }
 
-QStatus
-bridge::AllJoynHelper::GetSignature(adapter::TypeId type, std::string& sig)
+std::string
+bridge::AllJoynHelper::GetSignature(adapter::TypeId type)
 {
+  std::string sig;
+
   #define setSignature(T, S) case adapter::TypeId::T: sig = S; break
 
-  QStatus status = ER_OK;
   switch (type)
   {
     setSignature(Boolean,     "b");
@@ -255,13 +253,13 @@ bridge::AllJoynHelper::GetSignature(adapter::TypeId type, std::string& sig)
     setSignature(StringArray, "as");
 
     default:
-      status = ER_NOT_IMPLEMENTED;
+      DSB_ASSERT(false);
       break;
   }
 
   #undef setSignature
 
-  return status;
+  return sig;
 }
 
 

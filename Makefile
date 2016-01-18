@@ -3,6 +3,7 @@ SRCS=DeviceProviders/AllJoynProvider.cpp \
      Bridge/AllJoynAbout.cpp \
      Bridge/AllJoynHelper.cpp \
      Bridge/Bridge.cpp \
+     Bridge/BridgeBusObject.cpp \
      Bridge/BridgeConfig.cpp \
      Bridge/BridgeDevice.cpp \
      Bridge/ConfigManager.cpp \

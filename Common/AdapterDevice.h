@@ -10,10 +10,10 @@ namespace adapter
   public:
     typedef std::vector<Device> Vector;
 
-    ItemInformation const& GetBasicInformation() const
+    ItemInformation const& GetBasicInfo() const
       { return m_info; }
 
-    void SetBasicInformation(ItemInformation const& info)
+    void SetBasicInfo(ItemInformation const& info)
       { m_info = info; }
 
     Interface::Vector const& GetInterfaces() const

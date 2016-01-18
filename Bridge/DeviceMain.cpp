@@ -18,7 +18,7 @@ static std::string BuildBusObjectPath(const std::string& name)
 }
 
 bridge::DeviceMain::DeviceMain(BridgeDevice& parent, adapter::Device const& device)
-  : ajn::BusObject(BuildBusObjectPath(device.GetBasicInformation().GetName()).c_str(), false)
+  : ajn::BusObject(BuildBusObjectPath(device.GetBasicInfo().GetName()).c_str(), false)
   , m_parent(parent)
   , m_indexForSignal(1)
   , m_indexForMethod(1)
@@ -108,7 +108,7 @@ bridge::DeviceMain::CreateMethodsAndSignals()
 {
   m_interfaceName = m_parent.GetRootNameForInterface();
   std::string tmp = AllJoynHelper::EncodeStringForServiceName(m_parent.GetAdapterDevice()
-    .GetBasicInformation().GetName());
+    .GetBasicInfo().GetName());
   if (!tmp.empty())
   {
     m_interfaceName += ".";

@@ -12,18 +12,18 @@ namespace bridge
 {
   class BridgeDevice;
 
-  typedef std::map<adapter::Device*, std::shared_ptr<BridgeDevice> > BridgeDeviceList;
+  typedef std::map<uint64_t, std::shared_ptr<BridgeDevice> > BridgeDeviceList;
 
-  class DeviceSystemBridge : public std::enable_shared_from_this<DeviceSystemBridge>
+  class Bridge : public std::enable_shared_from_this<Bridge>
   {
   public:
-    static std::shared_ptr<DeviceSystemBridge> GetInstance();
+    static std::shared_ptr<Bridge> GetInstance();
     static void InitializeSingleton(std::shared_ptr<adapter::Adapter> const& adapter);
 
-    virtual ~DeviceSystemBridge();
+    virtual ~Bridge();
 
-    QStatus Initialize();
-    QStatus Shutdown();
+    void Initialize();
+    void Shutdown();
 
     inline std::shared_ptr<adapter::Adapter> GetAdapter() const
       { return m_adapter; }
@@ -37,14 +37,14 @@ namespace bridge
       { return m_deviceList; }
 
   private:
-    DeviceSystemBridge(std::shared_ptr<adapter::Adapter> const& adapter);
+    Bridge(std::shared_ptr<adapter::Adapter> const& adapter);
 
     QStatus RegisterAdapterSignalHandlers(bool isRegister);
-    QStatus InitializeAdapter();
-    QStatus InitializeInternal();
-    QStatus ShutdownInternal();
+    void InitializeAdapter();
+    void InitializeInternal();
+    void ShutdownInternal();
 
-    QStatus CreateDevice(adapter::Device const& device);
+    void CreateDevice(adapter::Device const& device);
     QStatus UpdateDevice(adapter::Device const& device, bool exposedOnAllJoynBus);
 
     void OnAdapterSignal(adapter::Signal const& signal, void* argp);
@@ -54,7 +54,7 @@ namespace bridge
     class AdapterSignalListener : public IAdapterSignalListener
     {
     public:
-      AdapterSignalListener(DeviceSystemBridge& parent)
+      AdapterSignalListener(Bridge& parent)
         : m_parent(parent)
         , m_shuttingDown(false)
       {
@@ -75,7 +75,7 @@ namespace bridge
       }
       
     private:
-      DeviceSystemBridge& m_parent;
+      Bridge& m_parent;
       bool m_shuttingDown;
     };
     #endif

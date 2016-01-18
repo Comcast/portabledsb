@@ -101,7 +101,6 @@ adapter::Log::IsLevelEnabled(std::string const& module, LogLevel level)
   LogMap::const_iterator itr = impl.Logs.find(module);
   if (itr != impl.Logs.end())
     minLevel = itr->second->m_level;
-
   return level >= minLevel;
 }
 

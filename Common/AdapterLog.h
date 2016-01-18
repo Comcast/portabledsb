@@ -16,12 +16,12 @@ namespace adapter
 {
   enum class LogLevel
   {
-    Off,
     Debug,
     Info,
     Warn,
     Error,
-    Fatal
+    Fatal,
+    Off
   };
 
   class Log

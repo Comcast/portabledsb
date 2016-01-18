@@ -8,12 +8,12 @@
 
 namespace bridge
 {
-  class DeviceSystemBridge;
+  class Bridge;
 
   class ConfigManager : private ajn::BusListener, private ajn::SessionListener, private ajn::SessionPortListener
   {
   public:
-    ConfigManager(DeviceSystemBridge&, adapter::Adapter&);
+    ConfigManager(Bridge&, adapter::Adapter&);
     ~ConfigManager();
 
     QStatus Initialize();
@@ -40,7 +40,7 @@ namespace bridge
     virtual void SessionMemberRemoved(ajn::SessionId, const char *uniqueName);
 
   private:
-    DeviceSystemBridge& m_parent;
+    Bridge& m_parent;
     adapter::Adapter& m_adapter;
     std::shared_ptr<ajn::BusAttachment> m_busAttachment;
     std::string m_serviceName;

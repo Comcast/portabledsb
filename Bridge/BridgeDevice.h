@@ -49,7 +49,6 @@ namespace bridge
     AllJoynAbout m_about;
     std::string m_rootStringForAllJoynNames;
     std::string m_serviceName;
-    std::map<std::string, std::shared_ptr<DeviceProperty>> m_deviceProperties;
   };
 }
 

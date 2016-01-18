@@ -1,5 +1,8 @@
 #include "Bridge/Bridge.h"
 #include "Bridge/BridgeDevice.h"
+#include "Bridge/BridgeError.h"
+#include "Bridge/BridgeBusObject.h"
+
 #include "Common/AdapterValue.h"
 #include "Common/EnumDeviceOptions.h"
 #include "Common/AdapterLog.h"
@@ -9,7 +12,7 @@
 
 namespace
 {
-  DSB_DECLARE_LOGNAME(DeviceSystemBridge);
+  DSB_DECLARE_LOGNAME(Bridge);
 
   int32_t const kWaitTimeoutForAdapterOperation = 20000; //ms
   std::string const kDeviceArrivalSignal = "Device_Arrival";
@@ -19,7 +22,6 @@ namespace
 
   bridge::BridgeDeviceList::key_type GetKey(adapter::Device const& dev)
   {
-    // return dev.get();
     return 0;
   }
 
@@ -59,22 +61,22 @@ namespace
     }
   }
 
-  std::shared_ptr<bridge::DeviceSystemBridge> gBridge;
+  std::shared_ptr<bridge::Bridge> gBridge;
 }
 
-std::shared_ptr<bridge::DeviceSystemBridge>
-bridge::DeviceSystemBridge::GetInstance()
+std::shared_ptr<bridge::Bridge>
+bridge::Bridge::GetInstance()
 {
   return gBridge;
 }
 
 void
-bridge::DeviceSystemBridge::InitializeSingleton(std::shared_ptr<adapter::Adapter> const& adapter)
+bridge::Bridge::InitializeSingleton(std::shared_ptr<adapter::Adapter> const& adapter)
 {
-  gBridge.reset(new DeviceSystemBridge(adapter));
+  gBridge.reset(new Bridge(adapter));
 }
 
-bridge::DeviceSystemBridge::DeviceSystemBridge(std::shared_ptr<adapter::Adapter> const& adapter)
+bridge::Bridge::Bridge(std::shared_ptr<adapter::Adapter> const& adapter)
   : m_alljoynInitialized(false)
   , m_adapter(adapter)
   , m_configManager(*this, *adapter)
@@ -83,171 +85,117 @@ bridge::DeviceSystemBridge::DeviceSystemBridge(std::shared_ptr<adapter::Adapter>
   // RegisterAllJoynLogger();
 }
 
-bridge::DeviceSystemBridge::~DeviceSystemBridge()
+bridge::Bridge::~Bridge()
 {
-  Shutdown();
-  m_adapter.reset();
+  try
+  {
+    Shutdown();
+  }
+  catch (std::exception const& err)
+  {
+    DSBLOG_WARN("error shutting down bridge: %s", err.what());
+  }
 }
 
-QStatus
-bridge::DeviceSystemBridge::Initialize()
+void
+bridge::Bridge::Initialize()
 {
-  QStatus st = ER_OK;
-
   DSBLOG_DEBUG(__FUNCTION__);
+
   if (!m_alljoynInitialized)
   {
     DSBLOG_INFO("initialize AllJoyn");
-    st = AllJoynInit();
-    if (st != ER_OK)
-    {
-      DSBLOG_WARN("initialize AllJoyn failed: %s", QCC_StatusText(st));
-      return st;
-    }
-
-    m_alljoynInitialized = true;
+    Error::ThrowIfNotOk(AllJoynInit(), "AllJoyn init failed");
   }
 
-  st = InitializeInternal();
-  if (st != ER_OK)
-    m_alljoynInitialized = false;
-
-  return st;
+  InitializeInternal();
+  m_alljoynInitialized = true;
 }
 
-QStatus
-bridge::DeviceSystemBridge::InitializeInternal()
+void
+bridge::Bridge::InitializeInternal()
 {
-  QStatus st;
-
   DSBLOG_INFO("initialize configuration manager");
-  st = m_configManager.Initialize();
-
-  if (st != ER_OK)
-  {
-    DSBLOG_WARN("initialize configuration manager failed: %s", QCC_StatusText(st));
-    return st;
-  }
+  Error::ThrowIfNotOk(m_configManager.Initialize(),
+    "failed to initialize configuration manager");
 
   DSBLOG_INFO("initialize adapter");
-  st = InitializeAdapter();
-
-  if (st != ER_OK)
-  {
-    DSBLOG_WARN("initialize adapter failed: %s", QCC_StatusText(st));
-    return st;
-  }
+  InitializeAdapter();
 
   DSBLOG_INFO("connect to AllJoyn router");
-  st = m_configManager.ConnectToAllJoyn();
-
-  if (st != ER_OK)
-  {
-    DSBLOG_INFO("connect to AllJoyn router failed: %s", QCC_StatusText(st));
-    return st;
-  }
+  Error::ThrowIfNotOk(m_configManager.ConnectToAllJoyn(),
+    "error connecting to router");
 
   DSBLOG_INFO("initialize devices");
-  st = InitializeDevices();
-  if (st != ER_OK)
-  {
-    DSBLOG_WARN("initialize devices failed: %s", QCC_StatusText(st));
-    return st;
-  }
+  Error::ThrowIfNotOk(InitializeDevices(),
+    "initialize devices failed");
 
   DSBLOG_INFO("registering signal handlers");
-  st = RegisterAdapterSignalHandlers(true);
-  if (st != ER_OK)
-  {
-    DSBLOG_WARN("register signal handlers failed: %s", QCC_StatusText(st));
-    return st;
-  }
-
-  return st;
+  Error::ThrowIfNotOk(RegisterAdapterSignalHandlers(true),
+    "failed to register signal handlers");
 }
 
-QStatus
-bridge::DeviceSystemBridge::Shutdown()
+void
+bridge::Bridge::Shutdown()
 {
-  QStatus st = ER_OK;
-
-  st = ShutdownInternal();
-  if (st != ER_OK)
-  {
-    DSBLOG_WARN("failed to shutdown internal: %s", QCC_StatusText(st));
-    return st;
-  }
-
+  ShutdownInternal();
+  
   if (m_alljoynInitialized)
   {
     AllJoynShutdown();
     m_alljoynInitialized = false;
   }
-
-  return st;
 }
 
-QStatus
-bridge::DeviceSystemBridge::InitializeAdapter()
+void
+bridge::Bridge::InitializeAdapter()
 {
   if (!m_adapter)
-  {
-    DSBLOG_ERROR("can't initialize null adapter");
-    return ER_FAIL;
-  }
+    Error::Throw("can't initialize null adapter");
 
-  adapter::Status st;
   std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
 
   adapter::ItemInformation info;
-  st = m_adapter->GetBasicInformation(info, req);
+  adapter::Status st = m_adapter->GetBasicInformation(info, req);
+  if (st != ER_OK)
+    Error::Throw(*m_adapter, st, "failed to get basic info from adapter");
 
 
   req.reset(new adapter::IoRequest());
   std::shared_ptr<adapter::Log> log = adapter::Log::GetLog(info.GetName());
 
   st = m_adapter->Initialize(log, req);
-  if (st != 0)
+  if (st != ER_OK)
+    Error::Throw(*m_adapter, st, "failed to initialize adapter");
+
+  if (!req->Wait(2000))
   {
-    DSBLOG_WARN("failed to initialize adapter: %s", m_adapter->GetStatusText(st).c_str());
+    DSBLOG_WARN("timeout waiting for adapter to initailize");
   }
   else
   {
-    if (!req->Wait(2000))
-    {
-      DSBLOG_WARN("timeout waiting for adapter to initailize");
-    }
-    else
-    {
-      st = req->GetStatus();
-      if (st == 0)
-        DSBLOG_INFO("adapter intialized ok");
-      else
-        DSBLOG_WARN("failed to initialize adapter: %s", m_adapter->GetStatusText(st).c_str());
-    }
+    st = req->GetStatus();
+    if (st != ER_OK)
+      Error::Throw(*m_adapter, st, "failed to async intiailize adapter");
   }
-
-  return st == 0 ? ER_OK : ER_FAIL;
 }
 
 QStatus
-bridge::DeviceSystemBridge::InitializeDevices(bool update)
+bridge::Bridge::InitializeDevices(bool update)
 {
-  adapter::Device::Vector deviceList;
-
   adapter::EnumDeviceOptions opts = adapter::EnumDeviceOptions::CacheOnly;
   if (update)
     opts = adapter::EnumDeviceOptions::ForceRefresh;
 
-  std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
-  adapter::Status adapterStatus  = m_adapter->EnumDevices(opts, deviceList, req);
-  if (adapterStatus != 0)
-  {
-    DSBLOG_WARN("failed to enumerate devices: %d", m_adapter->GetStatusText(adapterStatus).c_str());
+ 
+  DSBLOG_DEBUG("enumerating devices from adapter");
 
-    // TODO: we need some translation from AdapterStatus to QStatus
-    return ER_FAIL;
-  }
+  adapter::Device::Vector devices;
+  adapter::IoRequest::Pointer req(new adapter::IoRequest());
+
+  adapter::Status st = m_adapter->EnumDevices(opts, devices, req);
+  if (st != 0)
+    Error::Throw(*m_adapter, st, "failed to enumerate devices");
 
   if (!req->Wait(kWaitTimeoutForAdapterOperation))
   {
@@ -255,21 +203,13 @@ bridge::DeviceSystemBridge::InitializeDevices(bool update)
     return ER_FAIL;
   }
 
-  typedef adapter::Device::Vector::iterator iterator;
-  for (iterator begin = deviceList.begin(), end = deviceList.end(); begin != end; ++begin)
+  for (auto device : devices)
   {
     // TODO: get configuration for device, only expose visible devices
-    QStatus st;
     if (update)
-      st = UpdateDevice(*begin, true);
+      UpdateDevice(device, true);
     else
-      st = CreateDevice(*begin);
-
-    if (st != ER_OK)
-    {
-      DSBLOG_WARN("Failed to %s device: %s", update ? "update" : "create", QCC_StatusText(st));
-      return st;
-    }
+      CreateDevice(device);
   }
 
   // TODO: Save bridge configuration to XML
@@ -278,7 +218,7 @@ bridge::DeviceSystemBridge::InitializeDevices(bool update)
 }
 
 void
-bridge::DeviceSystemBridge::OnAdapterSignal(adapter::Signal const& signal, void*)
+bridge::Bridge::OnAdapterSignal(adapter::Signal const& signal, void*)
 {
   #if 0
   // TODO
@@ -313,7 +253,7 @@ bridge::DeviceSystemBridge::OnAdapterSignal(adapter::Signal const& signal, void*
 }
 
 QStatus
-bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegister)
+bridge::Bridge::RegisterAdapterSignalHandlers(bool isRegister)
 {
   QStatus st = ER_OK;
 
@@ -357,8 +297,8 @@ bridge::DeviceSystemBridge::RegisterAdapterSignalHandlers(bool isRegister)
   return st;
 }
 
-QStatus
-bridge::DeviceSystemBridge::ShutdownInternal()
+void
+bridge::Bridge::ShutdownInternal()
 {
   m_configManager.Shutdown();
 
@@ -375,19 +315,17 @@ bridge::DeviceSystemBridge::ShutdownInternal()
     itr->second->Shutdown();
 
   m_deviceList.clear();
-
-  return ER_OK;
 }
 
 QStatus
-bridge::DeviceSystemBridge::UpdateDevice(adapter::Device const& dev, bool exposedOnAllJoynBus)
+bridge::Bridge::UpdateDevice(adapter::Device const& dev, bool exposedOnAllJoynBus)
 {
   QStatus st = ER_OK;
 
   BridgeDeviceList::const_iterator itr = m_deviceList.find(GetKey(dev));
   if (itr == m_deviceList.end() && exposedOnAllJoynBus)
   {
-    st = CreateDevice(dev);
+    CreateDevice(dev);
   }
   else if (itr != m_deviceList.end() && !exposedOnAllJoynBus)
   {
@@ -399,17 +337,11 @@ bridge::DeviceSystemBridge::UpdateDevice(adapter::Device const& dev, bool expose
   return st;
 }
 
-QStatus
-bridge::DeviceSystemBridge::CreateDevice(adapter::Device const& dev)
+void
+bridge::Bridge::CreateDevice(adapter::Device const& dev)
 {
-#if 0
-  std::shared_ptr<BridgeDevice> newDevice(new BridgeDevice(dev, m_adapter));
-  
-  QStatus st = newDevice->Initialize();
-  if (st == ER_OK)
-    m_deviceList.insert(std::make_pair(GetKey(dev), newDevice));
+  DSBLOG_DEBUG("create BusObject for device: %s", dev.GetBasicInfo().GetName().c_str());
+  std::shared_ptr<bridge::BusObject> obj = bridge::BusObject::BuildFromAdapterDevice(dev);
 
-  return st;
-#endif
-  return ER_OK;
+  // TODO: setup aboutData and announce
 }

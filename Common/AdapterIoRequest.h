@@ -10,6 +10,9 @@ namespace adapter
   class IoRequest
   {
   public:
+    typedef std::shared_ptr<IoRequest> Pointer;
+
+  public:
     IoRequest()
       : m_status(0)
       , m_canceled(false)
