@@ -17,7 +17,7 @@ namespace bridge
     DeviceMethod(DeviceMain&);
     virtual ~DeviceMethod();
 
-    QStatus Initialize(common::AdapterMethod const& method);
+    QStatus Initialize(adapter::Method const& method);
 
     // TODO: error code?
     // TODO: should that first arg be constant?
@@ -28,7 +28,7 @@ namespace bridge
 
   private:
     QStatus SetName(std::string const& name);
-    QStatus BuildSignature(common::AdapterValue::Vector const& valueList, std::string& sig, std::string& parameterNames);
+    QStatus BuildSignature(adapter::Value::Vector const& valueList, std::string& sig, std::string& parameterNames);
 
   private:
     DeviceMain&                     m_parent;
@@ -36,7 +36,7 @@ namespace bridge
     std::string                     m_inSignature;
     std::string                     m_outSignature;
     std::string                     m_parameterNames;
-    std::unique_ptr<common::AdapterMethod>  m_adapterMethod;
+    std::unique_ptr<adapter::Method>  m_adapterMethod;
   };
 }
 

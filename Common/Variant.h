@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-namespace common
+namespace adapter 
 {
   class Variant
   {
@@ -217,7 +217,7 @@ namespace common
     }
 
     template<class T>
-    void AllocAndCopy(common::Variant::Data& d, std::vector<T> const& v)
+    void AllocAndCopy(adapter::Variant::Data& d, std::vector<T> const& v)
     {
       d.Size = static_cast<int>(v.size());
       if (d.Size > 0)
@@ -240,7 +240,7 @@ namespace common
   };
 }
 
-inline std::ostream& operator << (std::ostream& os, common::Variant const& v)
+inline std::ostream& operator << (std::ostream& os, adapter::Variant const& v)
 {
   os << v.ToString();
   return os;

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-namespace common
+namespace adapter
 {
-  typedef uint32_t AdapterStatus;
+  typedef uint32_t Status;
 }

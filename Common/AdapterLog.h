@@ -12,7 +12,7 @@
 #include <string>
 #include <stdexcept>
 
-namespace common
+namespace adapter 
 {
   enum class LogLevel
   {
@@ -24,12 +24,12 @@ namespace common
     Fatal
   };
 
-  class Logger
+  class Log
   {
   public:
-    static std::shared_ptr<Logger> GetLogger(std::string const& name);
+    static std::shared_ptr<Log> GetLog(std::string const& name);
 
-    Logger(std::string const& name);
+    Log(std::string const& name);
 
     void Write(LogLevel level, const char* file, int line, const char* format, ...)
       PRINTF_FORMAT(5, 6);
@@ -46,22 +46,22 @@ namespace common
     static void SetDefaultLevel(LogLevel level);
   private:
     LogLevel    m_level;
-    std::string m_name;
+    std::string        m_name;
   };
 }
 
 #define DSB_DECLARE_LOGNAME(LOGNAME) std::string const __dsb_logger_module_name__ = #LOGNAME
 
 #define DSBLOG_WITH_LEVEL(LEVEL, FORMAT, ...) \
-    do { std::shared_ptr<common::Logger> log = common::Logger::GetLogger(__dsb_logger_module_name__); \
+    do { std::shared_ptr<adapter::Log> log = adapter::Log::GetLog(__dsb_logger_module_name__); \
       if (log->IsLevelEnabled(LEVEL)) { \
         log->Write(LEVEL, __FILE__, __LINE__, FORMAT, ##__VA_ARGS__); \
     } } while (0)
 
 #define DSBLOG(LEVEL, NAME, FORMAT, ...) \
-    do { std::shared_ptr<common::Logger> log = common::Logger::GetLogger(NAME); \
-      if (log->IsLevelEnabled(NAME, common::LogLevel::LEVEL)) { \
-        log->Write(common::LogLevel::LEVEL, __FILE__, __LINE__, FORMAT, ##__VA_ARGS__); \
+    do { std::shared_ptr<adapter::Log> log = adapter::Log::GetLog(NAME); \
+      if (log->IsLevelEnabled(NAME, adapter::LogLevel::LEVEL)) { \
+        log->Write(adapter::LogLevel::LEVEL, __FILE__, __LINE__, FORMAT, ##__VA_ARGS__); \
     } } while (0)
 
 

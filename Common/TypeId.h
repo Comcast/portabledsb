@@ -1,6 +1,6 @@
 #pragma once
 
-namespace common
+namespace adapter 
 {
   enum class TypeId
   {

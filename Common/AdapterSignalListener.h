@@ -2,8 +2,8 @@
 
 #include "Common/AdapterSignal.h"
 
-namespace common
+namespace adapter
 {
-  typedef std::function<void (AdapterSignal const&, void*)> AdapterSignalListener;
+  typedef std::function<void (Signal const&, void*)> SignalListener;
 }
 

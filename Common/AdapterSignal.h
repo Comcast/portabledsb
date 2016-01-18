@@ -6,29 +6,29 @@
 #include <string>
 #include <vector>
 
-namespace common
+namespace adapter
 {
-  class AdapterInterface;
+  class Interface;
   
-  class AdapterSignal : public AdapterObject
+  class Signal : public adapter::Object
   {
-    friend class AdapterInterface;
+    friend class Interface;
 
   public:
-    typedef std::vector<AdapterSignal> Vector;
+    typedef std::vector<Signal> Vector;
 
-    AdapterSignal(std::string const& name)
-      : AdapterObject(name)
+    Signal(std::string const& name)
+      : adapter::Object(name)
     {
     }
 
     std::string const& GetInterface() const
       { return m_interface; }
 
-    AdapterValue::Vector const& GetParameters() const
+    Value::Vector const& GetParameters() const
       { return m_params; }
 
-    void AddParameter(AdapterValue const& value)
+    void AddParameter(Value const& value)
       { m_params.push_back(value); }
 
     void ClearParameters()
@@ -40,13 +40,13 @@ namespace common
 
   private:
     std::string           m_interface;
-    AdapterValue::Vector  m_params;
+    Value::Vector  m_params;
   };
 
-  inline AdapterSignal MakeAdapterSignal(std::string const& name,
-    AdapterValue::Vector const& params = AdapterValue::Vector())
+  inline Signal MakeAdapterSignal(std::string const& name,
+    Value::Vector const& params = Value::Vector())
   {
-    common::AdapterSignal signal(name);
+    Signal signal(name);
     for (auto const& param : params)
       signal.AddParameter(param);
     return std::move(signal);

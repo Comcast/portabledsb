@@ -2,7 +2,7 @@
 
 #include "AllJoynHelper.h"
 #include "BridgeDevice.h"
-#include "Common/Log.h"
+#include "Common/AdapterLog.h"
 
 namespace
 {
@@ -17,7 +17,7 @@ static std::string BuildBusObjectPath(const std::string& name)
   return "/" + encodedName;
 }
 
-bridge::DeviceMain::DeviceMain(BridgeDevice& parent, common::AdapterDevice const& device)
+bridge::DeviceMain::DeviceMain(BridgeDevice& parent, adapter::Device const& device)
   : ajn::BusObject(BuildBusObjectPath(device.GetBasicInformation().GetName()).c_str(), false)
   , m_parent(parent)
   , m_indexForSignal(1)

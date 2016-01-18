@@ -2,9 +2,9 @@
 
 #include <string>
 
-namespace common
+namespace adapter
 {
-  class AdapterItemInformation
+  class ItemInformation
   {
   public:
     std::string const& GetName() const

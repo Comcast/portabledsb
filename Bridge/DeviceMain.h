@@ -18,21 +18,21 @@ namespace bridge
   class DeviceMain : public ajn::BusObject
   {
   public:
-    DeviceMain(BridgeDevice& parent, common::AdapterDevice const& device);
+    DeviceMain(BridgeDevice& parent, adapter::Device const& device);
     virtual ~DeviceMain();
 
     QStatus Initialize();
 
     bool IsMethodNameUnique(std::string const& name);
     bool IsSignalNameUnique(std::string const& name);
-    void HandleSignal(common::AdapterSignal const& adapterSignal);
+    void HandleSignal(adapter::Signal const& adapterSignal);
 
     ajn::InterfaceDescription* GetInterfaceDescription();
 
     inline int GetIndexForMethod()
       { return m_indexForMethod++; }
 
-    inline std::string GetBusObjectPath(common::AdapterProperty const&)
+    inline std::string GetBusObjectPath(adapter::Property const&)
       { return std::string(); }
 
   private:

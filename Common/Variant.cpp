@@ -22,9 +22,9 @@ namespace
     delete [] arr;
   }
 
-  void freeArray2(void* p, common::TypeId t)
+  void freeArray2(void* p, adapter::TypeId t)
   {
-    typedef common::TypeId dt;
+    typedef adapter::TypeId dt;
     switch (t)
     {
       case dt::BooleanArray:  releaseArray<bool>(p); break;
@@ -65,40 +65,40 @@ namespace
   }
 }
 
-common::Variant::Data::Data()
+adapter::Variant::Data::Data()
 {
   Type = TypeId::Null;
   memset(&Item, 0, sizeof(m_data.Item));
   Size = 0;
 }
 
-common::Variant::Variant()
+adapter::Variant::Variant()
   : m_data()
 {
 }
 
-common::Variant::Variant(bool b)
+adapter::Variant::Variant(bool b)
   : m_data()
 {
   m_data.Type = TypeId::Boolean;
   m_data.Item.v_bool = b;
 }
 
-common::Variant::Variant(std::vector<bool> const& v)
+adapter::Variant::Variant(std::vector<bool> const& v)
   : m_data()
 {
   m_data.Type = TypeId::BooleanArray;
   AllocAndCopy(m_data, v);
 }
 
-common::Variant::Variant(uint8_t y)
+adapter::Variant::Variant(uint8_t y)
   : m_data()
 {
   m_data.Type = TypeId::UInt8;
   m_data.Item.v_uint8 = y;
 }
 
-common::Variant::Variant(std::vector<uint8_t> const& v)
+adapter::Variant::Variant(std::vector<uint8_t> const& v)
   : m_data()
 {
   m_data.Type = TypeId::UInt8Array;
@@ -106,111 +106,111 @@ common::Variant::Variant(std::vector<uint8_t> const& v)
 }
 
 
-common::Variant::Variant(int16_t n)
+adapter::Variant::Variant(int16_t n)
   : m_data()
 {
   m_data.Type = TypeId::Int16;
   m_data.Item.v_int16 = n;
 }
 
-common::Variant::Variant(std::vector<uint16_t> const& v)
+adapter::Variant::Variant(std::vector<uint16_t> const& v)
   : m_data()
 {
   m_data.Type = TypeId::UInt16Array;
   AllocAndCopy(m_data, v);
 }
 
-common::Variant::Variant(uint16_t q)
+adapter::Variant::Variant(uint16_t q)
   : m_data()
 {
   m_data.Type = TypeId::UInt16;
   m_data.Item.v_uint16 = q;
 }
 
-common::Variant::Variant(std::vector<int16_t> const& v)
+adapter::Variant::Variant(std::vector<int16_t> const& v)
   : m_data()
 {
   m_data.Type = TypeId::Int16Array;
   AllocAndCopy(m_data, v);
 }
 
-common::Variant::Variant(int32_t i)
+adapter::Variant::Variant(int32_t i)
   : m_data()
 {
   m_data.Type = TypeId::Int32;
   m_data.Item.v_int32 = i;
 }
 
-common::Variant::Variant(std::vector<int32_t> const& v)
+adapter::Variant::Variant(std::vector<int32_t> const& v)
   : m_data()
 {
   m_data.Type = TypeId::Int32Array;
   AllocAndCopy(m_data, v);
 }
 
-common::Variant::Variant(uint32_t u)
+adapter::Variant::Variant(uint32_t u)
   : m_data()
 {
   m_data.Type = TypeId::UInt32;
   m_data.Item.v_uint32 = u;
 }
 
-common::Variant::Variant(std::vector<uint32_t> const& v)
+adapter::Variant::Variant(std::vector<uint32_t> const& v)
   : m_data()
 {
   m_data.Type = TypeId::UInt32Array;
   AllocAndCopy(m_data, v);
 }
 
-common::Variant::Variant(int64_t x)
+adapter::Variant::Variant(int64_t x)
   : m_data()
 {
   m_data.Type = TypeId::Int64;
   m_data.Item.v_int64 = x;
 }
 
-common::Variant::Variant(std::vector<int64_t> const& v)
+adapter::Variant::Variant(std::vector<int64_t> const& v)
   : m_data()
 {
   m_data.Type = TypeId::Int64Array;
   AllocAndCopy(m_data, v);
 }
 
-common::Variant::Variant(uint64_t t)
+adapter::Variant::Variant(uint64_t t)
   : m_data()
 {
   m_data.Type = TypeId::UInt64;
   m_data.Item.v_uint64 = t;
 }
 
-common::Variant::Variant(std::vector<uint64_t> const& v)
+adapter::Variant::Variant(std::vector<uint64_t> const& v)
   : m_data()
 {
   m_data.Type = TypeId::UInt64Array;
   AllocAndCopy(m_data, v);
 }
 
-common::Variant::Variant(double d)
+adapter::Variant::Variant(double d)
   : m_data()
 {
   m_data.Type = TypeId::Double;
   m_data.Item.v_double = d;
 }
 
-common::Variant::Variant(std::vector<double> const& v)
+adapter::Variant::Variant(std::vector<double> const& v)
   : m_data()
 {
   m_data.Type = TypeId::DoubleArray;
   AllocAndCopy(m_data, v);
 }
 
-common::Variant::Variant(TypeId t)
+adapter::Variant::Variant(TypeId t)
   : m_data()
 {
   m_data.Type = t;
 }
 
-common::Variant::Variant(std::string const& s)
+adapter::Variant::Variant(std::string const& s)
   : m_data()
 {
   m_data.Type = TypeId::String;
@@ -219,7 +219,7 @@ common::Variant::Variant(std::string const& s)
   *m_data.Item.v_string = s;
 }
 
-common::Variant::Variant(char const* s)
+adapter::Variant::Variant(char const* s)
   : m_data()
 {
   m_data.Type = TypeId::String;
@@ -231,19 +231,19 @@ common::Variant::Variant(char const* s)
   }
 }
 
-common::Variant::Variant(std::vector<std::string> const& v)
+adapter::Variant::Variant(std::vector<std::string> const& v)
   : m_data()
 {
   m_data.Type = TypeId::StringArray;
   AllocAndCopy(m_data, v);
 }
 
-common::Variant::Variant(Variant const& other)
+adapter::Variant::Variant(Variant const& other)
 {
   AssignFrom(other);
 }
 
-common::Variant::~Variant()
+adapter::Variant::~Variant()
 {
   if (m_data.Type == TypeId::String && m_data.Item.v_string)
     delete m_data.Item.v_string;
@@ -252,8 +252,8 @@ common::Variant::~Variant()
     freeArray2(m_data.Item.v_arr, m_data.Type);
 }
 
-common::Variant&
-common::Variant::operator=(Variant const& other)
+adapter::Variant&
+adapter::Variant::operator=(Variant const& other)
 {
   if (&other != this)
     AssignFrom(other);
@@ -261,81 +261,81 @@ common::Variant::operator=(Variant const& other)
 }
 
 bool
-common::Variant::IsArray() const
+adapter::Variant::IsArray() const
 {
   // relies on knowing order of enum
   return GetType() > TypeId::String;
 }
 
 int
-common::Variant::Length() const
+adapter::Variant::Length() const
 {
   if (!IsArray()) return -1;
   return m_data.Size;
 }
 
 std::vector<bool>
-common::Variant::ToBooleanArray(bool* ok) const
+adapter::Variant::ToBooleanArray(bool* ok) const
 {
   return GetArray<bool>(TypeId::BooleanArray, ok);
 }
 
 std::vector<uint8_t>
-common::Variant::ToUInt8Array(bool* ok) const
+adapter::Variant::ToUInt8Array(bool* ok) const
 {
   return GetArray<uint8_t>(TypeId::UInt8Array, ok);
 }
 
 std::vector<int16_t>
-common::Variant::ToInt16Array(bool* ok) const
+adapter::Variant::ToInt16Array(bool* ok) const
 {
   return GetArray<int16_t>(TypeId::Int16Array, ok);
 }
 
 std::vector<uint16_t>
-common::Variant::ToUInt16Array(bool* ok) const
+adapter::Variant::ToUInt16Array(bool* ok) const
 {
   return GetArray<uint16_t>(TypeId::UInt16Array, ok);
 }
 
 std::vector<int32_t>
-common::Variant::ToInt32Array(bool* ok) const
+adapter::Variant::ToInt32Array(bool* ok) const
 {
   return GetArray<int32_t>(TypeId::Int32Array, ok);
 }
 
 std::vector<uint32_t>
-common::Variant::ToUInt32Array(bool* ok) const
+adapter::Variant::ToUInt32Array(bool* ok) const
 {
   return GetArray<uint32_t>(TypeId::UInt32Array, ok);
 }
 
 std::vector<int64_t>
-common::Variant::ToInt64Array(bool* ok) const
+adapter::Variant::ToInt64Array(bool* ok) const
 {
   return GetArray<int64_t>(TypeId::Int64Array, ok);
 }
 
 std::vector<uint64_t>
-common::Variant::ToUInt64Array(bool* ok) const
+adapter::Variant::ToUInt64Array(bool* ok) const
 {
   return GetArray<uint64_t>(TypeId::UInt64Array, ok);
 }
 
 std::vector<double>
-common::Variant::ToDoubleArray(bool* ok) const
+adapter::Variant::ToDoubleArray(bool* ok) const
 {
   return GetArray<double>(TypeId::DoubleArray, ok);
 }
 
 std::vector<std::string>
-common::Variant::ToStringArray(bool* ok) const
+adapter::Variant::ToStringArray(bool* ok) const
 {
   return GetArray<std::string>(TypeId::StringArray, ok);
 }
 
 void
-common::Variant::AssignFrom(Variant const& other)
+adapter::Variant::AssignFrom(Variant const& other)
 {
   switch (other.m_data.Type)
   {
@@ -405,7 +405,7 @@ common::Variant::AssignFrom(Variant const& other)
 }
 
 bool
-common::Variant::CanConvert(TypeId t) const
+adapter::Variant::CanConvert(TypeId t) const
 {
   if (m_data.Type == t)
     return true;
@@ -430,7 +430,7 @@ common::Variant::CanConvert(TypeId t) const
 }
 
 std::string
-common::Variant::ToString() const
+adapter::Variant::ToString() const
 {
   if (IsArray())
   {
@@ -484,7 +484,7 @@ common::Variant::ToString() const
 }
 
 bool
-common::Variant::operator < (Variant const& rhs) const
+adapter::Variant::operator < (Variant const& rhs) const
 {
   bool lessThan = false;
   if (m_data.Type == rhs.m_data.Type)

@@ -10,7 +10,6 @@
 #include "Common/AdapterValue.h"
 #include "Common/EnumDeviceOptions.h"
 #include "Common/Guid.h"
-#include "Common/Log.h"
 #include "Common/SignalBehavior.h"
 #include "Common/Variant.h"
 
@@ -21,13 +20,6 @@
 
 namespace bridge
 {
-  typedef uint32_t AdapterStatus;
-
-  inline bool IsOk(AdapterStatus st)
-  {
-    return st == 0;
-  }
-
   class IAdapterIcon
   {
   public:

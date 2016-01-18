@@ -9,19 +9,19 @@
 #include "Common/SignalBehavior.h"
 #include "Common/TypeId.h"
 
-namespace common
+namespace adapter
 {
-  class AdapterInterface;
+  class Interface;
 
-  class AdapterProperty : public AdapterObject
+  class Property : public adapter::Object
   {
-    friend class AdapterInterface;
+    friend class Interface;
 
   public:
-    typedef std::vector<AdapterProperty> Vector;
+    typedef std::vector<Property> Vector;
 
-    AdapterProperty(std::string const& name, TypeId type, AccessType access) 
-      : AdapterObject(name)
+    Property(std::string const& name, TypeId type, AccessType access) 
+      : adapter::Object(name)
       , m_type(type)
       , m_access(access)
     {
@@ -56,10 +56,10 @@ namespace common
     SignalBehavior        m_changeOfValueBehavior;
   };
 
-  inline AdapterProperty MakeAdapterProperty(std::string const& name, TypeId type,
-    AccessType access, AdapterValue::Vector const& attrs = AdapterValue::Vector())
+  inline Property MakeProperty(std::string const& name, TypeId type,
+    AccessType access, Value::Vector const& attrs = Value::Vector())
   {
-    common::AdapterProperty prop(name, type, access);
+    Property prop(name, type, access);
     for (auto const& attr : attrs)
       prop.AddAttribute(attr.GetName(), attr.GetValue());
     return std::move(prop);

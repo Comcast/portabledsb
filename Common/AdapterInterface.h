@@ -7,60 +7,60 @@
 
 #include <vector>
 
-namespace common
+namespace adapter
 {
-  class AdapterInterface : public AdapterObject
+  class Interface : public adapter::Object
   {
   public:
-    typedef std::vector<AdapterInterface> Vector;
+    typedef std::vector<Interface> Vector;
 
-    AdapterInterface(std::string const& name)
-      : AdapterObject(name)
+    Interface(std::string const& name)
+      : adapter::Object(name)
     {
     }
 
-    AdapterProperty::Vector const& GetProperties() const
+    Property::Vector const& GetProperties() const
       { return m_props; }
 
     void ClearProperties()
       { m_props.clear(); }
 
-    void AddProperty(AdapterProperty const& prop)
+    void AddProperty(Property const& prop)
     {
-      AdapterProperty myProp = prop;
+      Property myProp = prop;
       myProp.SetInterfaceName(GetName());
       m_props.push_back(std::move(myProp));
     }
 
-    AdapterMethod::Vector const& GetMethods() const
+    Method::Vector const& GetMethods() const
       { return m_methods; }
 
     void ClearMethods()
       { m_methods.clear(); }
 
-    void AddMethod(AdapterMethod const& method)
+    void AddMethod(Method const& method)
     {
-      AdapterMethod myMethod = method;
+      Method myMethod = method;
       myMethod.SetInterfaceName(GetName());
       m_methods.push_back(std::move(myMethod));
     }
 
-    AdapterSignal::Vector const& GetSignals() const
+    Signal::Vector const& GetSignals() const
       { return m_signals; }
 
     void ClearSignals()
       { m_signals.clear(); }
 
-    void AddSignal(AdapterSignal const& signal)
+    void AddSignal(Signal const& signal)
     {
-      AdapterSignal mySignal = signal;
+      Signal mySignal = signal;
       mySignal.SetInterfaceName(GetName());
       m_signals.push_back(std::move(mySignal));
     }
 
   private:
-    AdapterProperty::Vector m_props;
-    AdapterMethod::Vector   m_methods;
-    AdapterSignal::Vector   m_signals;
+    Property::Vector m_props;
+    Method::Vector   m_methods;
+    Signal::Vector   m_signals;
   };
 }

@@ -1,5 +1,5 @@
 
-#include "Common/Log.h"
+#include "Common/AdapterLog.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -19,34 +19,34 @@
 
 namespace
 {
-  common::LogLevel const kDefaultLoggingLevel = common::LogLevel::Info;
-  typedef std::map< std::string, std::shared_ptr<common::Logger> > LogMap;
+  adapter::LogLevel const kDefaultLoggingLevel = adapter::LogLevel::Info;
+  typedef std::map< std::string, std::shared_ptr<adapter::Log> > LogMap;
 
-  struct LoggerImpl
+  struct LogImpl
   {
-    LoggerImpl()
+    LogImpl()
       : DefaultLevel(kDefaultLoggingLevel)
       , OutFile(stdout) { }
 
-    common::LogLevel  DefaultLevel;
+    adapter::LogLevel  DefaultLevel;
     std::mutex        Mutex;
     FILE*             OutFile;
     LogMap            Logs;
   };
 
-  LoggerImpl impl;
+  LogImpl impl;
 
-  char const* LevelToString(common::LogLevel l)
+  char const* LevelToString(adapter::LogLevel l)
   {
     char const* s = "unknown";
     switch (l)
     {
-      case common::LogLevel::Off: s = "OFF"; break;
-      case common::LogLevel::Debug: s = "DEBUG"; break;
-      case common::LogLevel::Info: s = "INFO"; break;
-      case common::LogLevel::Warn: s = "WARN"; break;
-      case common::LogLevel::Error: s = "ERROR"; break;
-      case common::LogLevel::Fatal: s = "FATAL"; break;
+      case adapter::LogLevel::Off: s = "OFF"; break;
+      case adapter::LogLevel::Debug: s = "DEBUG"; break;
+      case adapter::LogLevel::Info: s = "INFO"; break;
+      case adapter::LogLevel::Warn: s = "WARN"; break;
+      case adapter::LogLevel::Error: s = "ERROR"; break;
+      case adapter::LogLevel::Fatal: s = "FATAL"; break;
       default:
         break;
     }
@@ -64,20 +64,20 @@ namespace
   #endif
 }
 
-common::Logger::Logger(std::string const& name)
+adapter::Log::Log(std::string const& name)
   : m_name(name)
 {
 }
 
 void
-common::Logger::SetDefaultLevel(LogLevel level)
+adapter::Log::SetDefaultLevel(LogLevel level)
 {
   std::lock_guard<std::mutex> lock(impl.Mutex);
   impl.DefaultLevel = level;
 }
 
 void
-common::Logger::Write(LogLevel level, char const* file, int line, char const* format, ...)
+adapter::Log::Write(LogLevel level, char const* file, int line, char const* format, ...)
 { 
   va_list args;
   va_start(args, format);
@@ -86,18 +86,18 @@ common::Logger::Write(LogLevel level, char const* file, int line, char const* fo
 }
 
 void
-common::Logger::SetLevel(LogLevel level)
+adapter::Log::SetLevel(LogLevel level)
 {
   std::lock_guard<std::mutex> lock(impl.Mutex);
   m_level = level;
 }
 
 bool
-common::Logger::IsLevelEnabled(std::string const& module, LogLevel level)
+adapter::Log::IsLevelEnabled(std::string const& module, LogLevel level)
 {
   std::lock_guard<std::mutex> lock(impl.Mutex);
 
-  common::LogLevel minLevel = impl.DefaultLevel;
+  adapter::LogLevel minLevel = impl.DefaultLevel;
   LogMap::const_iterator itr = impl.Logs.find(module);
   if (itr != impl.Logs.end())
     minLevel = itr->second->m_level;
@@ -106,7 +106,7 @@ common::Logger::IsLevelEnabled(std::string const& module, LogLevel level)
 }
 
 void
-common::Logger::VaLog(LogLevel level, const char* file, int line, const char* format, va_list args)
+adapter::Log::VaLog(LogLevel level, const char* file, int line, const char* format, va_list args)
 {
   struct tm result;
   time_t const clock = time(0);
@@ -126,16 +126,16 @@ common::Logger::VaLog(LogLevel level, const char* file, int line, const char* fo
   fprintf(impl.OutFile, "\n");
 }
 
-std::shared_ptr<common::Logger>
-common::Logger::GetLogger(std::string const& name)
+std::shared_ptr<adapter::Log>
+adapter::Log::GetLog(std::string const& name)
 {
-  std::shared_ptr<Logger> logger;
+  std::shared_ptr<Log> logger;
 
   std::lock_guard<std::mutex> lock(impl.Mutex);
   LogMap::const_iterator itr = impl.Logs.find(name);
   if (itr == impl.Logs.end())
   {
-    logger.reset(new Logger(name));
+    logger.reset(new Log(name));
     logger->m_level = impl.DefaultLevel;
     impl.Logs.insert(LogMap::value_type(name, logger));
   }

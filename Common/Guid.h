@@ -3,7 +3,7 @@
 #include <uuid/uuid.h>
 #include <string>
 
-namespace common
+namespace adapter
 {
   class Guid
   {

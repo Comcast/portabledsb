@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace common
+namespace adapter
 {
   std::string const kDeviceArrivalSignal = "Device_Arrival";
   std::string const kDeviceArravalHandle = "Device_Handle";

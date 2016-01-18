@@ -3,30 +3,30 @@
 #include "Common/AdapterItemInformation.h"
 #include "Common/AdapterInterface.h"
 
-namespace common
+namespace adapter
 {
-  class AdapterDevice
+  class Device
   {
   public:
-    typedef std::vector<AdapterDevice> Vector;
+    typedef std::vector<Device> Vector;
 
-    AdapterItemInformation const& GetBasicInformation() const
+    ItemInformation const& GetBasicInformation() const
       { return m_info; }
 
-    void SetBasicInformation(AdapterItemInformation const& info)
+    void SetBasicInformation(ItemInformation const& info)
       { m_info = info; }
 
-    AdapterInterface::Vector const& GetInterfaces() const
+    Interface::Vector const& GetInterfaces() const
       { return m_interfaces; }
 
-    void AddInterface(AdapterInterface const& interface)
+    void AddInterface(Interface const& interface)
       { m_interfaces.push_back(interface); }
 
     void ClearInterfaces()
       { m_interfaces.clear(); }
 
   private:
-    AdapterItemInformation          m_info;
-    AdapterInterface::Vector        m_interfaces;
+    ItemInformation          m_info;
+    Interface::Vector        m_interfaces;
   };
 }

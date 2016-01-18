@@ -5,18 +5,18 @@
 #include <memory>
 #include <vector>
 
-namespace common
+namespace adapter
 {
-  class AdapterValue
+  class Value
   {
   public:
-    typedef std::vector<AdapterValue> Vector;
+    typedef std::vector<Value> Vector;
 
-    AdapterValue()
+    Value()
     {
     }
 
-    AdapterValue(std::string const& name, Variant const& value)
+    Value(std::string const& name, Variant const& value)
       : m_name(name)
       , m_value(value) { }
 
@@ -32,9 +32,9 @@ namespace common
     bool IsNull() const
       { return m_name.empty() && m_value.IsEmpty(); }
 
-    static AdapterValue const& Null()
+    static Value const& Null()
     {
-      static AdapterValue kNullValue("", Variant());
+      static Value kNullValue("", Variant());
       return kNullValue;
     }
 

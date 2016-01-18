@@ -2,12 +2,12 @@
 
 namespace
 {
-  void AddClusterToDevice(common::AdapterDevice& dev, uint16_t clusterId)
+  void AddClusterToDevice(adapter::Device& dev, uint16_t clusterId)
   {
     std::shared_ptr<adapters::mock::InterfaceDefinition> def = adapters::mock::GetZigBeeCluster(clusterId);
     if (def)
     {
-      common::AdapterInterface ifc(def->Name);
+      adapter::Interface ifc(def->Name);
       ifc.AddAttribute("code", clusterId);
       for (auto const& m : def->Methods)
         ifc.AddMethod(m);
@@ -21,14 +21,10 @@ namespace
 }
 
 
-common::AdapterDevice
+adapter::Device
 adapters::mock::MockAdapter::CreateDoorWindowSensor()
 {
-  using namespace common;
-
-  AdapterDevice dev;
-
-  AdapterItemInformation info;
+  adapter::ItemInformation info;
   info.SetName("MyDoorWindowSensor");
   info.SetVendor("Comcast");
   info.SetModel("801417");
@@ -36,6 +32,8 @@ adapters::mock::MockAdapter::CreateDoorWindowSensor()
   info.SetFirmwareVersion("1.0");
   info.SetSerialNumber("H123ALK");
   info.SetDescription("Door/Window sensor");
+
+  adapter::Device dev;
   dev.SetBasicInformation(info);
 
   AddClusterToDevice(dev, 0x0000); // basic
@@ -43,4 +41,3 @@ adapters::mock::MockAdapter::CreateDoorWindowSensor()
 
   return std::move(dev);
 }
-

@@ -2,14 +2,14 @@
 
 #include "AllJoynHelper.h"
 #include "DsbServiceNames.h"
-#include "Common/Log.h"
+#include "Common/AdapterLog.h"
 
 namespace
 {
   DSB_DECLARE_LOGNAME(BridgeDevice);
 }
 
-bridge::BridgeDevice::BridgeDevice(common::AdapterDevice& device, std::shared_ptr<common::Adapter> const& adapter)
+bridge::BridgeDevice::BridgeDevice(adapter::Device& device, std::shared_ptr<adapter::Adapter> const& adapter)
   : m_device(device)
   , m_adapter(adapter)
   , m_busAttachment(AllJoynHelper::EncodeStringForAppName(adapter->GetExposedApplicationName()).c_str(), true)
@@ -58,9 +58,12 @@ bridge::BridgeDevice::Initialize()
   if (st != ER_OK)
     return st;
 
+  std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
+
   // set device info in about
-  common::AdapterItemInformation info;
-  m_adapter->GetBasicInformation(info);
+  adapter::ItemInformation info;
+  m_adapter->GetBasicInformation(info, req);
+  req->Wait();
 
 
   m_about.SetApplicationName(m_adapter->GetExposedApplicationName().c_str());
@@ -132,8 +135,11 @@ bridge::BridgeDevice::BuildServiceName()
     return ER_BUS_BAD_BUS_NAME;
   m_rootStringForAllJoynNames = tmp;
 
-  common::AdapterItemInformation info;
-  m_adapter->GetBasicInformation(info);
+  std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
+
+  adapter::ItemInformation info;
+  m_adapter->GetBasicInformation(info, req);
+  req->Wait();
 
   tmp = AllJoynHelper::EncodeStringForServiceName(info.GetName());
   if (tmp.empty())

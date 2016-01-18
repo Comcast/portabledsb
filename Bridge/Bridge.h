@@ -12,20 +12,20 @@ namespace bridge
 {
   class BridgeDevice;
 
-  typedef std::map<common::AdapterDevice*, std::shared_ptr<BridgeDevice> > BridgeDeviceList;
+  typedef std::map<adapter::Device*, std::shared_ptr<BridgeDevice> > BridgeDeviceList;
 
   class DeviceSystemBridge : public std::enable_shared_from_this<DeviceSystemBridge>
   {
   public:
     static std::shared_ptr<DeviceSystemBridge> GetInstance();
-    static void InitializeSingleton(std::shared_ptr<common::Adapter> const& adapter);
+    static void InitializeSingleton(std::shared_ptr<adapter::Adapter> const& adapter);
 
     virtual ~DeviceSystemBridge();
 
     QStatus Initialize();
     QStatus Shutdown();
 
-    inline std::shared_ptr<common::Adapter> GetAdapter() const
+    inline std::shared_ptr<adapter::Adapter> GetAdapter() const
       { return m_adapter; }
 
     //inline ConfigManager *GetConfigManager()
@@ -37,17 +37,17 @@ namespace bridge
       { return m_deviceList; }
 
   private:
-    DeviceSystemBridge(std::shared_ptr<common::Adapter> const& adapter);
+    DeviceSystemBridge(std::shared_ptr<adapter::Adapter> const& adapter);
 
     QStatus RegisterAdapterSignalHandlers(bool isRegister);
     QStatus InitializeAdapter();
     QStatus InitializeInternal();
     QStatus ShutdownInternal();
 
-    QStatus CreateDevice(common::AdapterDevice const& device);
-    QStatus UpdateDevice(common::AdapterDevice const& device, bool exposedOnAllJoynBus);
+    QStatus CreateDevice(adapter::Device const& device);
+    QStatus UpdateDevice(adapter::Device const& device, bool exposedOnAllJoynBus);
 
-    void OnAdapterSignal(common::AdapterSignal const& signal, void* argp);
+    void OnAdapterSignal(adapter::Signal const& signal, void* argp);
 
   private:
     #if 0
@@ -82,9 +82,9 @@ namespace bridge
 
   private:
     bool                                      m_alljoynInitialized;
-    std::shared_ptr<common::Adapter>                      m_adapter;
+    std::shared_ptr<adapter::Adapter>                      m_adapter;
     BridgeDeviceList                          m_deviceList;
-    std::vector<common::RegistrationHandle> m_registeredSignalListeners;
+    std::vector<adapter::RegistrationHandle> m_registeredSignalListeners;
     ConfigManager m_configManager;
   };
 }

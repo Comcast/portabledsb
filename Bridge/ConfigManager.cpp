@@ -3,7 +3,7 @@
 #include "AllJoynHelper.h"
 #include "IAdapter.h"
 
-#include "Common/Log.h"
+#include "Common/AdapterLog.h"
 
 using namespace bridge;
 
@@ -19,7 +19,7 @@ namespace
   uint32_t const kSessionLinkTimeout = 30; // seconds
 }
 
-ConfigManager::ConfigManager(DeviceSystemBridge& bridge, common::Adapter& adapter)
+ConfigManager::ConfigManager(DeviceSystemBridge& bridge, adapter::Adapter& adapter)
   : m_parent(bridge)
   , m_adapter(adapter)
   , m_sessionPort(kDSBServicePort)
@@ -136,8 +136,11 @@ ConfigManager::BuildServiceName()
 
   m_serviceName = tmp + ".DeviceSystemBridge";
 
-  common::AdapterItemInformation info;
-  m_adapter.GetBasicInformation(info);
+  std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
+
+  adapter::ItemInformation info;
+  m_adapter.GetBasicInformation(info, req);
+  req->Wait();
 
   tmp = AllJoynHelper::EncodeStringForServiceName(info.GetName());
   if (tmp.empty()) {

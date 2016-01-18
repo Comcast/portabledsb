@@ -2,7 +2,7 @@
 #include "Bridge/Bridge.h"
 
 #include "Common/Adapter.h"
-#include "Common/Log.h"
+#include "Common/AdapterLog.h"
 
 #include "Adapters/MockAdapter/MockAdapter.h"
 
@@ -36,14 +36,14 @@ namespace
     return b;
   }
 
-  void PrintValue(common::AdapterInterface const& ifc, common::AdapterValue const& val)
+  void PrintValue(adapter::Interface const& ifc, adapter::Value const& val)
   {
     std::cout << ifc.GetName() << "." << val.GetName();
     std::cout << " = " << val.GetValue().ToString();
-    std::cout << " [" << common::TypeIdToString(val.GetValue().GetType()) << "]" << std::endl;
+    std::cout << " [" << adapter::TypeIdToString(val.GetValue().GetType()) << "]" << std::endl;
   }
 
-  void PrintDevice(common::Adapter& adapter, common::AdapterDevice const& dev)
+  void PrintDevice(adapter::Adapter& adapter, adapter::Device const& dev)
   {
     std::cout << "Device [" << dev.GetBasicInformation().GetName() << "]" << std::endl;
     for (auto ifc : dev.GetInterfaces())
@@ -57,8 +57,11 @@ namespace
       std::cout << "Properties" << std::endl;
       for (auto prop : ifc.GetProperties())
       {
-        common::AdapterValue value = common::AdapterValue::Null();
-        adapter.GetProperty(ifc, prop, value);
+        std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
+
+        adapter::Value value = adapter::Value::Null();
+        adapter.GetProperty(ifc, prop, value, req);
+        req->Wait();
 
         std::cout << " ";
         PrintValue(ifc, value);
@@ -116,7 +119,7 @@ int main(int /*argc*/, char* /*argv*/ [])
   QStatus st = ER_OK;
 
   bridge::DeviceSystemBridge::InitializeSingleton(
-      std::shared_ptr<common::Adapter>(new adapters::mock::MockAdapter()));
+      std::shared_ptr<adapter::Adapter>(new adapters::mock::MockAdapter()));
 
   st = DSB()->Initialize();
   if (st != ER_OK)
@@ -125,17 +128,17 @@ int main(int /*argc*/, char* /*argv*/ [])
     return 1;
   }
 
-  std::shared_ptr<common::Adapter> adapter = DSB()->GetAdapter();
+  std::shared_ptr<adapter::Adapter> adapter = DSB()->GetAdapter();
 
-  common::AdapterItemInformation info;
-  adapter->GetBasicInformation(info);
+  adapter::ItemInformation info;
+  adapter->GetBasicInformation(info, std::shared_ptr<adapter::IoRequest>());
 
-  common::Logger::GetLogger(info.GetName())->SetLevel(common::LogLevel::Debug);
+  adapter::Log::GetLog(info.GetName())->SetLevel(adapter::LogLevel::Debug);
 
-  std::shared_ptr<common::AdapterIoRequest> req(new common::AdapterIoRequest());
 
-  common::AdapterDevice::Vector devices;
-  adapter->EnumDevices(common::EnumDeviceOptions::ForceRefresh, devices, &req);
+  adapter::Device::Vector devices;
+  std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
+  adapter->EnumDevices(adapter::EnumDeviceOptions::ForceRefresh, devices, req);
   if (req)
   {
     DSBLOG_INFO("waiting for EnumDevices to complete");

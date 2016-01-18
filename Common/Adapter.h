@@ -3,16 +3,16 @@
 #include "Common/AdapterDevice.h"
 #include "Common/AdapterIoRequest.h"
 #include "Common/AdapterItemInformation.h"
+#include "Common/AdapterLog.h"
 #include "Common/AdapterSignal.h"
 #include "Common/AdapterSignalListener.h"
 #include "Common/AdapterStatus.h"
 #include "Common/EnumDeviceOptions.h"
 #include "Common/Guid.h"
-#include "Common/Log.h"
 
 #include <memory>
 
-namespace common
+namespace adapter
 {
   typedef uint32_t RegistrationHandle;
 
@@ -27,59 +27,59 @@ namespace common
     virtual std::string GetExposedAdapterPrefix() = 0;
     virtual std::string GetExposedApplicationName() = 0;
     virtual Guid GetExposedApplicationGuid() = 0;
-    virtual std::string GetStatusText(AdapterStatus st) = 0;
+    virtual std::string GetStatusText(adapter::Status st) = 0;
 
-    virtual AdapterStatus SetConfiguration(
+    virtual adapter::Status SetConfiguration(
       std::vector<uint8_t> const& configData,
-      std::shared_ptr<AdapterIoRequest>* req = NULL) = 0;
+      std::shared_ptr<IoRequest> const& req) = 0;
 
-    virtual AdapterStatus GetConfiguration(
+    virtual adapter::Status GetConfiguration(
       std::vector<uint8_t>& configData,
-      std::shared_ptr<AdapterIoRequest>* req = NULL) = 0;
+      std::shared_ptr<IoRequest> const& req) = 0;
 
-    virtual AdapterStatus GetBasicInformation(
-      AdapterItemInformation& info,
-      std::shared_ptr<AdapterIoRequest>* req = NULL) = 0;
+    virtual adapter::Status GetBasicInformation(
+      ItemInformation& info,
+      std::shared_ptr<IoRequest> const& req) = 0;
 
-    virtual AdapterStatus Initialize(
-      std::shared_ptr<Logger> const& log,
-      std::shared_ptr<AdapterIoRequest>* req = NULL) = 0;
+    virtual adapter::Status Initialize(
+      std::shared_ptr<adapter::Log> const& log,
+      std::shared_ptr<IoRequest> const& req) = 0;
 
-    virtual AdapterStatus Shutdown(
-      std::shared_ptr<AdapterIoRequest>* req = NULL) = 0;
+    virtual adapter::Status Shutdown(
+      std::shared_ptr<IoRequest> const& req) = 0;
 
-    virtual AdapterStatus GetSignals(
-      AdapterSignal::Vector& signals,
-      std::shared_ptr<AdapterIoRequest>* req = NULL) = 0;
+    virtual adapter::Status GetSignals(
+      Signal::Vector& signals,
+      std::shared_ptr<IoRequest> const& req) = 0;
 
-    virtual AdapterStatus EnumDevices(
+    virtual adapter::Status EnumDevices(
       EnumDeviceOptions opts,
-      AdapterDevice::Vector& devices,
-      std::shared_ptr<AdapterIoRequest>* req = NULL) = 0;
+      Device::Vector& devices,
+      std::shared_ptr<IoRequest> const& req) = 0;
 
-    virtual AdapterStatus GetProperty(
-      AdapterInterface const& ifc,
-      AdapterProperty const& prop,
-      AdapterValue& value,
-      std::shared_ptr<AdapterIoRequest>* req = NULL) = 0;
+    virtual adapter::Status GetProperty(
+      Interface const& ifc,
+      Property const& prop,
+      Value& value,
+      std::shared_ptr<IoRequest> const& req) = 0;
 
-    virtual AdapterStatus SetProperty(
-      AdapterInterface const& ifc,
-      AdapterProperty const& prop,
-      AdapterValue const& value,
-      std::shared_ptr<AdapterIoRequest>* req = NULL) = 0;
+    virtual adapter::Status SetProperty(
+      Interface const& ifc,
+      Property const& prop,
+      Value const& value,
+      std::shared_ptr<IoRequest> const& req) = 0;
 
-    virtual AdapterStatus InvokeMethod(
-      AdapterInterface const& ifc,
-      AdapterMethod const& method,
-      std::shared_ptr<AdapterIoRequest>* req = NULL) = 0;
+    virtual adapter::Status InvokeMethod(
+      Interface const& ifc,
+      Method const& method,
+      std::shared_ptr<IoRequest> const& req) = 0;
 
-    virtual AdapterStatus RegisterSignalListener(
+    virtual adapter::Status RegisterSignalListener(
         std::string const& signalName,
-        AdapterSignalListener const& listener,
+        SignalListener const& listener,
         void* argp,
         RegistrationHandle& handle) = 0;
 
-    virtual AdapterStatus UnregisterSignalListener(RegistrationHandle const& h) = 0;
+    virtual adapter::Status UnregisterSignalListener(RegistrationHandle const& h) = 0;
   };
 }

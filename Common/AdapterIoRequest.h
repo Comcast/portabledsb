@@ -5,26 +5,26 @@
 #include <condition_variable>
 #include <mutex>
 
-namespace common
+namespace adapter
 {
-  class AdapterIoRequest
+  class IoRequest
   {
   public:
-    AdapterIoRequest()
+    IoRequest()
       : m_status(0)
       , m_canceled(false)
       , m_completed(false)
     {
     }
 
-    virtual ~AdapterIoRequest()
+    ~IoRequest()
     {
     }
 
-    virtual AdapterStatus GetStatus()
+    Status GetStatus()
       { return m_status; }
 
-    virtual bool Wait(uint32_t millis = std::numeric_limits<uint32_t>::max())
+    bool Wait(uint32_t millis = std::numeric_limits<uint32_t>::max())
     {
       if (millis != std::numeric_limits<uint32_t>::max())
       {
@@ -45,7 +45,7 @@ namespace common
       return 0;
     }
 
-    virtual void Cancel()
+    void Cancel()
     {
       std::unique_lock<std::mutex> lk(m_mutex);
       m_canceled = true;
@@ -54,7 +54,7 @@ namespace common
       m_cond.notify_all();
     }
 
-    void SetComplete(AdapterStatus status)
+    void SetComplete(Status status)
     {
       std::unique_lock<std::mutex> lk(m_mutex);
       m_status = status;
@@ -65,7 +65,7 @@ namespace common
     }
 
   private:
-    AdapterStatus             m_status;
+    Status             m_status;
     bool                      m_canceled;
     bool                      m_completed;
     std::mutex                m_mutex;

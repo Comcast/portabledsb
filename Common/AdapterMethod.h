@@ -6,19 +6,17 @@
 #include <string>
 #include <vector>
 
-namespace common
+namespace adapter
 {
-  class AdapterInterface;
-
-  class AdapterMethod : public AdapterObject
+  class Method : public adapter::Object
   {
-    friend class AdapterInterface;
+    friend class Interface;
 
   public:
-    typedef std::vector<AdapterMethod> Vector;
+    typedef std::vector<Method> Vector;
 
-    AdapterMethod(std::string const& name, std::string const& description = std::string())
-      : AdapterObject(name)
+    Method(std::string const& name, std::string const& description = std::string())
+      : adapter::Object(name)
     {
       SetDescription(description);
     }
@@ -26,22 +24,22 @@ namespace common
     std::string const& GetInterface() const
       { return m_interface; }
 
-    AdapterValue::Vector const& GetInputArguments() const
+    Value::Vector const& GetInputArguments() const
       { return m_inArgs; }
 
     void CearInputArguments()
       { m_inArgs.clear(); }
 
-    void AddInputArgument(AdapterValue const& value)
+    void AddInputArgument(Value const& value)
       { m_inArgs.push_back(value); }
 
-    AdapterValue::Vector const& GetOutputArguments() const
+    Value::Vector const& GetOutputArguments() const
       { return m_outArgs; }
 
     void ClearOutputArguments()
       { m_outArgs.clear(); }
 
-    void AddOutputArgument(AdapterValue const& value)
+    void AddOutputArgument(Value const& value)
       { m_outArgs.push_back(value); }
 
   private:
@@ -50,18 +48,18 @@ namespace common
 
   private:
     std::string m_interface;
-    AdapterValue::Vector m_inArgs;
-    AdapterValue::Vector m_outArgs;
+    Value::Vector m_inArgs;
+    Value::Vector m_outArgs;
   };
 
-  inline AdapterMethod MakeAdapterMethod(
+  inline Method MakeMethod(
       std::string const& name,
-      AdapterValue::Vector const& attrs = AdapterValue::Vector(),
+      Value::Vector const& attrs = Value::Vector(),
       std::string const& description = std::string(),
-      AdapterValue::Vector const& inputArgs = AdapterValue::Vector(),
-      AdapterValue::Vector const& outputArgs = AdapterValue::Vector())
+      Value::Vector const& inputArgs = Value::Vector(),
+      Value::Vector const& outputArgs = Value::Vector())
   {
-    common::AdapterMethod method(name);
+    Method method(name);
     for (auto attr : attrs)
       method.AddAttribute(attr.GetName(), attr.GetValue());
     for (auto in : inputArgs)

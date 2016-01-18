@@ -6,20 +6,20 @@
 
 #include "Common/Variant.h"
 
-namespace common
+namespace adapter
 {
-  typedef std::map< std::string, Variant > AdapterAttributeMap;
+  typedef std::map< std::string, Variant > AttributeMap;
 
-  class AdapterObject
+  class Object
   {
   public:
-    AdapterObject(std::string const& name)
+    Object(std::string const& name)
       : m_name(name)
       , m_id(GetNextObjectId())
     {
     }
 
-    virtual ~AdapterObject() { }
+    virtual ~Object() { }
 
     uint64_t GetId() const
       { return m_id; }
@@ -33,7 +33,7 @@ namespace common
     void SetDescription(std::string const& desc)
       { m_description = desc; }
 
-    AdapterAttributeMap const& GetAttributes() const
+    AttributeMap const& GetAttributes() const
       { return m_attrs; }
 
     Variant GetAttribute(std::string const& name) const
@@ -43,7 +43,7 @@ namespace common
     }
 
     void AddAttribute(std::string const& name, Variant const& value)
-      { m_attrs.insert(AdapterAttributeMap::value_type(name, value)); }
+      { m_attrs.insert(AttributeMap::value_type(name, value)); }
 
     void ClearAttributes()
       { m_attrs.clear(); }
@@ -51,7 +51,7 @@ namespace common
   private:
     std::string           m_name;
     uint64_t              m_id;
-    AdapterAttributeMap   m_attrs;
+    AttributeMap   m_attrs;
     std::string           m_description;
 
   private:

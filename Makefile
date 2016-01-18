@@ -10,7 +10,7 @@ SRCS=DeviceProviders/AllJoynProvider.cpp \
      Bridge/DeviceMethod.cpp \
      Bridge/DeviceProperty.cpp \
      Bridge/DeviceSignal.cpp \
-     Common/Log.cpp \
+     Common/AdapterLog.cpp \
      Common/Variant.cpp \
      Common/Guid.cpp \
      Adapters/MockAdapter/MockAdapter.cpp \

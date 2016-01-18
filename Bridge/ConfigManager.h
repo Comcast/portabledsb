@@ -13,7 +13,7 @@ namespace bridge
   class ConfigManager : private ajn::BusListener, private ajn::SessionListener, private ajn::SessionPortListener
   {
   public:
-    ConfigManager(DeviceSystemBridge&, common::Adapter&);
+    ConfigManager(DeviceSystemBridge&, adapter::Adapter&);
     ~ConfigManager();
 
     QStatus Initialize();
@@ -41,7 +41,7 @@ namespace bridge
 
   private:
     DeviceSystemBridge& m_parent;
-    common::Adapter& m_adapter;
+    adapter::Adapter& m_adapter;
     std::shared_ptr<ajn::BusAttachment> m_busAttachment;
     std::string m_serviceName;
 

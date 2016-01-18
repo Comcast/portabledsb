@@ -4,11 +4,11 @@
 
 
 QStatus
-bridge::AllJoynHelper::SetMsgArg(common::AdapterValue const& adapterValue, ajn::MsgArg& m)
+bridge::AllJoynHelper::SetMsgArg(adapter::Value const& adapterValue, ajn::MsgArg& m)
 {
   QStatus st = ER_OK;
   std::string sig;
-  common::Variant const& val = adapterValue.GetValue();
+  adapter::Variant const& val = adapterValue.GetValue();
 
   st = GetSignature(val.GetType(), sig);
   if (st != ER_OK)
@@ -16,73 +16,73 @@ bridge::AllJoynHelper::SetMsgArg(common::AdapterValue const& adapterValue, ajn::
 
   switch (val.GetType())
   {
-    case common::TypeId::Null:
+    case adapter::TypeId::Null:
     break;
 
-    case common::TypeId::Boolean:
+    case adapter::TypeId::Boolean:
     {
       bool b = val.ToBoolean();
       st = m.Set(sig.c_str(), &b);
     }
     break;
 
-    case common::TypeId::UInt8:
+    case adapter::TypeId::UInt8:
     {
       uint8_t i = val.ToUInt8();
       st = m.Set(sig.c_str(), &i);
     }
     break;
 
-    case common::TypeId::Int16:
+    case adapter::TypeId::Int16:
     {
       int16_t i = val.ToInt16();
       st = m.Set(sig.c_str(), &i);
     }
     break;
 
-    case common::TypeId::UInt16:
+    case adapter::TypeId::UInt16:
     {
       uint16_t u = val.ToUInt16();
       st = m.Set(sig.c_str(), &u);
     }
     break;
 
-    case common::TypeId::Int32:
+    case adapter::TypeId::Int32:
     {
       int32_t i = val.ToInt32();
       st = m.Set(sig.c_str(), &i);
     }
     break;
 
-    case common::TypeId::UInt32:
+    case adapter::TypeId::UInt32:
     {
       uint32_t u = val.ToUInt32();
       st = m.Set(sig.c_str(), &u);
     }
     break;
 
-    case common::TypeId::Int64:
+    case adapter::TypeId::Int64:
     {
       int64_t l = val.ToInt64();
       st = m.Set(sig.c_str(), &l);
     }
     break;
 
-    case common::TypeId::UInt64:
+    case adapter::TypeId::UInt64:
     {
       uint64_t l = val.ToUInt64();
       st = m.Set(sig.c_str(), &l);
     }
     break;
 
-    case common::TypeId::Double:
+    case adapter::TypeId::Double:
     {
       double d = val.ToDouble();
       st = m.Set(sig.c_str(), &d);
     }
     break;
 
-    case common::TypeId::String:
+    case adapter::TypeId::String:
     {
       std::string s = val.ToString();
       if (!s.empty())
@@ -98,46 +98,46 @@ bridge::AllJoynHelper::SetMsgArg(common::AdapterValue const& adapterValue, ajn::
     }
     break;
 
-    case common::TypeId::BooleanArray:
+    case adapter::TypeId::BooleanArray:
       /* Using vector<uint8_t> instead of vector<bool>, since vector<bool> is a
        * bitfield and we can't access the underlying array easily.
        * http://en.cppreference.com/w/cpp/container/vector_bool */
       st = SetMsgArg<uint8_t>(m, sig.c_str(), val.ToUInt8Array());
     break;
 
-    case common::TypeId::UInt8Array:
+    case adapter::TypeId::UInt8Array:
       st = SetMsgArg<uint8_t>(m, sig.c_str(), val.ToUInt8Array());
     break;
 
-    case common::TypeId::Int16Array:
+    case adapter::TypeId::Int16Array:
       st = SetMsgArg<int16_t>(m, sig.c_str(), val.ToInt16Array());
     break;
 
-    case common::TypeId::UInt16Array:
+    case adapter::TypeId::UInt16Array:
       st = SetMsgArg<uint16_t>(m, sig.c_str(), val.ToUInt16Array());
     break;
 
-    case common::TypeId::Int32Array:
+    case adapter::TypeId::Int32Array:
       st = SetMsgArg<int32_t>(m, sig.c_str(), val.ToInt32Array());
     break;
 
-    case common::TypeId::UInt32Array:
+    case adapter::TypeId::UInt32Array:
       st = SetMsgArg<uint32_t>(m, sig.c_str(), val.ToUInt32Array());
     break;
 
-    case common::TypeId::Int64Array:
+    case adapter::TypeId::Int64Array:
       st = SetMsgArg<int64_t>(m, sig.c_str(), val.ToInt64Array());
     break;
 
-    case common::TypeId::UInt64Array:
+    case adapter::TypeId::UInt64Array:
       st = SetMsgArg<uint64_t>(m, sig.c_str(), val.ToUInt64Array());
     break;
 
-    case common::TypeId::DoubleArray:
+    case adapter::TypeId::DoubleArray:
       st = SetMsgArg<double>(m, sig.c_str(), val.ToDoubleArray());
     break;
 
-    case common::TypeId::StringArray:
+    case adapter::TypeId::StringArray:
       st = SetMsgArg<std::string>(m, sig.c_str(), val.ToStringArray());
     break;
   }
@@ -173,11 +173,11 @@ QStatus bridge::AllJoynHelper::SetMsgArg(ajn::MsgArg& msg, std::string const& si
 }
    
 QStatus
-bridge::AllJoynHelper::SetMsgArgFromAdapterObject(common::AdapterValue const& adapterValue, ajn::MsgArg&, DeviceMain*)
+bridge::AllJoynHelper::SetMsgArgFromAdapterObject(adapter::Value const& adapterValue, ajn::MsgArg&, DeviceMain*)
 {
   // TODO:
   QStatus st = ER_OK;
-  common::Variant const& val = adapterValue.GetValue();
+  adapter::Variant const& val = adapterValue.GetValue();
   QCC_UNUSED(val);
   // std::string path = deviceMain->GetBusObjectPath(adapterValue);
 
@@ -185,11 +185,11 @@ bridge::AllJoynHelper::SetMsgArgFromAdapterObject(common::AdapterValue const& ad
 }
 
 QStatus
-bridge::AllJoynHelper::GetAdapterValue(common::AdapterValue& adapterValue, ajn::MsgArg const& msg)
+bridge::AllJoynHelper::GetValue(adapter::Value& adapterValue, ajn::MsgArg const& msg)
 {
   QStatus                 st;
   std::string             sig;
-  common::Variant const&  val = adapterValue.GetValue();
+  adapter::Variant const&  val = adapterValue.GetValue();
 
   // TODO: why not just hard-code signatures? GetSignature is never used outside
   // AllJoynHelper
@@ -199,12 +199,12 @@ bridge::AllJoynHelper::GetAdapterValue(common::AdapterValue& adapterValue, ajn::
 
   switch (val.GetType())
   {
-    case common::TypeId::Boolean:
+    case adapter::TypeId::Boolean:
       {
         bool b;
         st = msg.Get(sig.c_str(), &b);
         if (st == ER_OK)
-          adapterValue.SetValue(common::Variant(b));
+          adapterValue.SetValue(adapter::Variant(b));
       }
       break;
 
@@ -218,15 +218,15 @@ bridge::AllJoynHelper::GetAdapterValue(common::AdapterValue& adapterValue, ajn::
 }
 
 QStatus
-bridge::AllJoynHelper::GetAdapterObject(common::AdapterValue&, ajn::MsgArg const&, DeviceMain*)
+bridge::AllJoynHelper::GetAdapterObject(adapter::Value&, ajn::MsgArg const&, DeviceMain*)
 {
   return ER_NOT_IMPLEMENTED;
 }
 
 QStatus
-bridge::AllJoynHelper::GetSignature(common::TypeId type, std::string& sig)
+bridge::AllJoynHelper::GetSignature(adapter::TypeId type, std::string& sig)
 {
-  #define setSignature(T, S) case common::TypeId::T: sig = S; break
+  #define setSignature(T, S) case adapter::TypeId::T: sig = S; break
 
   QStatus status = ER_OK;
   switch (type)

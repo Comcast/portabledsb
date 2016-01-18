@@ -12,14 +12,14 @@ namespace mock
   struct InterfaceDefinition
   {
     std::string                     Name;
-    common::AdapterProperty::Vector Properties;
-    common::AdapterMethod::Vector   Methods;
-    common::AdapterSignal::Vector   Signals;
+    adapter::Property::Vector Properties;
+    adapter::Method::Vector   Methods;
+    adapter::Signal::Vector   Signals;
   };
 
   std::shared_ptr<InterfaceDefinition> GetZigBeeCluster(uint16_t clusterId);
 
-  class MockAdapter : public common::Adapter, public std::enable_shared_from_this<common::Adapter>
+  class MockAdapter : public adapter::Adapter, public std::enable_shared_from_this<adapter::Adapter>
   {
   public:
     MockAdapter();
@@ -27,89 +27,89 @@ namespace mock
 
     static InterfaceDefinition GetZigbeeInterface(uint16_t clusterId);
 
-    virtual common::AdapterStatus GetBasicInformation(
-      common::AdapterItemInformation& info,
-      std::shared_ptr<common::AdapterIoRequest>* req = NULL);
+    virtual adapter::Status GetBasicInformation(
+      adapter::ItemInformation& info,
+      std::shared_ptr<adapter::IoRequest> const& req);
 
     virtual std::string GetExposedAdapterPrefix();
     virtual std::string GetExposedApplicationName();
-    virtual common::Guid GetExposedApplicationGuid();
+    virtual adapter::Guid GetExposedApplicationGuid();
 
-    virtual common::AdapterStatus GetSignals(
-        common::AdapterSignal::Vector& signals,
-        std::shared_ptr<common::AdapterIoRequest>* req = NULL);
+    virtual adapter::Status GetSignals(
+        adapter::Signal::Vector& signals,
+        std::shared_ptr<adapter::IoRequest> const& req);
 
-    virtual std::string GetStatusText(common::AdapterStatus st);
+    virtual std::string GetStatusText(adapter::Status st);
 
-    virtual common::AdapterStatus Initialize(
-        std::shared_ptr<common::Logger> const& log,
-        std::shared_ptr<common::AdapterIoRequest>* req = NULL);
+    virtual adapter::Status Initialize(
+        std::shared_ptr<adapter::Log> const& log,
+        std::shared_ptr<adapter::IoRequest> const& req);
 
-    virtual common::AdapterStatus Shutdown(
-        std::shared_ptr<common::AdapterIoRequest>* req = NULL);
+    virtual adapter::Status Shutdown(
+        std::shared_ptr<adapter::IoRequest> const& req);
 
-    virtual common::AdapterStatus GetConfiguration(
+    virtual adapter::Status GetConfiguration(
         std::vector<uint8_t>& configData,
-        std::shared_ptr<common::AdapterIoRequest>* req = NULL);
+        std::shared_ptr<adapter::IoRequest> const& req);
 
-    virtual common::AdapterStatus SetConfiguration(
+    virtual adapter::Status SetConfiguration(
         std::vector<uint8_t> const& configData,
-        std::shared_ptr<common::AdapterIoRequest>* req = NULL);
+        std::shared_ptr<adapter::IoRequest> const& req);
 
-    virtual common::AdapterStatus EnumDevices(
-      common::EnumDeviceOptions opts,
-      common::AdapterDevice::Vector& devices,
-      std::shared_ptr<common::AdapterIoRequest>* req = NULL);
+    virtual adapter::Status EnumDevices(
+      adapter::EnumDeviceOptions opts,
+      adapter::Device::Vector& devices,
+      std::shared_ptr<adapter::IoRequest> const& req);
 
-    virtual common::AdapterStatus GetProperty(
-      common::AdapterInterface const& ifc,
-      common::AdapterProperty const& prop,
-      common::AdapterValue& value,
-      std::shared_ptr<common::AdapterIoRequest>* req = NULL);
+    virtual adapter::Status GetProperty(
+      adapter::Interface const& ifc,
+      adapter::Property const& prop,
+      adapter::Value& value,
+      std::shared_ptr<adapter::IoRequest> const& req);
 
-    virtual common::AdapterStatus SetProperty(
-      common::AdapterInterface const& ifc,
-      common::AdapterProperty const& prop, 
-      common::AdapterValue const& value,
-      std::shared_ptr<common::AdapterIoRequest>* req = NULL);
+    virtual adapter::Status SetProperty(
+      adapter::Interface const& ifc,
+      adapter::Property const& prop, 
+      adapter::Value const& value,
+      std::shared_ptr<adapter::IoRequest> const& req);
 
-    virtual common::AdapterStatus InvokeMethod(
-      common::AdapterInterface const& ifc,
-      common::AdapterMethod const& method,
-      std::shared_ptr<common::AdapterIoRequest>* req = NULL);
+    virtual adapter::Status InvokeMethod(
+      adapter::Interface const& ifc,
+      adapter::Method const& method,
+      std::shared_ptr<adapter::IoRequest> const& req);
 
-    virtual common::AdapterStatus RegisterSignalListener(
+    virtual adapter::Status RegisterSignalListener(
       std::string const& signalName,
-      common::AdapterSignalListener const& listener,
+      adapter::SignalListener const& listener,
       void* argp,
-      common::RegistrationHandle& handle);
+      adapter::RegistrationHandle& handle);
 
-    virtual common::AdapterStatus UnregisterSignalListener(common::RegistrationHandle const& h);
+    virtual adapter::Status UnregisterSignalListener(adapter::RegistrationHandle const& h);
 
-    common::AdapterStatus NotifySignalListeners(common::AdapterSignal const& signal);
+    adapter::Status NotifySignalListeners(adapter::Signal const& signal);
 
   private:
     void CreateMockDevices();
     void CreateSignals();
 
-    common::AdapterDevice CreateDoorWindowSensor();
+    adapter::Device CreateDoorWindowSensor();
 
   private:
-    common::AdapterItemInformation m_info;
+    adapter::ItemInformation m_info;
 
     std::string m_exposedAdapterPrefix;
     std::string m_exposedApplicationName;
-    common::Guid m_exposedApplicationGuid;
-    std::shared_ptr<common::Logger> m_log;
+    adapter::Guid m_exposedApplicationGuid;
+    std::shared_ptr<adapter::Log> m_log;
 
-    common::AdapterDevice::Vector m_devices;
-    common::AdapterSignal::Vector m_signals;
+    adapter::Device::Vector m_devices;
+    adapter::Signal::Vector m_signals;
 
     struct RegisteredSignal
     {
-      common::AdapterSignalListener Listener;
+      adapter::SignalListener Listener;
       void* Context;
-      common::RegistrationHandle RegHandle;
+      adapter::RegistrationHandle RegHandle;
     };
 
     typedef std::multimap<std::string, RegisteredSignal> SignalMap;

@@ -13,7 +13,7 @@ namespace bridge
   class AllJoynHelper
   {
   public:
-    static QStatus SetMsgArg(common::AdapterValue const& adapterValue, ajn::MsgArg& msgArg);
+    static QStatus SetMsgArg(adapter::Value const& adapterValue, ajn::MsgArg& msgArg);
     
     template<class T>
     static QStatus SetMsgArg(ajn::MsgArg& msgArg, std::string const& sig, std::vector<T> const& arr);
@@ -22,13 +22,13 @@ namespace bridge
     static QStatus GetArrayFromMsgArg(ajn::MsgArg& msgArg, std::string const& sig, std::vector<T>& arr);
 
     
-    static QStatus SetMsgArgFromAdapterObject(common::AdapterValue const& adapterValue, ajn::MsgArg& msg, DeviceMain* deviceMain);
+    static QStatus SetMsgArgFromAdapterObject(adapter::Value const& adapterValue, ajn::MsgArg& msg, DeviceMain* deviceMain);
 
-    static QStatus GetAdapterValue(common::AdapterValue& adapterValue, ajn::MsgArg const& msg);
+    static QStatus GetValue(adapter::Value& adapterValue, ajn::MsgArg const& msg);
 
-    static QStatus GetAdapterObject(common::AdapterValue& adapterValue, ajn::MsgArg const& msg, DeviceMain* deviceMain);
+    static QStatus GetAdapterObject(adapter::Value& adapterValue, ajn::MsgArg const& msg, DeviceMain* deviceMain);
 
-    static QStatus GetSignature(common::TypeId type, std::string& sig);
+    static QStatus GetSignature(adapter::TypeId type, std::string& sig);
 
     static void EncodeBusObjectName(std::string const& s, std::string &builtName);
     static void EncodePropertyOrMethodOrSignalName(std::string const& s, std::string &builtName);
