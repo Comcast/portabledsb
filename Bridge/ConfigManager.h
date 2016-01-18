@@ -2,18 +2,18 @@
 
 #include "Bridge/BridgeConfig.h"
 #include "Bridge/AllJoynHeaders.h"
+#include "Common/Adapter.h"
 
 #include <memory>
 
 namespace bridge
 {
-  class IAdapter;
   class DeviceSystemBridge;
 
   class ConfigManager : private ajn::BusListener, private ajn::SessionListener, private ajn::SessionPortListener
   {
   public:
-    ConfigManager(DeviceSystemBridge&, IAdapter&);
+    ConfigManager(DeviceSystemBridge&, common::Adapter&);
     ~ConfigManager();
 
     QStatus Initialize();
@@ -41,7 +41,7 @@ namespace bridge
 
   private:
     DeviceSystemBridge& m_parent;
-    IAdapter& m_adapter;
+    common::Adapter& m_adapter;
     std::shared_ptr<ajn::BusAttachment> m_busAttachment;
     std::string m_serviceName;
 

@@ -8,7 +8,9 @@
 
 #include <stdarg.h>
 #include <memory>
+#include <sstream>
 #include <string>
+#include <stdexcept>
 
 namespace common
 {
@@ -69,4 +71,27 @@ namespace common
 #define DSBLOG_ERROR(FORMAT, ...) DSBLOG(Error, __dsb_logger_module_name__, FORMAT, ##__VA_ARGS__)
 
 #define DSBLOG_NOT_IMPLEMENTED() DSBLOG_WARN("%s has not been implemented", __func__);
+
+class NotImplementedException : std::runtime_error
+{
+public:
+  NotImplementedException(char const* func, char const* file, int line)
+    : std::runtime_error(CreateMessage(func, file, line)) { }
+private:
+  static std::string CreateMessage(char const* func, char const* file, int line)
+  {
+    std::stringstream buff;
+    buff << "not implemented:";
+    if (func)
+      buff << func;
+    if (file)
+    {
+      buff << " file:" << file;
+      buff << ":" << line;
+    }
+    return buff.str();
+  }
+};
+
+#define DSBLOG_ASSERT_NOT_IMPLEMENTED() throw NotImplementedException(__func__, __FILE__, __LINE__)
 

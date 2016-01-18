@@ -9,7 +9,7 @@ namespace
   DSB_DECLARE_LOGNAME(BridgeDevice);
 }
 
-bridge::BridgeDevice::BridgeDevice(const std::shared_ptr<IAdapterDevice>& device, const std::shared_ptr<IAdapter>& adapter)
+bridge::BridgeDevice::BridgeDevice(common::AdapterDevice& device, std::shared_ptr<common::Adapter> const& adapter)
   : m_device(device)
   , m_adapter(adapter)
   , m_busAttachment(AllJoynHelper::EncodeStringForAppName(adapter->GetExposedApplicationName()).c_str(), true)
@@ -59,14 +59,18 @@ bridge::BridgeDevice::Initialize()
     return st;
 
   // set device info in about
+  common::AdapterItemInformation info;
+  m_adapter->GetBasicInformation(info);
+
+
   m_about.SetApplicationName(m_adapter->GetExposedApplicationName().c_str());
   m_about.SetApplicationGuid(m_adapter->GetExposedApplicationGuid());
-  m_about.SetDeviceName(m_device->GetName().c_str());
-  m_about.SetManufacturer(m_device->GetVendor().c_str());
-  m_about.SetModel(m_device->GetModel().c_str());
-  m_about.SetVersion(m_device->GetVersion().c_str());
-  m_about.SetDeviceId(m_device->GetSerialNumber().c_str());
-  m_about.SetDescription(m_device->GetDescription().c_str());
+  m_about.SetDeviceName(info.GetName().c_str());
+  m_about.SetManufacturer(info.GetVendor().c_str());
+  m_about.SetModel(info.GetModel().c_str());
+  m_about.SetVersion(info.GetVersion().c_str());
+  m_about.SetDeviceId(info.GetSerialNumber().c_str());
+  m_about.SetDescription(info.GetDescription().c_str());
 
 
   // TODO: If an Icon is available, try to add it to the bus attachment too.  Just continue on error
@@ -128,7 +132,10 @@ bridge::BridgeDevice::BuildServiceName()
     return ER_BUS_BAD_BUS_NAME;
   m_rootStringForAllJoynNames = tmp;
 
-  tmp = AllJoynHelper::EncodeStringForServiceName(m_adapter->GetAdapterName());
+  common::AdapterItemInformation info;
+  m_adapter->GetBasicInformation(info);
+
+  tmp = AllJoynHelper::EncodeStringForServiceName(info.GetName());
   if (tmp.empty())
     return ER_BUS_BAD_BUS_NAME;
   m_rootStringForAllJoynNames += ".";
@@ -138,7 +145,7 @@ bridge::BridgeDevice::BuildServiceName()
   m_serviceName = m_rootStringForAllJoynNames;
 
   //add device name
-  tmp = AllJoynHelper::EncodeStringForServiceName(m_device->GetName());
+  tmp = AllJoynHelper::EncodeStringForServiceName(m_device.GetBasicInformation().GetName());
   if (!tmp.empty())
   {
     m_serviceName += ".";
@@ -146,7 +153,7 @@ bridge::BridgeDevice::BuildServiceName()
   }
 
   // add serial number to service name if not empty
-  tmp = AllJoynHelper::EncodeStringForServiceName(m_device->GetSerialNumber());
+  tmp = AllJoynHelper::EncodeStringForServiceName(m_device.GetBasicInformation().GetSerialNumber());
   if (!tmp.empty())
   {
     m_serviceName += ".";

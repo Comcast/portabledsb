@@ -23,12 +23,14 @@ bridge::DeviceMethod::InvokeMethod(ajn::Message& msg, std::vector<ajn::MsgArg>& 
 {
   int i = 0;
   QStatus status = ER_OK;
-  std::shared_ptr<IAdapterIoRequest> request;
+  std::shared_ptr<common::AdapterIoRequest> request;
 
   outArgs.clear();
 
-  for (std::shared_ptr<IAdapterValue> const& param : m_adapterMethod->GetInputParams())
+  for (auto const &p : m_adapterMethod->GetInputArguments())
   {
+    common::AdapterValue param = p;
+
     ajn::MsgArg const* inArg = msg->GetArg(i++);
     if (inArg == nullptr)
       return 1;
@@ -39,23 +41,25 @@ bridge::DeviceMethod::InvokeMethod(ajn::Message& msg, std::vector<ajn::MsgArg>& 
     // think the m_adapterMethod would be const. I guess DeviceMethod (this class) can
     // only be used once and then must be discarded, or only used by one thread to
     // completion at any given time
-    status = AllJoynHelper::GetAdapterValue(*param, *inArg);
+    status = AllJoynHelper::GetAdapterValue(param, *inArg);
     if (status != ER_OK)
       return 1;
   }
 
   // TODO: we're ignoring the return value here
+  #if 0
   bridge::DeviceSystemBridge::GetInstance()->GetAdapter()
-    ->CallMethod(m_adapterMethod, &request);
+    ->InvokeMethod(*m_adapterMethod, &request);
+  #endif
 
   // TODO: timeout should be configurable or passed in by caller
   if (request)
     request->Wait(2000);
 
   i = 0;
-  for (std::shared_ptr<IAdapterValue> const& param : m_adapterMethod->GetOutputParams())
+  for (auto const& param : m_adapterMethod->GetOutputArguments())
   {
-    status = AllJoynHelper::SetMsgArg(*param, outArgs[i]);
+    status = AllJoynHelper::SetMsgArg(param, outArgs[i]);
     if (status != ER_OK)
       return 1;
   }
@@ -64,9 +68,8 @@ bridge::DeviceMethod::InvokeMethod(ajn::Message& msg, std::vector<ajn::MsgArg>& 
 }
 
 QStatus
-bridge::DeviceMethod::Initialize(std::shared_ptr<IAdapterMethod> const&)
+bridge::DeviceMethod::Initialize(common::AdapterMethod const&)
 {
-
   DSBLOG_NOT_IMPLEMENTED();
   return ER_NOT_IMPLEMENTED;
 }
@@ -79,7 +82,7 @@ bridge::DeviceMethod::SetName(std::string const&)
 }
 
 QStatus
-bridge::DeviceMethod::BuildSignature(AdapterValueVector const&, std::string&, std::string&)
+bridge::DeviceMethod::BuildSignature(common::AdapterValue::Vector const&, std::string&, std::string&)
 {
   DSBLOG_NOT_IMPLEMENTED();
   return ER_NOT_IMPLEMENTED;

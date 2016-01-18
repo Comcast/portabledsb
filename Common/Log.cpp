@@ -20,14 +20,21 @@
 namespace
 {
   common::LogLevel const kDefaultLoggingLevel = common::LogLevel::Info;
-
-  FILE* gLog = stdout;
-
-  std::mutex gLogMutex;
-  common::LogLevel gDefaultLogLevel = common::LogLevel::Info;
-
   typedef std::map< std::string, std::shared_ptr<common::Logger> > LogMap;
-  LogMap gLogMap;
+
+  struct LoggerImpl
+  {
+    LoggerImpl()
+      : DefaultLevel(kDefaultLoggingLevel)
+      , OutFile(stdout) { }
+
+    common::LogLevel  DefaultLevel;
+    std::mutex        Mutex;
+    FILE*             OutFile;
+    LogMap            Logs;
+  };
+
+  LoggerImpl impl;
 
   char const* LevelToString(common::LogLevel l)
   {
@@ -62,12 +69,11 @@ common::Logger::Logger(std::string const& name)
 {
 }
 
-
 void
 common::Logger::SetDefaultLevel(LogLevel level)
 {
-  std::lock_guard<std::mutex> lock(gLogMutex);
-  gDefaultLogLevel = level;
+  std::lock_guard<std::mutex> lock(impl.Mutex);
+  impl.DefaultLevel = level;
 }
 
 void
@@ -82,18 +88,18 @@ common::Logger::Write(LogLevel level, char const* file, int line, char const* fo
 void
 common::Logger::SetLevel(LogLevel level)
 {
-  std::lock_guard<std::mutex> lock(gLogMutex);
+  std::lock_guard<std::mutex> lock(impl.Mutex);
   m_level = level;
 }
 
 bool
 common::Logger::IsLevelEnabled(std::string const& module, LogLevel level)
 {
-  std::lock_guard<std::mutex> lock(gLogMutex);
+  std::lock_guard<std::mutex> lock(impl.Mutex);
 
-  common::LogLevel minLevel = gDefaultLogLevel;
-  LogMap::const_iterator itr = gLogMap.find(module);
-  if (itr != gLogMap.end())
+  common::LogLevel minLevel = impl.DefaultLevel;
+  LogMap::const_iterator itr = impl.Logs.find(module);
+  if (itr != impl.Logs.end())
     minLevel = itr->second->m_level;
 
   return level >= minLevel;
@@ -113,11 +119,11 @@ common::Logger::VaLog(LogLevel level, const char* file, int line, const char* fo
 
   // The logger is passed around as a shared_ptr<> to the adapter. There's no telling
   // if multiple threads will log to this thing or not. synchronize to be safe
-  std::lock_guard<std::mutex> lock(gLogMutex);
-  fprintf(gLog, "%s (%5s) Thread-" ThreadId_FMT " [%s:%s:%d] - ", buff, LevelToString(level),
+  std::lock_guard<std::mutex> lock(impl.Mutex);
+  fprintf(impl.OutFile, "%s (%5s) Thread-" ThreadId_FMT " [%s:%s:%d] - ", buff, LevelToString(level),
     GetCurrentThreadId(), m_name.c_str(), file, line);
-  vfprintf(gLog, format, args);
-  fprintf(gLog, "\n");
+  vfprintf(impl.OutFile, format, args);
+  fprintf(impl.OutFile, "\n");
 }
 
 std::shared_ptr<common::Logger>
@@ -125,13 +131,13 @@ common::Logger::GetLogger(std::string const& name)
 {
   std::shared_ptr<Logger> logger;
 
-  std::lock_guard<std::mutex> lock(gLogMutex);
-  LogMap::const_iterator itr = gLogMap.find(name);
-  if (itr == gLogMap.end())
+  std::lock_guard<std::mutex> lock(impl.Mutex);
+  LogMap::const_iterator itr = impl.Logs.find(name);
+  if (itr == impl.Logs.end())
   {
     logger.reset(new Logger(name));
-    logger->m_level = gDefaultLogLevel;
-    gLogMap.insert(LogMap::value_type(name, logger));
+    logger->m_level = impl.DefaultLevel;
+    impl.Logs.insert(LogMap::value_type(name, logger));
   }
   else
   {

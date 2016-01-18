@@ -3,6 +3,8 @@
 
 #include "Bridge/IAdapter.h"
 #include "Bridge/AllJoynHeaders.h"
+#include "Common/AdapterValue.h"
+#include "Common/AdapterMethod.h"
 
 
 namespace bridge
@@ -15,7 +17,7 @@ namespace bridge
     DeviceMethod(DeviceMain&);
     virtual ~DeviceMethod();
 
-    QStatus Initialize(std::shared_ptr<IAdapterMethod> const& adapterMethod);
+    QStatus Initialize(common::AdapterMethod const& method);
 
     // TODO: error code?
     // TODO: should that first arg be constant?
@@ -26,7 +28,7 @@ namespace bridge
 
   private:
     QStatus SetName(std::string const& name);
-    QStatus BuildSignature(AdapterValueVector const& valueList, std::string& sig, std::string& parameterNames);
+    QStatus BuildSignature(common::AdapterValue::Vector const& valueList, std::string& sig, std::string& parameterNames);
 
   private:
     DeviceMain&                     m_parent;
@@ -34,7 +36,7 @@ namespace bridge
     std::string                     m_inSignature;
     std::string                     m_outSignature;
     std::string                     m_parameterNames;
-    std::shared_ptr<IAdapterMethod>      m_adapterMethod;
+    std::unique_ptr<common::AdapterMethod>  m_adapterMethod;
   };
 }
 

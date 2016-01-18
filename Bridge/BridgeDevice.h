@@ -1,9 +1,11 @@
 #pragma once
 
 #include "AllJoynAbout.h"
-#include "IAdapter.h"
 #include "DeviceMain.h"
 #include "DeviceProperty.h"
+
+#include "Common/Adapter.h"
+
 #include <alljoyn/BusAttachment.h>
 
 namespace bridge
@@ -11,7 +13,7 @@ namespace bridge
   class BridgeDevice : private ajn::SessionPortListener, private ajn::BusListener
   {
   public:
-    BridgeDevice(const std::shared_ptr<IAdapterDevice>&, const std::shared_ptr<IAdapter>&);
+    BridgeDevice(common::AdapterDevice&, const std::shared_ptr<common::Adapter>&);
     virtual ~BridgeDevice();
 
     QStatus Shutdown();
@@ -22,10 +24,8 @@ namespace bridge
       return m_busAttachment;
     }
 
-    std::shared_ptr<IAdapterDevice> GetAdapterDevice()
-    {
-      return m_device;
-    }
+    common::AdapterDevice const& GetAdapterDevice() const
+      { return m_device; }
 
     inline std::string &GetRootNameForInterface()
     {
@@ -42,8 +42,8 @@ namespace bridge
     QStatus ShutdownAllJoyn();
     QStatus RegisterSignalHandlers(bool isRegister);
 
-    std::shared_ptr<IAdapterDevice> m_device;
-    std::shared_ptr<IAdapter> m_adapter;
+    common::AdapterDevice m_device;
+    std::shared_ptr<common::Adapter> m_adapter;
     ajn::BusAttachment m_busAttachment;
     DeviceMain m_deviceMain;
     AllJoynAbout m_about;

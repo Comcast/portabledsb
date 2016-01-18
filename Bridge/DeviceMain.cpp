@@ -17,8 +17,8 @@ static std::string BuildBusObjectPath(const std::string& name)
   return "/" + encodedName;
 }
 
-bridge::DeviceMain::DeviceMain(BridgeDevice& parent, const std::shared_ptr<IAdapterDevice>& adapterDevice)
-  : ajn::BusObject(BuildBusObjectPath(adapterDevice->GetName()).c_str(), false)
+bridge::DeviceMain::DeviceMain(BridgeDevice& parent, common::AdapterDevice const& device)
+  : ajn::BusObject(BuildBusObjectPath(device.GetBasicInformation().GetName()).c_str(), false)
   , m_parent(parent)
   , m_indexForSignal(1)
   , m_indexForMethod(1)
@@ -107,7 +107,8 @@ QStatus
 bridge::DeviceMain::CreateMethodsAndSignals()
 {
   m_interfaceName = m_parent.GetRootNameForInterface();
-  std::string tmp = AllJoynHelper::EncodeStringForServiceName(m_parent.GetAdapterDevice()->GetName());
+  std::string tmp = AllJoynHelper::EncodeStringForServiceName(m_parent.GetAdapterDevice()
+    .GetBasicInformation().GetName());
   if (!tmp.empty())
   {
     m_interfaceName += ".";

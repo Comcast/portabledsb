@@ -15,12 +15,7 @@ SRCS=DeviceProviders/AllJoynProvider.cpp \
      Common/Guid.cpp \
      Adapters/MockAdapter/MockAdapter.cpp \
      Adapters/MockAdapter/MockDevices.cpp \
-     Adapters/MockAdapter/MockAdapterDevice.cpp \
-     Adapters/MockAdapter/MockAdapterMethod.cpp \
-     Adapters/MockAdapter/MockAdapterProperty.cpp \
-     Adapters/MockAdapter/MockAdapterSignal.cpp \
-     Adapters/MockAdapter/MockAdapterValue.cpp \
-     Adapters/ZigBeeAdapter/ZigBeeAdapter.cpp \
+     Adapters/MockAdapter/ZigBeeClusterDatabase.cpp \
      main.cpp
 
 TEST_SRCS = Tests/VariantTest.cpp
@@ -31,7 +26,7 @@ LIBXML_INC?=/usr/include/libxml2
 
 ALLJOYN_INSTALL_DIR?=/Users/jgladi200/Work/alljoyn/alljoyn-15.09.00a-src/build/darwin/x86/debug/dist/cpp
 
-CXXFLAGS          = -Wall -Wextra -std=c++11 -I. -I$(ALLJOYN_INSTALL_DIR)/inc -I$(LIBXML_INC)
+CXXFLAGS          = -Wall -Wextra -std=c++11 -I. -I$(ALLJOYN_INSTALL_DIR)/inc -I$(LIBXML_INC) -Wno-unused-parameter
 LDFLAGS           = -L $(ALLJOYN_INSTALL_DIR)/lib -lalljoyn -lcrypto -lxml2
 DEV_PROVIDER_OBJS = $(patsubst %.cpp, %.o, $(SRCS))
 OBJS              = $(DEV_PROVIDER_OBJS)

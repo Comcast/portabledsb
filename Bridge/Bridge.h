@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Bridge/IAdapter.h"
 #include "Bridge/ConfigManager.h"
+#include "Common/Adapter.h"
 
 #include <alljoyn/Status.h>
 
@@ -10,23 +10,22 @@
 
 namespace bridge
 {
-  class IAdapter;
   class BridgeDevice;
 
-  typedef std::map<IAdapterDevice*, std::shared_ptr<BridgeDevice> > BridgeDeviceList;
+  typedef std::map<common::AdapterDevice*, std::shared_ptr<BridgeDevice> > BridgeDeviceList;
 
   class DeviceSystemBridge : public std::enable_shared_from_this<DeviceSystemBridge>
   {
   public:
     static std::shared_ptr<DeviceSystemBridge> GetInstance();
-    static void InitializeSingleton(std::shared_ptr<IAdapter> const& adapter);
+    static void InitializeSingleton(std::shared_ptr<common::Adapter> const& adapter);
 
     virtual ~DeviceSystemBridge();
 
     QStatus Initialize();
     QStatus Shutdown();
 
-    inline std::shared_ptr<IAdapter> GetAdapter() const
+    inline std::shared_ptr<common::Adapter> GetAdapter() const
       { return m_adapter; }
 
     //inline ConfigManager *GetConfigManager()
@@ -38,19 +37,20 @@ namespace bridge
       { return m_deviceList; }
 
   private:
-    DeviceSystemBridge(std::shared_ptr<IAdapter> const& adapter);
+    DeviceSystemBridge(std::shared_ptr<common::Adapter> const& adapter);
 
     QStatus RegisterAdapterSignalHandlers(bool isRegister);
     QStatus InitializeAdapter();
     QStatus InitializeInternal();
     QStatus ShutdownInternal();
 
-    QStatus CreateDevice(std::shared_ptr<IAdapterDevice> const& device);
-    QStatus UpdateDevice(std::shared_ptr<IAdapterDevice> const& device, bool exposedOnAllJoynBus);
+    QStatus CreateDevice(common::AdapterDevice const& device);
+    QStatus UpdateDevice(common::AdapterDevice const& device, bool exposedOnAllJoynBus);
 
-    void OnAdapterSignal(IAdapterSignal const& signal, void* argp);
+    void OnAdapterSignal(common::AdapterSignal const& signal, void* argp);
 
   private:
+    #if 0
     class AdapterSignalListener : public IAdapterSignalListener
     {
     public:
@@ -78,13 +78,13 @@ namespace bridge
       DeviceSystemBridge& m_parent;
       bool m_shuttingDown;
     };
+    #endif
 
   private:
     bool                                      m_alljoynInitialized;
-    std::shared_ptr<IAdapter>                      m_adapter;
+    std::shared_ptr<common::Adapter>                      m_adapter;
     BridgeDeviceList                          m_deviceList;
-    std::shared_ptr<AdapterSignalListener>         m_adapterSignalListener;
-    std::vector<IAdapter::RegistrationHandle> m_registeredSignalListeners;
+    std::vector<common::RegistrationHandle> m_registeredSignalListeners;
     ConfigManager m_configManager;
   };
 }

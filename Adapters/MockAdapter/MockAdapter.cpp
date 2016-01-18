@@ -1,55 +1,41 @@
-#include "MockAdapter.h"
 
-#include "MockDevices.h"
-#include "MockAdapterDevice.h"
-#include "MockAdapterSignal.h"
+#include "Adapters/MockAdapter/MockAdapter.h"
+
+#include "Common/AdapterProperty.h"
 #include "Common/Log.h"
 
 #include <algorithm>
+#include <iostream>
 #include <sstream>
 #include <vector>
 
 namespace
 {
   DSB_DECLARE_LOGNAME(MockAdapter);
-  bridge::IAdapter::RegistrationHandle nextHandle = 0;
-  bridge::IAdapter::RegistrationHandle GetNextRegistrationHandle()
+  
+  common::RegistrationHandle nextHandle = 0;
+  common::RegistrationHandle GetNextRegistrationHandle()
   {
     return ++nextHandle;
   }
+
+  std::map< uint64_t, common::AdapterValue > valueCache;
 }
 
 adapters::mock::MockAdapter::MockAdapter()
-  : m_vendor("Acme")
-  , m_adapterName("MockAdapter")
-  , m_exposedAdapterPrefix("com." + m_vendor)
-  , m_exposedApplicationName("DeviceSystemBridge")
+  : m_exposedApplicationName("DeviceSystemBridge")
   , m_exposedApplicationGuid(common::Guid::Parse("C27BC425-0058-4829-8775-441B5D8740C0"))
 {
+  m_info.SetName("MockAdapter");
+  m_info.SetVendor("Comcast");
+  m_exposedAdapterPrefix = "com." + m_info.GetVendor();
+
   // TODO: get m_exposedApplicatioName and Prefix from config
 }
 
 adapters::mock::MockAdapter::~MockAdapter()
 {
   Shutdown();
-}
-
-std::string
-adapters::mock::MockAdapter::GetVendor()
-{
-  return m_vendor;
-}
-
-std::string
-adapters::mock::MockAdapter::GetAdapterName()
-{
-  return m_adapterName;
-}
-
-std::string
-adapters::mock::MockAdapter::GetVersion()
-{
-  return m_version;
 }
 
 std::string
@@ -70,199 +56,151 @@ adapters::mock::MockAdapter::GetExposedApplicationGuid()
   return m_exposedApplicationGuid;
 }
 
-bridge::AdapterSignalVector adapters::mock::MockAdapter::GetSignals()
+common::AdapterStatus
+adapters::mock::MockAdapter::GetSignals(
+  common::AdapterSignal::Vector& signals,
+  std::shared_ptr<common::AdapterIoRequest>* req)
 {
-  return bridge::AdapterSignalVector();
+  DSBLOG_ASSERT_NOT_IMPLEMENTED();
+  return 0;
 }
 
 
-bridge::AdapterStatus
-adapters::mock::MockAdapter::Initialize(std::shared_ptr<common::Logger> const& log)
+common::AdapterStatus
+adapters::mock::MockAdapter::Initialize(
+  std::shared_ptr<common::Logger> const& log,
+  std::shared_ptr<common::AdapterIoRequest>* req)
 {
+  m_log = log;
   CreateMockDevices();
   CreateSignals();
-  m_log = log;
-  return ER_OK;
+
+  if (req && *req)
+    (*req)->SetComplete(0);
+
+  return 0;
 }
 
 
-bridge::AdapterStatus
-adapters::mock::MockAdapter::Shutdown()
+common::AdapterStatus
+adapters::mock::MockAdapter::Shutdown(std::shared_ptr<common::AdapterIoRequest>* req)
 {
-  m_vendor.clear();
-  m_adapterName.clear();
-  m_version.clear();
   m_exposedAdapterPrefix.clear();
   m_exposedApplicationName.clear();
-
   m_devices.clear();
   m_signals.clear();
-
   m_signalListeners.clear();
-  return ER_OK;
+
+  if (req && *req)
+    (*req)->SetComplete(0);
+
+  return 0;
 }
 
 
-bridge::AdapterStatus
+common::AdapterStatus
 adapters::mock::MockAdapter::EnumDevices(
-    bridge::EnumDeviceOptions /*opts*/,
-    bridge::AdapterDeviceVector& deviceList,
-    std::shared_ptr<bridge::IAdapterIoRequest>* req)
+    common::EnumDeviceOptions /*opts*/,
+    common::AdapterDevice::Vector& devices,
+    std::shared_ptr<common::AdapterIoRequest>* req)
 {
-  if (req)
-    req->reset();
-    
+  devices.clear();
+  std::copy(m_devices.begin(), m_devices.end(), std::back_inserter(devices));
 
-  deviceList.clear();
-  std::copy(m_devices.begin(), m_devices.end(), std::back_inserter(deviceList));
+  if (req && *req)
+    (*req)->SetComplete(0);
 
-  return ER_OK;
+  return 0;
 }
 
-
-bridge::AdapterStatus
+common::AdapterStatus
 adapters::mock::MockAdapter::GetProperty(
-    std::shared_ptr<bridge::IAdapterProperty>& prop,
-    std::shared_ptr<bridge::IAdapterIoRequest>* req)
+  common::AdapterInterface const& ifc,
+  common::AdapterProperty const& prop,
+  common::AdapterValue& value,
+  std::shared_ptr<common::AdapterIoRequest>* req)
 {
-  if (req)
-    req->reset();
+  uint64_t id = prop.GetId();
 
-  std::shared_ptr<MockAdapterProperty> mockAdapterProperty = std::dynamic_pointer_cast<MockAdapterProperty>(prop);
-  if (!mockAdapterProperty)
-    return ER_BAD_ARG_1;
+  auto itr = valueCache.find(id);
+  if (itr != valueCache.end())
+  {
+    value = itr->second;
+  }
+  else
+  {
+    common::Variant v = prop.GetAttribute("default");
+    if (!v.IsEmpty())
+    {
+      value = common::AdapterValue(prop.GetName(), v);
+    }
+    else
+    {
+      // use default for type
+      common::TypeId type = prop.GetType();
+      value = common::AdapterValue(prop.GetName(), common::Variant(type));
+    }
+  }
 
-  std::shared_ptr<MockAdapterDevice> device = mockAdapterProperty->GetParent();
-  if (!device)
-    return ER_INVALID_ADDRESS;
-
-  std::shared_ptr<MockAdapter> adapter = device->GetParent();
-  if (!adapter)
-    return ER_INVALID_ADDRESS;
-
-  // TODO: set prop with latest stuff
-  
-  return ER_OK;
+  return 0;
 }
 
-
-bridge::AdapterStatus
+common::AdapterStatus
 adapters::mock::MockAdapter::SetProperty(
-    std::shared_ptr<bridge::IAdapterProperty> const& prop,
-    std::shared_ptr<bridge::IAdapterIoRequest>* req)
+  common::AdapterInterface const& ifc,
+  common::AdapterProperty const& prop,
+  common::AdapterValue const& value,
+  std::shared_ptr<common::AdapterIoRequest>* req)
 {
-  if (req)
-    req ->reset();
+  // TODO: I think we make the bridge do the type checking, but the adapter would
+  // have to do range checking
+  valueCache[prop.GetId()] = value;
+  return 0;
+}
 
-  std::shared_ptr<MockAdapterProperty> mockAdapterProperty = std::dynamic_pointer_cast<MockAdapterProperty>(prop);
-  if (!mockAdapterProperty)
-    return ER_BAD_ARG_1;
-
-  std::shared_ptr<MockAdapterDevice> device = mockAdapterProperty->GetParent();
-  if (!device)
-    return ER_INVALID_ADDRESS;
-
-  std::shared_ptr<MockAdapter> adapter = device->GetParent();
-  if (!adapter)
-    return ER_INVALID_ADDRESS;
-
-  // TODO: set internal state from prop->GetData()
-  
-  return ER_OK;
+common::AdapterStatus
+adapters::mock::MockAdapter::InvokeMethod(
+  common::AdapterInterface const& ifc,
+  common::AdapterMethod const& method,
+  std::shared_ptr<common::AdapterIoRequest>* req)
+{
+  DSBLOG_ASSERT_NOT_IMPLEMENTED();
+  return 0;
 }
 
 
-bridge::AdapterStatus
-adapters::mock::MockAdapter::GetPropertyValue(
-    std::shared_ptr<bridge::IAdapterProperty> const& prop,
-    std::string const& attributeName,
-    std::shared_ptr<bridge::IAdapterValue>& value,
-    std::shared_ptr<bridge::IAdapterIoRequest>* req)
-{
-  if (req)
-    req->reset();
-
-  std::shared_ptr<MockAdapterProperty> mockAdapterProperty = std::dynamic_pointer_cast<MockAdapterProperty>(prop);
-  if (!mockAdapterProperty)
-    return ER_BAD_ARG_1;
-
-  std::shared_ptr<MockAdapterValue> attr = mockAdapterProperty->GetAttributeByName(attributeName);
-  if (!attr)
-    return ER_INVALID_ADDRESS;
-
-  value = std::dynamic_pointer_cast<bridge::IAdapterValue>(attr);
-
-  return ER_OK;
-}
-
-
-bridge::AdapterStatus
-adapters::mock::MockAdapter::SetPropertyValue(
-    std::shared_ptr<bridge::IAdapterProperty> const& prop,
-    std::shared_ptr<bridge::IAdapterValue> const& value,
-    std::shared_ptr<bridge::IAdapterIoRequest>* req)
-{
-  if (req)
-    req->reset(); 
-
-  std::shared_ptr<MockAdapterProperty> mockAdapterProperty = std::dynamic_pointer_cast<MockAdapterProperty>(prop);
-  if (!mockAdapterProperty)
-    return ER_BAD_ARG_1;
-
-  std::shared_ptr<MockAdapterValue> attr = mockAdapterProperty->GetAttributeByName(value->GetName());
-  if (!attr)
-    return ER_INVALID_ADDRESS;
-
-  attr->SetData(value->GetData());
-
-  return ER_OK;
-}
-
-
-bridge::AdapterStatus
-adapters::mock::MockAdapter::CallMethod(
-    std::shared_ptr<bridge::IAdapterMethod>& method,
-    std::shared_ptr<bridge::IAdapterIoRequest>* req)
-{
-  std::shared_ptr<MockAdapterMethod> m = std::dynamic_pointer_cast<MockAdapterMethod>(method);
-  if (!m)
-    return ER_BAD_ARG_1;
-
-  std::shared_ptr<MockAdapterDevice> device = m->GetParent();
-  if (!device)
-    return ER_INVALID_ADDRESS;
-
-  return device->DispatchMethod(m, req);
-}
-
-
-bridge::AdapterStatus
+common::AdapterStatus
 adapters::mock::MockAdapter::RegisterSignalListener(
     std::string const& signalName,
-    std::shared_ptr<bridge::IAdapterSignalListener> const& listener,
+    common::AdapterSignalListener const& listener,
     void* argp,
-    bridge::IAdapter::RegistrationHandle& handle)
+    common::RegistrationHandle& handle)
 {
+  DSBLOG_ASSERT_NOT_IMPLEMENTED();
+#if 0
   RegisteredSignal reg;
   reg.Listener = listener;
   reg.Context = argp;
   reg.RegHandle = GetNextRegistrationHandle();
   m_signalListeners.insert(SignalMap::value_type(signalName, reg));
   handle = reg.RegHandle;
-  return ER_OK;
+#endif
+  return 0;
 }
 
-bridge::AdapterStatus
-adapters::mock::MockAdapter::UnregisterSignalListener(bridge::IAdapter::RegistrationHandle const& h)
+common::AdapterStatus
+adapters::mock::MockAdapter::UnregisterSignalListener(common::RegistrationHandle const& h)
 {
-  bridge::AdapterStatus st = ER_FAIL;
+  DSBLOG_ASSERT_NOT_IMPLEMENTED();
+
+  common::AdapterStatus st = 1;
   for (SignalMap::iterator begin = m_signalListeners.begin(), end = m_signalListeners.end();
     begin != end; ++begin)
   {
     if (begin->second.RegHandle == h)
     {
       m_signalListeners.erase(begin);
-      st = ER_OK;
+      st = 0;
       break;
     }
   }
@@ -272,6 +210,9 @@ adapters::mock::MockAdapter::UnregisterSignalListener(bridge::IAdapter::Registra
 void
 adapters::mock::MockAdapter::CreateMockDevices()
 {
+  m_devices.push_back(MockAdapter::CreateDoorWindowSensor());
+
+#if 0
   std::shared_ptr<MockAdapter> self = std::dynamic_pointer_cast<MockAdapter>(shared_from_this());
 
   typedef std::vector<adapters::mock::MockDeviceDescriptor> vector;
@@ -283,25 +224,31 @@ adapters::mock::MockAdapter::CreateMockDevices()
     std::shared_ptr<MockAdapterDevice> dev = MockAdapterDevice::Create(*begin, self);
     m_devices.push_back(dev);
   }
+#endif
 }
 
 void
 adapters::mock::MockAdapter::CreateSignals()
 {
+  DSBLOG_NOT_IMPLEMENTED();
+#if 0
   std::shared_ptr<MockAdapterDevice> parent;
 
-  bridge::AdapterValueVector values;
+  common::AdapterValue::Vector values;
 
-  std::shared_ptr<MockAdapterValue> val(new MockAdapterValue(bridge::kDeviceArravalHandle));
-  std::shared_ptr<MockAdapterSignal> signal(new MockAdapterSignal(bridge::kDeviceArrivalSignal,
-    parent, values));
-  m_signals.push_back(signal);
+  // TODO
+  // std::shared_ptr<MockAdapterValue> val(new MockAdapterValue(bridge::kDeviceArravalHandle));
+  // std::shared_ptr<MockAdapterSignal> signal(new MockAdapterSignal(bridge::kDeviceArrivalSignal,
+  //   parent, values));
+  // m_signals.push_back(signal);
+#endif
 }
 
-bridge::AdapterStatus
-adapters::mock::MockAdapter::NotifySignalListeners(std::shared_ptr<MockAdapterSignal> const& signal)
+common::AdapterStatus
+adapters::mock::MockAdapter::NotifySignalListeners(common::AdapterSignal const& signal)
 {
-  bridge::AdapterStatus st = ER_FAIL;
+#if 0
+  bridge::AdapterStatus st = 1;
   if (!signal)
     return st;
 
@@ -315,10 +262,12 @@ adapters::mock::MockAdapter::NotifySignalListeners(std::shared_ptr<MockAdapterSi
   }
 
   return st;
+  #endif
+  return 0;
 }
 
 std::string
-adapters::mock::MockAdapter::GetStatusText(bridge::AdapterStatus st)
+adapters::mock::MockAdapter::GetStatusText(common::AdapterStatus st)
 {
   if (st == 0)
     return std::string("ok");
@@ -327,5 +276,38 @@ adapters::mock::MockAdapter::GetStatusText(bridge::AdapterStatus st)
   buff << "MockError:";
   buff << static_cast<uint32_t>(st);
   return buff.str();
+}
+
+common::AdapterStatus
+adapters::mock::MockAdapter::GetBasicInformation(
+    common::AdapterItemInformation& info,
+    std::shared_ptr<common::AdapterIoRequest>* req)
+{
+  info = m_info;
+  if (req && *req)
+    (*req)->SetComplete(0);
+  return 0;
+}
+
+common::AdapterStatus
+adapters::mock::MockAdapter::GetConfiguration(
+    std::vector<uint8_t>& configData,
+    std::shared_ptr<common::AdapterIoRequest>* req)
+{
+  if (req && *req)
+    (*req)->SetComplete(0);
+
+  return 0;
+}
+
+common::AdapterStatus
+adapters::mock::MockAdapter::SetConfiguration(
+    std::vector<uint8_t> const& configData,
+    std::shared_ptr<common::AdapterIoRequest>* req)
+{
+  if (req && *req)
+    (*req)->SetComplete(0);
+
+  return 0;
 }
 

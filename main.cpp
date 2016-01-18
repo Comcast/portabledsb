@@ -1,7 +1,9 @@
 
 #include "Bridge/Bridge.h"
-#include "Bridge/IAdapter.h"
+
+#include "Common/Adapter.h"
 #include "Common/Log.h"
+
 #include "Adapters/MockAdapter/MockAdapter.h"
 
 #include "Common/Variant.h"
@@ -9,6 +11,22 @@
 
 namespace
 {
+  struct ObjectId
+  {
+    uint64_t DeviceId;
+    uint64_t InterfaceId;
+    uint64_t MemberId;
+
+    bool operator < (ObjectId const& rhs) const
+    {
+      if (DeviceId == rhs.DeviceId)
+        if (InterfaceId == rhs.InterfaceId)
+          return MemberId < rhs.MemberId;
+        return InterfaceId < rhs.InterfaceId;
+      return DeviceId < rhs.DeviceId;
+    }
+  };
+
   DSB_DECLARE_LOGNAME(Main);
 
   inline std::shared_ptr<bridge::DeviceSystemBridge> DSB()
@@ -16,6 +34,50 @@ namespace
     std::shared_ptr<bridge::DeviceSystemBridge> b = bridge::DeviceSystemBridge::GetInstance();
     assert(b.get() != nullptr);
     return b;
+  }
+
+  void PrintValue(common::AdapterInterface const& ifc, common::AdapterValue const& val)
+  {
+    std::cout << ifc.GetName() << "." << val.GetName();
+    std::cout << " = " << val.GetValue().ToString();
+    std::cout << " [" << common::TypeIdToString(val.GetValue().GetType()) << "]" << std::endl;
+  }
+
+  void PrintDevice(common::Adapter& adapter, common::AdapterDevice const& dev)
+  {
+    std::cout << "Device [" << dev.GetBasicInformation().GetName() << "]" << std::endl;
+    for (auto ifc : dev.GetInterfaces())
+    {
+      std::cout << "InterfaceName:" << ifc.GetName() << std::endl;
+
+      for (auto attr : ifc.GetAttributes())
+        std::cout << "  [" << attr.first << "=" << attr.second.ToString() << "]" << std::endl;
+      std::cout << std::endl;
+     
+      std::cout << "Properties" << std::endl;
+      for (auto prop : ifc.GetProperties())
+      {
+        common::AdapterValue value = common::AdapterValue::Null();
+        adapter.GetProperty(ifc, prop, value);
+
+        std::cout << " ";
+        PrintValue(ifc, value);
+
+        for (auto attr : prop.GetAttributes())
+          std::cout << "    [" << attr.first << "=" << attr.second.ToString() << "]" << std::endl;
+      }
+      std::cout << std::endl;
+
+      std::cout << "Methods" << std::endl;
+      for (auto method : ifc.GetMethods())
+      {
+        std::cout << "  " << method.GetName() << std::endl;
+        for (auto attr : method.GetAttributes())
+          std::cout << "    [" << attr.first << "=" << attr.second.ToString() << "]" << std::endl;
+      }
+      std::cout << std::endl;
+      std::cout << std::endl;
+    }
   }
 }
 
@@ -54,7 +116,7 @@ int main(int /*argc*/, char* /*argv*/ [])
   QStatus st = ER_OK;
 
   bridge::DeviceSystemBridge::InitializeSingleton(
-      std::shared_ptr<bridge::IAdapter>(new adapters::mock::MockAdapter()));
+      std::shared_ptr<common::Adapter>(new adapters::mock::MockAdapter()));
 
   st = DSB()->Initialize();
   if (st != ER_OK)
@@ -63,30 +125,29 @@ int main(int /*argc*/, char* /*argv*/ [])
     return 1;
   }
 
-  std::shared_ptr<bridge::IAdapter> adapter = DSB()->GetAdapter();
+  std::shared_ptr<common::Adapter> adapter = DSB()->GetAdapter();
 
-  common::Logger::GetLogger(adapter->GetAdapterName())->SetLevel(common::LogLevel::Debug);
+  common::AdapterItemInformation info;
+  adapter->GetBasicInformation(info);
 
-  bridge::AdapterDeviceVector deviceList;
-  std::shared_ptr<bridge::IAdapterIoRequest> req;
+  common::Logger::GetLogger(info.GetName())->SetLevel(common::LogLevel::Debug);
 
-    // TODO: do we need enums for this?
-  int32_t ret = adapter->EnumDevices(bridge::EnumDeviceOptions::ForceRefresh, deviceList, &req);
-  if (ret != 0)
+  std::shared_ptr<common::AdapterIoRequest> req(new common::AdapterIoRequest());
+
+  common::AdapterDevice::Vector devices;
+  adapter->EnumDevices(common::EnumDeviceOptions::ForceRefresh, devices, &req);
+  if (req)
   {
-    std::cout << "EnumDevices:" << ret << std::endl;
-    return 1;
+    DSBLOG_INFO("waiting for EnumDevices to complete");
+    if (!req->Wait(20000))
+      DSBLOG_INFO("EnumDevices timed out");
+    else
+      DSBLOG_INFO("EnumDevices completed");
   }
 
-  for (auto const& d : deviceList)
-  {
-    std::cout << "Device" << std::endl;
-    std::cout << "\tName:" << d->GetName() << std::endl;
-    std::cout << std::endl;
-    std::cout << std::endl;
-  }
+  for (auto const& device : devices)
+    PrintDevice(*adapter, device);
 
   getchar();
   return 0;
 }
-

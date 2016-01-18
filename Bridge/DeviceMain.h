@@ -4,6 +4,9 @@
 #include "Bridge/AllJoynHeaders.h"
 #include "Bridge/IAdapter.h"
 
+#include "Common/AdapterDevice.h"
+#include "Common/AdapterProperty.h"
+
 #include <map>
 
 namespace bridge
@@ -15,21 +18,21 @@ namespace bridge
   class DeviceMain : public ajn::BusObject
   {
   public:
-    DeviceMain(BridgeDevice& parent, const std::shared_ptr<IAdapterDevice>&);
+    DeviceMain(BridgeDevice& parent, common::AdapterDevice const& device);
     virtual ~DeviceMain();
 
     QStatus Initialize();
 
     bool IsMethodNameUnique(std::string const& name);
     bool IsSignalNameUnique(std::string const& name);
-    void HandleSignal(IAdapterSignal const& adapterSignal);
+    void HandleSignal(common::AdapterSignal const& adapterSignal);
 
     ajn::InterfaceDescription* GetInterfaceDescription();
 
     inline int GetIndexForMethod()
       { return m_indexForMethod++; }
 
-    inline std::string GetBusObjectPath(IAdapterProperty const&)
+    inline std::string GetBusObjectPath(common::AdapterProperty const&)
       { return std::string(); }
 
   private:
