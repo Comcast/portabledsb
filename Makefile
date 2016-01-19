@@ -5,12 +5,7 @@ SRCS=DeviceProviders/AllJoynProvider.cpp \
      Bridge/Bridge.cpp \
      Bridge/BridgeBusObject.cpp \
      Bridge/BridgeConfig.cpp \
-     Bridge/BridgeDevice.cpp \
      Bridge/ConfigManager.cpp \
-     Bridge/DeviceMain.cpp \
-     Bridge/DeviceMethod.cpp \
-     Bridge/DeviceProperty.cpp \
-     Bridge/DeviceSignal.cpp \
      Common/AdapterLog.cpp \
      Common/Variant.cpp \
      Common/Guid.cpp \

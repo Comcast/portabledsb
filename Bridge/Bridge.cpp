@@ -1,5 +1,4 @@
 #include "Bridge/Bridge.h"
-#include "Bridge/BridgeDevice.h"
 #include "Bridge/BridgeError.h"
 #include "Bridge/BridgeBusObject.h"
 

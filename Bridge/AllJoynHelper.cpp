@@ -1,6 +1,5 @@
 
 #include "AllJoynHelper.h"
-#include "DeviceMain.h"
 #include "Common/Assert.h"
 
 
@@ -172,7 +171,7 @@ QStatus bridge::AllJoynHelper::SetMsgArg(ajn::MsgArg& msg, std::string const& si
 }
    
 QStatus
-bridge::AllJoynHelper::SetMsgArgFromAdapterObject(adapter::Value const& adapterValue, ajn::MsgArg&, DeviceMain*)
+bridge::AllJoynHelper::SetMsgArgFromAdapterObject(adapter::Value const& adapterValue, ajn::MsgArg&)
 {
   // TODO:
   QStatus st = ER_OK;
@@ -215,7 +214,7 @@ bridge::AllJoynHelper::GetValue(adapter::Value& adapterValue, ajn::MsgArg const&
 }
 
 QStatus
-bridge::AllJoynHelper::GetAdapterObject(adapter::Value&, ajn::MsgArg const&, DeviceMain*)
+bridge::AllJoynHelper::GetAdapterObject(adapter::Value&, ajn::MsgArg const&)
 {
   return ER_NOT_IMPLEMENTED;
 }

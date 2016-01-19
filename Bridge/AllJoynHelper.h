@@ -8,8 +8,6 @@
 
 namespace bridge
 {
-  class DeviceMain;
-
   class AllJoynHelper
   {
   public:
@@ -22,11 +20,11 @@ namespace bridge
     static QStatus GetArrayFromMsgArg(ajn::MsgArg& msgArg, std::string const& sig, std::vector<T>& arr);
 
     
-    static QStatus SetMsgArgFromAdapterObject(adapter::Value const& adapterValue, ajn::MsgArg& msg, DeviceMain* deviceMain);
+    static QStatus SetMsgArgFromAdapterObject(adapter::Value const& adapterValue, ajn::MsgArg& msg);
 
     static QStatus GetValue(adapter::Value& adapterValue, ajn::MsgArg const& msg);
 
-    static QStatus GetAdapterObject(adapter::Value& adapterValue, ajn::MsgArg const& msg, DeviceMain* deviceMain);
+    static QStatus GetAdapterObject(adapter::Value& adapterValue, ajn::MsgArg const& msg);
 
     static std::string GetSignature(adapter::TypeId type);
 
