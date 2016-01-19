@@ -45,7 +45,7 @@ namespace
 
   void PrintDevice(adapter::Adapter& adapter, adapter::Device const& dev)
   {
-    std::cout << "Device [" << dev.GetBasicInfo().GetName() << "]" << std::endl;
+    std::cout << "Device [" << dev.GetInfo().GetName() << "]" << std::endl;
     for (auto ifc : dev.GetInterfaces())
     {
       std::cout << "InterfaceName:" << ifc.GetName() << std::endl;
@@ -121,12 +121,11 @@ int main(int /*argc*/, char* /*argv*/ [])
 
   DSB()->Initialize();
 
-  std::shared_ptr<adapter::Adapter> adapter = DSB()->GetAdapter();
-
-  adapter::ItemInformation info;
-  adapter->GetBasicInformation(info, std::shared_ptr<adapter::IoRequest>());
 
   #if 0
+  std::shared_ptr<adapter::Adapter> adapter = DSB()->GetAdapter();
+  adapter::ItemInformation const& info = adapter->GetInfo();
+
   adapter::Device::Vector devices;
   std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
   adapter->EnumDevices(adapter::EnumDeviceOptions::ForceRefresh, devices, req);

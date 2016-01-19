@@ -24,10 +24,20 @@ namespace adapter
   public:
     virtual ~Adapter() { }
 
-    virtual std::string GetExposedAdapterPrefix() = 0;
-    virtual std::string GetExposedApplicationName() = 0;
-    virtual Guid GetExposedApplicationGuid() = 0;
-    virtual std::string GetStatusText(adapter::Status st) = 0;
+    virtual std::string
+    GetAdapterPrefix() = 0;
+
+    virtual std::string
+    GetApplicationName() = 0;
+
+    virtual Guid
+    GetApplicationGuid() = 0;
+
+    virtual std::string
+    GetStatusText(adapter::Status st) = 0;
+
+    virtual ItemInformation const&
+    GetInfo() = 0;
 
     virtual adapter::Status SetConfiguration(
       std::vector<uint8_t> const& configData,
@@ -35,10 +45,6 @@ namespace adapter
 
     virtual adapter::Status GetConfiguration(
       std::vector<uint8_t>& configData,
-      IoRequest::Pointer const& req) = 0;
-
-    virtual adapter::Status GetBasicInformation(
-      ItemInformation& info,
       IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status Initialize(

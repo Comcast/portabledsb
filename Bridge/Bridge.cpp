@@ -97,10 +97,12 @@ bridge::Bridge::Initialize()
 {
   DSBLOG_DEBUG(__FUNCTION__);
 
+  QStatus st = ER_OK;
   if (!m_alljoynInitialized)
   {
     DSBLOG_INFO("initialize AllJoyn");
-    Error::ThrowIfNotOk(AllJoynInit(), "AllJoyn init failed");
+    st = AllJoynInit();
+    Error::ThrowIfNotOk(st, "AllJoyn init failed");
   }
 
   InitializeInternal();
@@ -110,24 +112,26 @@ bridge::Bridge::Initialize()
 void
 bridge::Bridge::InitializeInternal()
 {
+  QStatus st = ER_OK;
+
   DSBLOG_INFO("initialize configuration manager");
-  Error::ThrowIfNotOk(m_configManager.Initialize(),
-    "failed to initialize configuration manager");
+  st = m_configManager.Initialize(), 
+  Error::ThrowIfNotOk(st, "failed to initialize configuration manager");
 
   DSBLOG_INFO("initialize adapter");
   InitializeAdapter();
 
   DSBLOG_INFO("connect to AllJoyn router");
-  Error::ThrowIfNotOk(m_configManager.ConnectToAllJoyn(),
-    "error connecting to router");
+  st = m_configManager.ConnectToAllJoyn();
+  Error::ThrowIfNotOk(st, "error connecting to router");
 
   DSBLOG_INFO("initialize devices");
-  Error::ThrowIfNotOk(InitializeDevices(),
-    "initialize devices failed");
+  st = InitializeDevices();
+  Error::ThrowIfNotOk(st, "initialize devices failed");
 
   DSBLOG_INFO("registering signal handlers");
-  Error::ThrowIfNotOk(RegisterAdapterSignalHandlers(true),
-    "failed to register signal handlers");
+  st = RegisterAdapterSignalHandlers(true);
+  Error::ThrowIfNotOk(st, "failed to register signal handlers");
 }
 
 void
@@ -150,18 +154,14 @@ bridge::Bridge::InitializeAdapter()
 
   std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
 
-  adapter::ItemInformation info;
-  adapter::Status st = m_adapter->GetBasicInformation(info, req);
-  if (st != ER_OK)
-    Error::Throw(*m_adapter, st, "failed to get basic info from adapter");
-
+  adapter::ItemInformation info = m_adapter->GetInfo();
 
   req.reset(new adapter::IoRequest());
   std::shared_ptr<adapter::Log> log = adapter::Log::GetLog(info.GetName());
 
-  st = m_adapter->Initialize(log, req);
-  if (st != ER_OK)
-    Error::Throw(*m_adapter, st, "failed to initialize adapter");
+  uint32_t ret = m_adapter->Initialize(log, req);
+  if (ret)
+    Error::Throw(*m_adapter, ret, "failed to initialize adapter");
 
   if (!req->Wait(2000))
   {
@@ -169,9 +169,9 @@ bridge::Bridge::InitializeAdapter()
   }
   else
   {
-    st = req->GetStatus();
-    if (st != ER_OK)
-      Error::Throw(*m_adapter, st, "failed to async intiailize adapter");
+    ret = req->GetStatus();
+    if (ret)
+      Error::Throw(*m_adapter, ret, "failed to async intiailize adapter");
   }
 }
 
@@ -335,9 +335,9 @@ void
 bridge::Bridge::CreateDevice(std::shared_ptr<adapter::Adapter> const& adapter, adapter::Device const& dev)
 {
   std::string appname;
-  std::string path = "/zigbee/" + dev.GetBasicInfo().GetName();
+  std::string path = "/zigbee/" + dev.GetInfo().GetName();
 
-  DSBLOG_DEBUG("create BusObject for device: %s", dev.GetBasicInfo().GetName().c_str());
+  DSBLOG_DEBUG("create BusObject for device: %s", dev.GetInfo().GetName().c_str());
   std::shared_ptr<bridge::BusObject> obj = bridge::BusObject::BuildFromAdapterDevice(
     appname, path, adapter, dev);
 

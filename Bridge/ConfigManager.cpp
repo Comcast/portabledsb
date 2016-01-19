@@ -82,7 +82,7 @@ ConfigManager::ConnectToAllJoyn()
   if (st != ER_OK)
     return st;
 
-  m_busAttachment.reset(new ajn::BusAttachment(m_adapter.GetExposedApplicationName().c_str(), true));
+  m_busAttachment.reset(new ajn::BusAttachment(m_adapter.GetApplicationName().c_str(), true));
   m_busAttachment->RegisterBusListener(*this);
   m_busAttachment->Start();
 
@@ -129,18 +129,14 @@ ConfigManager::BuildServiceName()
 {
   m_serviceName.clear();
 
-  std::string tmp = AllJoynHelper::EncodeStringForRootServiceName(m_adapter.GetExposedAdapterPrefix());
+  std::string tmp = AllJoynHelper::EncodeStringForRootServiceName(m_adapter.GetAdapterPrefix());
   if (tmp.empty()) {
     return ER_BUS_BAD_BUS_NAME;
   }
 
   m_serviceName = tmp + ".Bridge";
 
-  std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
-
-  adapter::ItemInformation info;
-  m_adapter.GetBasicInformation(info, req);
-  req->Wait();
+  adapter::ItemInformation info = m_adapter.GetInfo();
 
   tmp = AllJoynHelper::EncodeStringForServiceName(info.GetName());
   if (tmp.empty()) {

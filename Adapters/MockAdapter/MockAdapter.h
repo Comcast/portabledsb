@@ -27,13 +27,12 @@ namespace mock
 
     static InterfaceDefinition GetZigbeeInterface(uint16_t clusterId);
 
-    virtual adapter::Status GetBasicInformation(
-      adapter::ItemInformation& info,
-      std::shared_ptr<adapter::IoRequest> const& req);
+    virtual adapter::ItemInformation const&
+    GetInfo();
 
-    virtual std::string GetExposedAdapterPrefix();
-    virtual std::string GetExposedApplicationName();
-    virtual adapter::Guid GetExposedApplicationGuid();
+    virtual std::string GetAdapterPrefix();
+    virtual std::string GetApplicationName();
+    virtual adapter::Guid GetApplicationGuid();
 
     virtual adapter::Status GetSignals(
         adapter::Signal::Vector& signals,

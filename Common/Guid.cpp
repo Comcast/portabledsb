@@ -38,6 +38,12 @@ adapter::Guid::Null()
   return zeroGuid;
 }
 
+uint8_t const* 
+adapter::Guid::ToByteArray() const
+{
+  return &m_uuid[0];
+}
+
 std::string
 adapter::Guid::ToString() const
 {

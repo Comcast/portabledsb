@@ -12,7 +12,7 @@ namespace
 bridge::BridgeDevice::BridgeDevice(adapter::Device& device, std::shared_ptr<adapter::Adapter> const& adapter)
   : m_device(device)
   , m_adapter(adapter)
-  , m_busAttachment(AllJoynHelper::EncodeStringForAppName(adapter->GetExposedApplicationName()).c_str(), true)
+  , m_busAttachment(AllJoynHelper::EncodeStringForAppName(adapter->GetApplicationName()).c_str(), true)
   , m_deviceMain(*this, device)
 {
 }
@@ -58,16 +58,11 @@ bridge::BridgeDevice::Initialize()
   if (st != ER_OK)
     return st;
 
-  std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
-
   // set device info in about
-  adapter::ItemInformation info;
-  m_adapter->GetBasicInformation(info, req);
-  req->Wait();
+  adapter::ItemInformation info  = m_adapter->GetInfo();
 
-
-  m_about.SetApplicationName(m_adapter->GetExposedApplicationName().c_str());
-  m_about.SetApplicationGuid(m_adapter->GetExposedApplicationGuid());
+  m_about.SetApplicationName(m_adapter->GetApplicationName().c_str());
+  m_about.SetApplicationGuid(m_adapter->GetApplicationGuid());
   m_about.SetDeviceName(info.GetName().c_str());
   m_about.SetManufacturer(info.GetVendor().c_str());
   m_about.SetModel(info.GetModel().c_str());
@@ -130,16 +125,12 @@ bridge::BridgeDevice::BuildServiceName()
 
   // set root/prefix for AllJoyn service name (aka bus name) and interface names :
   // 'prefixForAllJoyn'.'AdapterName'.'DeviceName'
-  std::string tmp = AllJoynHelper::EncodeStringForRootServiceName(m_adapter->GetExposedAdapterPrefix());
+  std::string tmp = AllJoynHelper::EncodeStringForRootServiceName(m_adapter->GetAdapterPrefix());
   if (tmp.empty())
     return ER_BUS_BAD_BUS_NAME;
   m_rootStringForAllJoynNames = tmp;
 
-  std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
-
-  adapter::ItemInformation info;
-  m_adapter->GetBasicInformation(info, req);
-  req->Wait();
+  adapter::ItemInformation info = m_adapter->GetInfo();
 
   tmp = AllJoynHelper::EncodeStringForServiceName(info.GetName());
   if (tmp.empty())
@@ -151,7 +142,7 @@ bridge::BridgeDevice::BuildServiceName()
   m_serviceName = m_rootStringForAllJoynNames;
 
   //add device name
-  tmp = AllJoynHelper::EncodeStringForServiceName(m_device.GetBasicInfo().GetName());
+  tmp = AllJoynHelper::EncodeStringForServiceName(m_device.GetInfo().GetName());
   if (!tmp.empty())
   {
     m_serviceName += ".";
@@ -159,7 +150,7 @@ bridge::BridgeDevice::BuildServiceName()
   }
 
   // add serial number to service name if not empty
-  tmp = AllJoynHelper::EncodeStringForServiceName(m_device.GetBasicInfo().GetSerialNumber());
+  tmp = AllJoynHelper::EncodeStringForServiceName(m_device.GetInfo().GetSerialNumber());
   if (!tmp.empty())
   {
     m_serviceName += ".";

@@ -1,12 +1,18 @@
 #pragma once
 
 #include <string>
+#include "Common/Guid.h"
 
 namespace adapter
 {
   class ItemInformation
   {
   public:
+    ItemInformation()
+      : m_id(Guid::Null())
+    {
+    }
+
     std::string const& GetName() const
       { return m_name; }
 
@@ -27,6 +33,12 @@ namespace adapter
 
     std::string const& GetDescription() const
       { return m_description; }
+
+    Guid GetId() const
+      { return m_id; }
+
+    void SetG(Guid const& id)
+      { m_id = id; }
 
     void SetName(std::string const& name)
       { m_name = name; }
@@ -57,6 +69,7 @@ namespace adapter
     std::string m_firmwareVersion;
     std::string m_serialNumber;
     std::string m_description;
+    Guid        m_id;
   };
 }
 

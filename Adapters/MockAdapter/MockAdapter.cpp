@@ -39,19 +39,19 @@ adapters::mock::MockAdapter::~MockAdapter()
 }
 
 std::string
-adapters::mock::MockAdapter::GetExposedAdapterPrefix()
+adapters::mock::MockAdapter::GetAdapterPrefix()
 {
   return m_exposedAdapterPrefix;
 }
 
 std::string
-adapters::mock::MockAdapter::GetExposedApplicationName()
+adapters::mock::MockAdapter::GetApplicationName()
 {
   return m_exposedApplicationName;
 }
 
 adapter::Guid
-adapters::mock::MockAdapter::GetExposedApplicationGuid()
+adapters::mock::MockAdapter::GetApplicationGuid()
 {
   return m_exposedApplicationGuid;
 }
@@ -284,15 +284,10 @@ adapters::mock::MockAdapter::GetStatusText(adapter::Status st)
   return buff.str();
 }
 
-adapter::Status
-adapters::mock::MockAdapter::GetBasicInformation(
-    adapter::ItemInformation& info,
-    std::shared_ptr<adapter::IoRequest> const& req)
+adapter::ItemInformation const&
+adapters::mock::MockAdapter::GetInfo()
 {
-  info = m_info;
-  if (req)
-    req->SetComplete(0);
-  return 0;
+  return m_info;
 }
 
 adapter::Status

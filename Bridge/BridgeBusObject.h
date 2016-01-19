@@ -44,7 +44,8 @@ namespace bridge
   private:
     ajn::BusAttachment                    m_bus;
     adapter::Device                       m_adapterDevice;
-    std::unique_ptr<SessionPortListener>  m_sessionPortListener;
     std::shared_ptr<adapter::Adapter>     m_adapter;
+    std::unique_ptr<SessionPortListener>  m_sessionPortListener;
+    ajn::SessionPort                      m_sessionPort;
   };
 }
