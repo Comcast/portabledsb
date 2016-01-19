@@ -1,7 +1,10 @@
 #pragma once
 
 #include "Bridge/AllJoynHeaders.h"
+
+#include "Common/Adapter.h"
 #include "Common/AdapterDevice.h"
+
 #include <memory>
 
 
@@ -34,13 +37,14 @@ namespace bridge
     virtual QStatus Set(char const* ifcName, char const* propName, ajn::MsgArg &val);
 
   public:
-  	static std::shared_ptr<BusObject> BuildFromAdapterDevice(
-      std::string const& appname,
-      std::string const& path,
+  	static std::shared_ptr<BusObject> BuildFromAdapterDevice(std::string const& appname,
+      std::string const& path, std::shared_ptr<adapter::Adapter> const& adapter,
       adapter::Device const& dev);
 
   private:
-    ajn::BusAttachment m_bus;
-    std::unique_ptr<SessionPortListener> m_sessionPortListener;
+    ajn::BusAttachment                    m_bus;
+    adapter::Device                       m_adapterDevice;
+    std::unique_ptr<SessionPortListener>  m_sessionPortListener;
+    std::shared_ptr<adapter::Adapter>     m_adapter;
   };
 }

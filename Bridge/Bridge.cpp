@@ -20,11 +20,6 @@ namespace
   std::string const kDeviceRemovalSignal = "Device_Removal";
   std::string const kDeviceRemovalDeviceHandle = "Device_Handle";
 
-  bridge::BridgeDeviceList::key_type GetKey(adapter::Device const& dev)
-  {
-    return 0;
-  }
-
   void alljoynLogger(DbgMsgType type, char const* module, char const* msg, void* /*ctx*/)
   {
     static std::string logName = "alljoyn";
@@ -209,7 +204,7 @@ bridge::Bridge::InitializeDevices(bool update)
     if (update)
       UpdateDevice(device, true);
     else
-      CreateDevice(device);
+      CreateDevice(m_adapter, device);
   }
 
   // TODO: Save bridge configuration to XML
@@ -310,11 +305,6 @@ bridge::Bridge::ShutdownInternal()
     m_adapter->Shutdown(req);
     req->Wait();
   }
-
-  for (BridgeDeviceList::iterator itr = m_deviceList.begin(); itr != m_deviceList.end(); ++itr)
-    itr->second->Shutdown();
-
-  m_deviceList.clear();
 }
 
 QStatus
@@ -322,6 +312,9 @@ bridge::Bridge::UpdateDevice(adapter::Device const& dev, bool exposedOnAllJoynBu
 {
   QStatus st = ER_OK;
 
+  DSBLOG_NOT_IMPLEMENTED();
+
+  #if 0
   BridgeDeviceList::const_iterator itr = m_deviceList.find(GetKey(dev));
   if (itr == m_deviceList.end() && exposedOnAllJoynBus)
   {
@@ -333,21 +326,24 @@ bridge::Bridge::UpdateDevice(adapter::Device const& dev, bool exposedOnAllJoynBu
     if ((st = itr->second->Shutdown()) != ER_OK)
       DSBLOG_WARN("failed to shutdown BridgeDevice: %s", QCC_StatusText(st));
   }
+  #endif
 
   return st;
 }
 
 void
-bridge::Bridge::CreateDevice(adapter::Device const& dev)
+bridge::Bridge::CreateDevice(std::shared_ptr<adapter::Adapter> const& adapter, adapter::Device const& dev)
 {
   std::string appname;
   std::string path = "/zigbee/" + dev.GetBasicInfo().GetName();
 
   DSBLOG_DEBUG("create BusObject for device: %s", dev.GetBasicInfo().GetName().c_str());
   std::shared_ptr<bridge::BusObject> obj = bridge::BusObject::BuildFromAdapterDevice(
-    appname, path, dev);
+    appname, path, adapter, dev);
 
   // TODO: setup aboutData and announce
   // alljoyn_core/samples/observer/door_provider.cc as example
   obj->AnnounceAndRegister();
+  
+  m_bridgeBusObjects.push_back(obj);
 }

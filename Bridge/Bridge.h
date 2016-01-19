@@ -10,9 +10,7 @@
 
 namespace bridge
 {
-  class BridgeDevice;
-
-  typedef std::map<uint64_t, std::shared_ptr<BridgeDevice> > BridgeDeviceList;
+  class BusObject;
 
   class Bridge : public std::enable_shared_from_this<Bridge>
   {
@@ -33,9 +31,6 @@ namespace bridge
 
     QStatus InitializeDevices(bool isUpdate = false);
 
-    inline BridgeDeviceList GetDeviceList() const
-      { return m_deviceList; }
-
   private:
     Bridge(std::shared_ptr<adapter::Adapter> const& adapter);
 
@@ -44,7 +39,9 @@ namespace bridge
     void InitializeInternal();
     void ShutdownInternal();
 
-    void CreateDevice(adapter::Device const& device);
+    void CreateDevice(std::shared_ptr<adapter::Adapter> const& adapter,
+      adapter::Device const& device);
+
     QStatus UpdateDevice(adapter::Device const& device, bool exposedOnAllJoynBus);
 
     void OnAdapterSignal(adapter::Signal const& signal, void* argp);
@@ -82,10 +79,10 @@ namespace bridge
 
   private:
     bool                                      m_alljoynInitialized;
-    std::shared_ptr<adapter::Adapter>                      m_adapter;
-    BridgeDeviceList                          m_deviceList;
-    std::vector<adapter::RegistrationHandle> m_registeredSignalListeners;
-    ConfigManager m_configManager;
+    std::shared_ptr<adapter::Adapter>         m_adapter;
+    std::vector<adapter::RegistrationHandle>  m_registeredSignalListeners;
+    std::vector< std::shared_ptr<BusObject> > m_bridgeBusObjects;
+    ConfigManager                             m_configManager;
   };
 }
 

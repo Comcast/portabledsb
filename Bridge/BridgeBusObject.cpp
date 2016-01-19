@@ -90,11 +90,13 @@ bridge::BusObject::~BusObject()
 
 std::shared_ptr<bridge::BusObject>
 bridge::BusObject::BuildFromAdapterDevice(std::string const& appname, std::string const& path,
-  adapter::Device const& dev)
+  std::shared_ptr<adapter::Adapter> const& adapter, adapter::Device const& dev)
 {
   QStatus st = ER_OK;
 
   std::shared_ptr<BusObject> obj(new BusObject(appname, path));
+  obj->m_adapter = adapter;
+  obj->m_adapterDevice = dev;
 
   st = obj->m_bus.Start();
   Error::ThrowIfNotOk(st, "failed to start bus attachment");
@@ -115,7 +117,9 @@ bridge::BusObject::BuildFromAdapterDevice(std::string const& appname, std::strin
     }
   }
 
+  DSB_ASSERT(!obj->m_sessionPortListener);
   obj->m_sessionPortListener.reset(new BusObject::SessionPortListener(*obj));
+
   ajn::SessionPort port = ajn::SESSION_PORT_ANY;
   ajn::SessionOpts opts(ajn::SessionOpts::TRAFFIC_MESSAGES, false, ajn::SessionOpts::PROXIMITY_ANY, ajn::TRANSPORT_ANY);
   st = obj->m_bus.BindSessionPort(port, opts, *(obj->m_sessionPortListener.get()));
@@ -127,6 +131,8 @@ void
 bridge::BusObject::AnnounceAndRegister()
 {
   DSBLOG_NOT_IMPLEMENTED();
+
+  // TODO;
 
   ajn::AboutData about("en");
   m_bus.RegisterBusObject(*this);
