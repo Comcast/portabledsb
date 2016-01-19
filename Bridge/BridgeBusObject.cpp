@@ -27,19 +27,38 @@ namespace
 
   ajn::InterfaceDescription const* BuildInterface(ajn::BusAttachment& bus, adapter::Interface const& interface)
   {
+    QStatus st = ER_OK;
     ajn::InterfaceDescription* intf = nullptr;
 
+    char const* ifcName = interface.GetName().c_str();
+
     DSBLOG_DEBUG("looking for interface: %s", interface.GetName().c_str());
-    bridge::Error::ThrowIfNotOk(bus.CreateInterface(interface.GetName().c_str(), intf, ajn::AJ_IFC_SECURITY_OFF),
-      "failed to create interface: %s", interface.GetName().c_str());
+    
+    st = bus.CreateInterface(interface.GetName().c_str(), intf, ajn::AJ_IFC_SECURITY_OFF);
+    bridge::Error::ThrowIfNotOk(st, "failed to create interface: %s", interface.GetName().c_str());
+
+    for (auto attr : interface.GetAttributes())
+    {
+      DSBLOG_DEBUG("adding annotation to interface");
+      st = intf->AddAnnotation(attr.first.c_str(), attr.second.ToString().c_str());
+      bridge::Error::ThrowIfNotOk(st, "failed to add annotation to interface");
+    }
 
     for (auto prop : interface.GetProperties())
     {
-      DSBLOG_DEBUG("adding property to interface: %s", prop.GetName().c_str());
+      char const* name = prop.GetName().c_str();
+      DSBLOG_DEBUG("adding property to interface: %s", name);
+
       std::string sig = bridge::AllJoynHelper::GetSignature(prop.GetType());
 
-      bridge::Error::ThrowIfNotOk(intf->AddProperty(prop.GetName().c_str(), sig.c_str(), GetAccess(prop)),
-          "failed to add property %s to interface %s", prop.GetName().c_str(), interface.GetName().c_str());
+      st = intf->AddProperty(name, sig.c_str(), GetAccess(prop));
+      bridge::Error::ThrowIfNotOk(st, "failed to add property %s to interface %s", name, ifcName);
+
+      for (auto attr : prop.GetAttributes())
+      {
+        st = intf->AddPropertyAnnotation(name, attr.first.c_str(), attr.second.ToString().c_str());
+        bridge::Error::ThrowIfNotOk(st, "failed to add annotation to property");
+      }
     }
 
     for (auto method : interface.GetMethods())
@@ -70,16 +89,18 @@ bridge::BusObject::~BusObject()
 }
 
 std::shared_ptr<bridge::BusObject>
-bridge::BusObject::BuildFromAdapterDevice(adapter::Device const& dev)
+bridge::BusObject::BuildFromAdapterDevice(std::string const& appname, std::string const& path,
+  adapter::Device const& dev)
 {
-  // TODO: what appanme and what path?
-  std::string appname = "some-appname";
-  std::string path = "/zigbee/" + dev.GetBasicInfo().GetName();
+  QStatus st = ER_OK;
 
   std::shared_ptr<BusObject> obj(new BusObject(appname, path));
 
-  Error::ThrowIfNotOk(obj->m_bus.Start(),
-      "failed to start bus attachment");
+  st = obj->m_bus.Start();
+  Error::ThrowIfNotOk(st, "failed to start bus attachment");
+
+  st = obj->m_bus.Connect();
+  Error::ThrowIfNotOk(st, "failed to connect to alljoyn router");
 
   for (auto interface : dev.GetInterfaces())
   {
@@ -93,7 +114,22 @@ bridge::BusObject::BuildFromAdapterDevice(adapter::Device const& dev)
       obj->AddInterface(*intf);
     }
   }
+
+  obj->m_sessionPortListener.reset(new BusObject::SessionPortListener(*obj));
+  ajn::SessionPort port = ajn::SESSION_PORT_ANY;
+  ajn::SessionOpts opts(ajn::SessionOpts::TRAFFIC_MESSAGES, false, ajn::SessionOpts::PROXIMITY_ANY, ajn::TRANSPORT_ANY);
+  st = obj->m_bus.BindSessionPort(port, opts, *(obj->m_sessionPortListener.get()));
+
   return obj;
+}
+
+void
+bridge::BusObject::AnnounceAndRegister()
+{
+  DSBLOG_NOT_IMPLEMENTED();
+
+  ajn::AboutData about("en");
+  m_bus.RegisterBusObject(*this);
 }
 
 QStatus
@@ -109,3 +145,19 @@ bridge::BusObject::Set(const char *ifcName, const char *propName, ajn::MsgArg &v
   DSBLOG_NOT_IMPLEMENTED();
   return ER_OK;
 }
+
+bool
+bridge::BusObject::SessionPortListener::AcceptSessionJoiner(ajn::SessionPort /*sessionPort*/,
+  char const* /*joiner*/, ajn::SessionOpts const& /*opts*/)
+{
+  DSBLOG_NOT_IMPLEMENTED();
+  return true;
+}
+
+void
+bridge::BusObject::SessionPortListener::SessionJoined(ajn::SessionPort /*sessionPort*/, ajn::SessionId /*id*/,
+  char const* /*joiner*/)
+{
+  DSBLOG_NOT_IMPLEMENTED();
+}
+

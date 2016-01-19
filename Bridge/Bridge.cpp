@@ -340,8 +340,14 @@ bridge::Bridge::UpdateDevice(adapter::Device const& dev, bool exposedOnAllJoynBu
 void
 bridge::Bridge::CreateDevice(adapter::Device const& dev)
 {
+  std::string appname;
+  std::string path = "/zigbee/" + dev.GetBasicInfo().GetName();
+
   DSBLOG_DEBUG("create BusObject for device: %s", dev.GetBasicInfo().GetName().c_str());
-  std::shared_ptr<bridge::BusObject> obj = bridge::BusObject::BuildFromAdapterDevice(dev);
+  std::shared_ptr<bridge::BusObject> obj = bridge::BusObject::BuildFromAdapterDevice(
+    appname, path, dev);
 
   // TODO: setup aboutData and announce
+  // alljoyn_core/samples/observer/door_provider.cc as example
+  obj->AnnounceAndRegister();
 }
