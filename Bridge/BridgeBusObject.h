@@ -47,5 +47,7 @@ namespace bridge
     std::shared_ptr<adapter::Adapter>     m_adapter;
     std::unique_ptr<SessionPortListener>  m_sessionPortListener;
     ajn::SessionPort                      m_sessionPort;
+    std::unique_ptr<ajn::AboutObj>        m_aboutObject;
+    std::unique_ptr<ajn::AboutData>       m_aboutData;
   };
 }

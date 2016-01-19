@@ -80,7 +80,7 @@ namespace
 
 bridge::BusObject::BusObject(std::string const& appname, std::string const& path)
   : ajn::BusObject(path.c_str())
-  , m_bus(appname.c_str())
+  , m_bus(appname.c_str(), true)
 {
 }
 
@@ -113,7 +113,7 @@ bridge::BusObject::BuildFromAdapterDevice(std::string const& appname, std::strin
     if (intf != nullptr)
     {
       DSBLOG_DEBUG("activating interface: %s", interface.GetName().c_str());
-      obj->AddInterface(*intf);
+      obj->AddInterface(*intf, ajn::BusObject::ANNOUNCED);
     }
   }
 
@@ -127,8 +127,6 @@ bridge::BusObject::BuildFromAdapterDevice(std::string const& appname, std::strin
   Error::ThrowIfNotOk(st, "failed to bind session port");
 
   obj->m_sessionPort = port;;
-  obj->AnnounceAndRegister();
-
   return obj;
 }
 
@@ -142,48 +140,48 @@ bridge::BusObject::AnnounceAndRegister()
 
   QStatus st = ER_OK;
 
-  ajn::AboutData aboutData("en");
-  st = aboutData.SetAppId(appId.ToByteArray());
+  m_aboutData.reset(new ajn::AboutData("en"));
+  st = m_aboutData->SetAppId(appId.ToByteArray());
   Error::ThrowIfNotOk(st, "failed to set appid");
 
-  st = aboutData.SetAppName(m_adapter->GetApplicationName().c_str());
+  st = m_aboutData->SetAppName(m_adapter->GetApplicationName().c_str());
   Error::ThrowIfNotOk(st, "failed to set application name");
 
-  st = aboutData.SetDeviceId((char const *)devInfo.GetId().ToByteArray());
+  st = m_aboutData->SetDeviceId((char const *)devInfo.GetId().ToByteArray());
   Error::ThrowIfNotOk(st, "failed to set device id");
 
-  st = aboutData.SetDeviceName(devInfo.GetName().c_str());
+  st = m_aboutData->SetDeviceName(devInfo.GetName().c_str());
   Error::ThrowIfNotOk(st, "failed to set device name");
 
-  st = aboutData.SetManufacturer(devInfo.GetVendor().c_str());
+  st = m_aboutData->SetManufacturer(devInfo.GetVendor().c_str());
   Error::ThrowIfNotOk(st, "failed to set manufacturer");
 
-  st = aboutData.SetDescription(devInfo.GetDescription().c_str());
+  st = m_aboutData->SetDescription(devInfo.GetDescription().c_str());
   Error::ThrowIfNotOk(st, "failed to set description");
 
-  st = aboutData.SetDateOfManufacture("2016-01-01");
+  st = m_aboutData->SetDateOfManufacture("2016-01-01");
   Error::ThrowIfNotOk(st, "failed to set date of manufacture");
 
-  st = aboutData.SetSoftwareVersion(devInfo.GetFirmwareVersion().c_str());
+  st = m_aboutData->SetSoftwareVersion(devInfo.GetFirmwareVersion().c_str());
   Error::ThrowIfNotOk(st, "failed to set software version");
 
-  st = aboutData.SetHardwareVersion(devInfo.GetVersion().c_str());
+  st = m_aboutData->SetHardwareVersion(devInfo.GetVersion().c_str());
   Error::ThrowIfNotOk(st, "failed to set hardware version");
 
-  st = aboutData.SetModelNumber(devInfo.GetModel().c_str());
+  st = m_aboutData->SetModelNumber(devInfo.GetModel().c_str());
   Error::ThrowIfNotOk(st, "failed to set model");
 
-  aboutData.SetSupportUrl("http://www.xfinity.com");
-  if (!aboutData.IsValid())
+  m_aboutData->SetSupportUrl("http://www.xfinity.com");
+  if (!m_aboutData->IsValid())
     Error::Throw("invalid about data");
 
+  st = m_bus.RegisterBusObject(*this);
+  Error::ThrowIfNotOk(st, "failed to register bus object");
 
-  std::unique_ptr<ajn::AboutObj> aboutObj(new ajn::AboutObj(m_bus));
+  m_aboutObject.reset(new ajn::AboutObj(m_bus));
 
-  st = aboutObj->Announce(m_sessionPort, aboutData);
+  st = m_aboutObject->Announce(m_sessionPort, *m_aboutData.get());
   Error::ThrowIfNotOk(st, "failed to announce device");
-
-  m_bus.RegisterBusObject(*this);
 }
 
 QStatus
