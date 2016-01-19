@@ -1,8 +1,5 @@
-#include "ConfigManager.h"
-
-#include "AllJoynHelper.h"
-#include "IAdapter.h"
-
+#include "Bridge/ConfigManager.h"
+#include "Bridge/AllJoynHelper.h"
 #include "Common/AdapterLog.h"
 
 using namespace bridge;
