@@ -3,6 +3,12 @@
 #include "Bridge/AllJoynHelper.h"
 #include "Common/AdapterLog.h"
 
+#include <algorithm>
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+
 namespace
 {
   DSB_DECLARE_LOGNAME(BusObject);
@@ -76,6 +82,56 @@ namespace
 
     return bus.GetInterface(interface.GetName().c_str());
   }
+
+  // TODO: move this to some type of reconnecting BusAttachment
+  // PersistentBusAttachment
+  bool                              reconnectErrorState;
+  std::unique_ptr<std::thread>      reconnectThread;
+  std::mutex                        reconnectMutex;
+  std::condition_variable           reconnectCond;
+  std::vector<ajn::BusAttachment *> reconnectList;
+
+  void reconnectFunction()
+  {
+    static const int millis = 1000;
+
+    while (true)
+    {
+      auto delay = std::chrono::system_clock::now() + std::chrono::milliseconds(millis);
+
+      std::unique_lock<std::mutex> lock(reconnectMutex);
+      reconnectCond.wait_until(lock, delay, []{
+        return !reconnectList.empty() && !reconnectErrorState; });
+
+      reconnectErrorState = false;
+      for (auto& busAttachment : reconnectList)
+      {
+        if (busAttachment == nullptr)
+          continue;
+
+        QStatus st = busAttachment->Connect();
+        if (st == ER_OK || st == ER_BUS_ALREADY_CONNECTED)
+        {
+          DSBLOG_INFO("reconnected BusAttachment: %s/%s", busAttachment->GetGlobalGUIDString().c_str(),
+            busAttachment->GetConnectSpec().c_str());
+          busAttachment = nullptr;
+        }
+        else
+        {
+          DSBLOG_DEBUG("error trying to reconnect BusAttachment:%s", QCC_StatusText(st));
+          reconnectErrorState = true;
+        }
+      }
+
+      if (!reconnectList.empty())
+      {
+        auto end = std::remove_if(reconnectList.begin(), reconnectList.end(),
+            [](ajn::BusAttachment* p) { return p == nullptr; });
+
+        reconnectList.erase(end, reconnectList.end());
+      }
+    }
+  }
 }
 
 bridge::BusObject::BusObject(std::string const& appname, std::string const& path)
@@ -102,6 +158,9 @@ bridge::BusObject::~BusObject()
   st = m_bus.Disconnect();
   if (st != ER_OK)
     DSBLOG_WARN("failed to disconnect BusAttachment: %s", QCC_StatusText(st));
+
+  m_bus.Stop();
+  m_bus.Join();
 }
 
 std::shared_ptr<bridge::BusObject>
@@ -237,6 +296,13 @@ bridge::BusObject::SessionPortListener::SessionJoined(ajn::SessionPort /*session
 void
 bridge::BusObject::BusListener::BusDisconnected()
 {
-  DSBLOG_INFO("bus disconnected");
+  DSBLOG_INFO("BusAttachment %s disconnected", m_parent.m_bus.GetGlobalGUIDString().c_str());
+
+  std::unique_lock<std::mutex> lock(reconnectMutex);
+  if (!reconnectThread)
+    reconnectThread.reset(new std::thread(reconnectFunction));
+  reconnectList.push_back(&m_parent.m_bus);
+  lock.unlock();
+  reconnectCond.notify_one();
 }
 
