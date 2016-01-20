@@ -32,14 +32,14 @@ namespace
 
     char const* ifcName = interface.GetName().c_str();
 
-    DSBLOG_DEBUG("looking for interface: %s", interface.GetName().c_str());
+    // DSBLOG_DEBUG("looking for interface: %s", interface.GetName().c_str());
     
     st = bus.CreateInterface(interface.GetName().c_str(), intf, ajn::AJ_IFC_SECURITY_OFF);
     bridge::Error::ThrowIfNotOk(st, "failed to create interface: %s", interface.GetName().c_str());
 
     for (auto attr : interface.GetAttributes())
     {
-      DSBLOG_DEBUG("adding annotation to interface");
+      // DSBLOG_DEBUG("adding annotation to interface");
       st = intf->AddAnnotation(attr.first.c_str(), attr.second.ToString().c_str());
       bridge::Error::ThrowIfNotOk(st, "failed to add annotation to interface");
     }
@@ -47,7 +47,7 @@ namespace
     for (auto prop : interface.GetProperties())
     {
       char const* name = prop.GetName().c_str();
-      DSBLOG_DEBUG("adding property to interface: %s", name);
+      // DSBLOG_DEBUG("adding property to interface: %s", name);
 
       std::string sig = bridge::AllJoynHelper::GetSignature(prop.GetType());
 
@@ -86,6 +86,22 @@ bridge::BusObject::BusObject(std::string const& appname, std::string const& path
 
 bridge::BusObject::~BusObject()
 {
+  QStatus st = ER_OK;
+
+  if (m_busListener)
+  {
+    m_bus.UnregisterBusListener(*m_busListener);
+    m_busListener.reset();
+  }
+
+  if (m_aboutObject)
+    m_aboutObject->Unannounce();
+  m_aboutObject.reset();
+  m_aboutData.reset();
+
+  st = m_bus.Disconnect();
+  if (st != ER_OK)
+    DSBLOG_WARN("failed to disconnect BusAttachment: %s", QCC_StatusText(st));
 }
 
 std::shared_ptr<bridge::BusObject>
@@ -98,11 +114,18 @@ bridge::BusObject::BuildFromAdapterDevice(std::string const& appname, std::strin
   obj->m_adapter = adapter;
   obj->m_adapterDevice = dev;
 
+  DSB_ASSERT(!obj->m_sessionPortListener);
+  obj->m_sessionPortListener.reset(new BusObject::SessionPortListener(*obj));
+  DSB_ASSERT(!obj->m_busListener);
+  obj->m_busListener.reset(new BusObject::BusListener(*obj));
+  obj->m_bus.RegisterBusListener(*(obj->m_busListener.get()));
+
   st = obj->m_bus.Start();
   Error::ThrowIfNotOk(st, "failed to start bus attachment");
 
   st = obj->m_bus.Connect();
   Error::ThrowIfNotOk(st, "failed to connect to alljoyn router");
+  DSBLOG_INFO("new bus connection: %s", obj->m_bus.GetConnectSpec().c_str());
 
   for (auto interface : dev.GetInterfaces())
   {
@@ -112,13 +135,11 @@ bridge::BusObject::BuildFromAdapterDevice(std::string const& appname, std::strin
 
     if (intf != nullptr)
     {
-      DSBLOG_DEBUG("activating interface: %s", interface.GetName().c_str());
+      // DSBLOG_DEBUG("activating interface: %s", interface.GetName().c_str());
       obj->AddInterface(*intf, ajn::BusObject::ANNOUNCED);
     }
   }
 
-  DSB_ASSERT(!obj->m_sessionPortListener);
-  obj->m_sessionPortListener.reset(new BusObject::SessionPortListener(*obj));
 
   ajn::SessionPort port = ajn::SESSION_PORT_ANY;
   ajn::SessionOpts opts(ajn::SessionOpts::TRAFFIC_MESSAGES, false, ajn::SessionOpts::PROXIMITY_ANY, ajn::TRANSPORT_ANY);
@@ -211,5 +232,11 @@ bridge::BusObject::SessionPortListener::SessionJoined(ajn::SessionPort /*session
   char const* /*joiner*/)
 {
   DSBLOG_NOT_IMPLEMENTED();
+}
+
+void
+bridge::BusObject::BusListener::BusDisconnected()
+{
+  DSBLOG_INFO("bus disconnected");
 }
 

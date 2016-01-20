@@ -143,5 +143,7 @@ int main(int /*argc*/, char* /*argv*/ [])
   #endif
 
   getchar();
+
+  bridge::Bridge::ReleaseSingleton();
   return 0;
 }

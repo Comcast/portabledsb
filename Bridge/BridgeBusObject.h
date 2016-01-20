@@ -13,7 +13,7 @@ namespace bridge
   class BusObject : public ajn::BusObject
   {
   public:
-    ~BusObject();
+   virtual ~BusObject();
 
     void AnnounceAndRegister();
 
@@ -28,6 +28,15 @@ namespace bridge
       virtual bool AcceptSessionJoiner(ajn::SessionPort sessionPort, char const* jointer,
         ajn::SessionOpts const& opts);
       virtual void SessionJoined(ajn::SessionPort sessionPort, ajn::SessionId id, char const* joiner);
+    private:
+      BusObject& m_parent;
+    };
+
+    class BusListener : public ajn::BusListener
+    {
+    public:
+      BusListener(BusObject& parent) : m_parent(parent) { }
+      virtual void BusDisconnected();
     private:
       BusObject& m_parent;
     };
@@ -49,5 +58,6 @@ namespace bridge
     ajn::SessionPort                      m_sessionPort;
     std::unique_ptr<ajn::AboutObj>        m_aboutObject;
     std::unique_ptr<ajn::AboutData>       m_aboutData;
+    std::unique_ptr<BusListener>          m_busListener;
   };
 }

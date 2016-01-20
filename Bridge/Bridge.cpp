@@ -70,6 +70,13 @@ bridge::Bridge::InitializeSingleton(std::shared_ptr<adapter::Adapter> const& ada
   gBridge.reset(new Bridge(adapter));
 }
 
+void
+bridge::Bridge::ReleaseSingleton()
+{
+  gBridge.reset();
+}
+
+
 bridge::Bridge::Bridge(std::shared_ptr<adapter::Adapter> const& adapter)
   : m_alljoynInitialized(false)
   , m_adapter(adapter)
@@ -136,7 +143,18 @@ bridge::Bridge::InitializeInternal()
 void
 bridge::Bridge::Shutdown()
 {
-  ShutdownInternal();
+  m_bridgeBusObjects.clear();
+
+  if (m_adapter)
+  {
+    std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
+
+    RegisterAdapterSignalHandlers(false);
+    m_adapter->Shutdown(req);
+    req->Wait();
+  }
+
+  m_configManager.Shutdown();
   
   if (m_alljoynInitialized)
   {
@@ -289,21 +307,6 @@ bridge::Bridge::RegisterAdapterSignalHandlers(bool isRegister)
   }
 
   return st;
-}
-
-void
-bridge::Bridge::ShutdownInternal()
-{
-  m_configManager.Shutdown();
-
-  if (m_adapter)
-  {
-    std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
-
-    RegisterAdapterSignalHandlers(false);
-    m_adapter->Shutdown(req);
-    req->Wait();
-  }
 }
 
 QStatus

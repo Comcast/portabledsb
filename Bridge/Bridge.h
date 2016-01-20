@@ -17,6 +17,7 @@ namespace bridge
   public:
     static std::shared_ptr<Bridge> GetInstance();
     static void InitializeSingleton(std::shared_ptr<adapter::Adapter> const& adapter);
+    static void ReleaseSingleton();
 
     virtual ~Bridge();
 
@@ -37,7 +38,6 @@ namespace bridge
     QStatus RegisterAdapterSignalHandlers(bool isRegister);
     void InitializeAdapter();
     void InitializeInternal();
-    void ShutdownInternal();
 
     void CreateDevice(std::shared_ptr<adapter::Adapter> const& adapter,
       adapter::Device const& device);
