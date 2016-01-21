@@ -345,7 +345,7 @@ bridge::Bridge::CreateDevice(std::shared_ptr<adapter::Adapter> const& adapter, a
 
   // TODO: setup aboutData and announce
   // alljoyn_core/samples/observer/door_provider.cc as example
-  obj->AnnounceAndRegister();
+  obj->Publish();
   
   m_bridgeBusObjects.push_back(obj);
 }

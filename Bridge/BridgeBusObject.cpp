@@ -85,6 +85,8 @@ namespace
 
   // TODO: move this to some type of reconnecting BusAttachment
   // PersistentBusAttachment
+  uint64_t                          reconnectRefcount = 0;
+  bool                              reconnectShutdown;
   bool                              reconnectErrorState;
   std::unique_ptr<std::thread>      reconnectThread;
   std::mutex                        reconnectMutex;
@@ -100,8 +102,15 @@ namespace
       auto delay = std::chrono::system_clock::now() + std::chrono::milliseconds(millis);
 
       std::unique_lock<std::mutex> lock(reconnectMutex);
-      reconnectCond.wait_until(lock, delay, []{
-        return !reconnectList.empty() && !reconnectErrorState; });
+      reconnectCond.wait_until(lock, delay, [] {
+        return
+          !reconnectList.empty() &&
+          !reconnectErrorState &&
+          !reconnectShutdown;
+      });
+
+      if (reconnectShutdown)
+        return;
 
       reconnectErrorState = false;
       for (auto& busAttachment : reconnectList)
@@ -136,31 +145,60 @@ namespace
 
 bridge::BusObject::BusObject(std::string const& appname, std::string const& path)
   : ajn::BusObject(path.c_str())
-  , m_bus(appname.c_str(), true)
+  , m_bus(new ajn::BusAttachment(appname.c_str(), true))
+  , m_appName(appname)
 {
+  std::unique_lock<std::mutex> lock(reconnectMutex);
+  reconnectRefcount++;
+  if (!reconnectThread)
+  {
+    reconnectShutdown = false;
+    reconnectThread.reset(new std::thread(reconnectFunction));
+  }
 }
 
 bridge::BusObject::~BusObject()
 {
-  QStatus st = ER_OK;
+  std::unique_lock<std::mutex> lock(reconnectMutex);
+  reconnectRefcount--;
+  if (reconnectRefcount == 0)
+  {
+    if (reconnectThread)
+    {
+      reconnectShutdown = true;
+      lock.unlock();
+      reconnectCond.notify_one();
+
+      DSBLOG_INFO("waiting for reconnect thread to shutdown");
+      reconnectThread->join();
+    }
+  }
 
   if (m_busListener)
   {
-    m_bus.UnregisterBusListener(*m_busListener);
+    m_bus->UnregisterBusListener(*m_busListener);
     m_busListener.reset();
   }
 
+  if (m_bus->IsStarted())
+    m_bus->Stop();
+
+  QStatus st = ER_OK;
+
   if (m_aboutObject)
     m_aboutObject->Unannounce();
+
   m_aboutObject.reset();
   m_aboutData.reset();
 
-  st = m_bus.Disconnect();
-  if (st != ER_OK)
-    DSBLOG_WARN("failed to disconnect BusAttachment: %s", QCC_StatusText(st));
+  if (m_bus->IsConnected())
+  {
+    st = m_bus->Disconnect();
+    if (st != ER_OK)
+      DSBLOG_WARN("failed to disconnect BusAttachment: %s", QCC_StatusText(st));
+  }
 
-  m_bus.Stop();
-  m_bus.Join();
+  m_bus->Join();
 }
 
 std::shared_ptr<bridge::BusObject>
@@ -177,37 +215,43 @@ bridge::BusObject::BuildFromAdapterDevice(std::string const& appname, std::strin
   obj->m_sessionPortListener.reset(new BusObject::SessionPortListener(*obj));
   DSB_ASSERT(!obj->m_busListener);
   obj->m_busListener.reset(new BusObject::BusListener(*obj));
-  obj->m_bus.RegisterBusListener(*(obj->m_busListener.get()));
+  obj->m_bus->RegisterBusListener(*(obj->m_busListener.get()));
 
-  st = obj->m_bus.Start();
+  st = obj->m_bus->Start();
   Error::ThrowIfNotOk(st, "failed to start bus attachment");
 
-  st = obj->m_bus.Connect();
+  st = obj->m_bus->Connect();
   Error::ThrowIfNotOk(st, "failed to connect to alljoyn router");
-  DSBLOG_INFO("new bus connection: %s", obj->m_bus.GetConnectSpec().c_str());
+  DSBLOG_INFO("new bus connection: %s", obj->m_bus->GetConnectSpec().c_str());
 
-  for (auto interface : dev.GetInterfaces())
+  return obj;
+}
+
+void
+bridge::BusObject::Publish()
+{
+  for (auto interface : m_adapterDevice.GetInterfaces())
   {
-    ajn::InterfaceDescription const* intf = obj->m_bus.GetInterface(interface.GetName().c_str());
+    ajn::InterfaceDescription const* intf = m_bus->GetInterface(interface.GetName().c_str());
     if (intf == nullptr)
-      intf = BuildInterface(obj->m_bus, interface);
+      intf = BuildInterface(*m_bus.get(), interface);
 
     if (intf != nullptr)
     {
       // DSBLOG_DEBUG("activating interface: %s", interface.GetName().c_str());
-      obj->AddInterface(*intf, ajn::BusObject::ANNOUNCED);
+      ajn::BusObject::AddInterface(*intf, ajn::BusObject::ANNOUNCED);
     }
   }
-
 
   ajn::SessionPort port = ajn::SESSION_PORT_ANY;
   ajn::SessionOpts opts(ajn::SessionOpts::TRAFFIC_MESSAGES, false, ajn::SessionOpts::PROXIMITY_ANY, ajn::TRANSPORT_ANY);
 
-  st = obj->m_bus.BindSessionPort(port, opts, *(obj->m_sessionPortListener.get()));
+  QStatus st = m_bus->BindSessionPort(port, opts, *(m_sessionPortListener.get()));
   Error::ThrowIfNotOk(st, "failed to bind session port");
 
-  obj->m_sessionPort = port;;
-  return obj;
+  m_sessionPort = port;;
+
+  AnnounceAndRegister();
 }
 
 void
@@ -255,54 +299,78 @@ bridge::BusObject::AnnounceAndRegister()
   if (!m_aboutData->IsValid())
     Error::Throw("invalid about data");
 
-  st = m_bus.RegisterBusObject(*this);
+  st = m_bus->RegisterBusObject(*this);
   Error::ThrowIfNotOk(st, "failed to register bus object");
 
-  m_aboutObject.reset(new ajn::AboutObj(m_bus));
+  m_aboutObject.reset(new ajn::AboutObj(*m_bus.get()));
 
   st = m_aboutObject->Announce(m_sessionPort, *m_aboutData.get());
   Error::ThrowIfNotOk(st, "failed to announce device");
 }
 
 QStatus
-bridge::BusObject::Get(const char *ifcName, const char *propName, ajn::MsgArg &val)
+bridge::BusObject::Get(char const* interface, char const* property, ajn::MsgArg &val)
 {
   DSBLOG_NOT_IMPLEMENTED();
+  DSBLOG_INFO("Get(%s, %s)", interface, property);
   return ER_OK;
 }
 
 QStatus
-bridge::BusObject::Set(const char *ifcName, const char *propName, ajn::MsgArg &val)
+bridge::BusObject::Set(char const* interface, char const* property, ajn::MsgArg &val)
 {
   DSBLOG_NOT_IMPLEMENTED();
+  DSBLOG_INFO("Set(%s, %s)", interface, property);
   return ER_OK;
 }
 
 bool
-bridge::BusObject::SessionPortListener::AcceptSessionJoiner(ajn::SessionPort /*sessionPort*/,
-  char const* /*joiner*/, ajn::SessionOpts const& /*opts*/)
+bridge::BusObject::SessionPortListener::AcceptSessionJoiner(ajn::SessionPort sessionPort,
+  char const* joiner, ajn::SessionOpts const& /*opts*/)
 {
-  DSBLOG_NOT_IMPLEMENTED();
+  DSBLOG_INFO("accept session joiner [port:%d joiner:%s]", sessionPort, joiner);
   return true;
 }
 
 void
-bridge::BusObject::SessionPortListener::SessionJoined(ajn::SessionPort /*sessionPort*/, ajn::SessionId /*id*/,
-  char const* /*joiner*/)
+bridge::BusObject::SessionPortListener::SessionJoined(ajn::SessionPort sessionPort, ajn::SessionId id,
+  char const* joiner)
 {
-  DSBLOG_NOT_IMPLEMENTED();
+  DSBLOG_INFO("session joined [port:%d id:0x%x joiner:%s]", sessionPort, id, joiner);
+}
+
+void
+bridge::BusObject::SessionListener::SessionLost(ajn::SessionId sessionId, SessionLostReason reason)
+{
+  DSBLOG_INFO("session lost [id: 0x%x reason:%d]", sessionId, reason);
+}
+
+void
+bridge::BusObject::SessionListener::SessionMemberAdded(ajn::SessionId sessionId, char const* uniqueName)
+{
+  DSBLOG_INFO("session member added [id:0x%x  name:%s]", sessionId, uniqueName);
+}
+
+void
+bridge::BusObject::SessionListener::SessionMemberRemoved(ajn::SessionId sessionId, char const* uniqueName)
+{
+  DSBLOG_INFO("session member removed [id:0x%x name:%s]", sessionId, uniqueName);
 }
 
 void
 bridge::BusObject::BusListener::BusDisconnected()
 {
-  DSBLOG_INFO("BusAttachment %s disconnected", m_parent.m_bus.GetGlobalGUIDString().c_str());
+  DSBLOG_INFO("BusAttachment %s disconnected", m_parent.m_bus->GetGlobalGUIDString().c_str());
+
+  // TODO: This is a hammer
+  // m_parent.m_bus.reset(new ajn::BusAttachment(m_parent.m_appName.c_str(), true));
+  // m_parent.m_bus->RegisterBusListener(*m_parent.m_busListener.get());
+  // m_parent.m_bus->Start();
 
   std::unique_lock<std::mutex> lock(reconnectMutex);
-  if (!reconnectThread)
-    reconnectThread.reset(new std::thread(reconnectFunction));
-  reconnectList.push_back(&m_parent.m_bus);
+  reconnectList.push_back(m_parent.m_bus.get());
   lock.unlock();
+
   reconnectCond.notify_one();
 }
 
