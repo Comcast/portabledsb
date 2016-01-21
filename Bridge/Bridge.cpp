@@ -80,7 +80,7 @@ bridge::Bridge::ReleaseSingleton()
 bridge::Bridge::Bridge(std::shared_ptr<adapter::Adapter> const& adapter)
   : m_alljoynInitialized(false)
   , m_adapter(adapter)
-  , m_configManager(*this, *adapter)
+  , m_configManager(*this, adapter)
 {
   // TODO: bug in alljoyn prevents registering logger.
   // RegisterAllJoynLogger();

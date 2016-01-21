@@ -14,8 +14,7 @@ namespace bridge
   {
   public:
    virtual ~BusObject();
-
-    void AnnounceAndRegister();
+   void AnnounceAndRegister();
 
   private:
     BusObject(std::string const& appname, std::string const& path);
