@@ -170,9 +170,11 @@ adapter::Status
 adapters::mock::MockAdapter::InvokeMethod(
   adapter::Interface const& ifc,
   adapter::Method const& method,
+  adapter::Value const& inarg,
+  adapter::Value& ourarg,
   std::shared_ptr<adapter::IoRequest> const& req)
 {
-  DSBLOG_ASSERT_NOT_IMPLEMENTED();
+  DSBLOG_INFO("TODO: InvokeMethod: %s.%s", ifc.GetName().c_str(), method.GetName().c_str());
   return 0;
 }
 

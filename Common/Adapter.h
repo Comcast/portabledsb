@@ -78,6 +78,8 @@ namespace adapter
     virtual adapter::Status InvokeMethod(
       Interface const& ifc,
       Method const& method,
+      Value const& inarg,
+      Value& outarg,
       IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status RegisterSignalListener(

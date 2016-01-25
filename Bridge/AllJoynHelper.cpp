@@ -3,6 +3,7 @@
 #include "Common/Assert.h"
 
 #include <map>
+#include <sstream>
 
 namespace
 {
@@ -475,3 +476,36 @@ bridge::AllJoynHelper::ValueToMsgArg(adapter::Value const& val, ajn::MsgArg& m)
   return st;
 }
 
+std::string
+bridge::AllJoynHelper::GetSignature(adapter::NamedValue::Vector const& v)
+{
+  // TODO:
+  std::stringstream buff;
+  for (auto arg : v)
+  {
+    buff << AllJoynHelper::GetSignature(arg.GetValue().GetType());
+  }
+  return buff.str();
+}
+
+std::string
+bridge::AllJoynHelper::GetMethodArgumentNames(adapter::NamedValue::Vector const& in, adapter::NamedValue::Vector const& out)
+{
+  int i = 0;
+
+  std::stringstream buff;
+  for (auto arg : in)
+  {
+    if (i++ != 0)
+      buff << ",";
+    buff << arg.GetName();
+  }
+
+  for (auto arg : out)
+  {
+    if (i++ != 0)
+      buff << ",";
+    buff << arg.GetName();
+  }
+  return buff.str();
+}

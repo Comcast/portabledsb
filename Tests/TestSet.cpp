@@ -86,7 +86,10 @@ int main(int argc, char* argv[])
   if (st == ER_OK)
     printf("value: %s\n", ajn::MsgArg::ToString(&value, 1).c_str());
 
-  // printf("st: %s\n", QCC_StatusText(st));
+  // TODO: create a new test for method invoke
+  st = obj->MethodCall("org.zigbee.general.Basic", "ResetToFactoryDefaults", nullptr, 0);
+  printf("invoke method: %s\n", QCC_StatusText(st));
+
   return 0;
 }
 

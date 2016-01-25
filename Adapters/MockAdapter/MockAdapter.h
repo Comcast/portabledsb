@@ -75,6 +75,8 @@ namespace mock
     virtual adapter::Status InvokeMethod(
       adapter::Interface const& ifc,
       adapter::Method const& method,
+      adapter::Value const& inarg,
+      adapter::Value& outarg,
       std::shared_ptr<adapter::IoRequest> const& req);
 
     virtual adapter::Status RegisterSignalListener(

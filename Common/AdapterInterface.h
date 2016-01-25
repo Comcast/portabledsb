@@ -49,6 +49,19 @@ namespace adapter
     Method::Vector const& GetMethods() const
       { return m_methods; }
 
+    Method const* GetMethod(char const* name) const
+    {
+      Method const* method = nullptr;
+
+      auto itr = std::find_if(m_methods.begin(), m_methods.end(),
+        [&name](Method const& m) { return strcmp(m.GetName().c_str(), name) == 0; });
+
+      if (itr != m_methods.end())
+        method = &(*itr);
+
+      return method;
+    }
+
     void ClearMethods()
       { m_methods.clear(); }
 

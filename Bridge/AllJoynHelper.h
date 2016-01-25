@@ -27,6 +27,9 @@ namespace bridge
     static QStatus MsgArgToValue(ajn::MsgArg const& m, adapter::Value& v);
 
     static std::string GetSignature(adapter::TypeId type);
+    static std::string GetSignature(adapter::NamedValue::Vector const& v);
+    static std::string GetMethodArgumentNames(adapter::NamedValue::Vector const& in,
+        adapter::NamedValue::Vector const& out);
 
     static void EncodeBusObjectName(std::string const& s, std::string &builtName);
     static void EncodePropertyOrMethodOrSignalName(std::string const& s, std::string &builtName);

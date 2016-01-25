@@ -65,6 +65,13 @@ namespace bridge
       adapter::Device const& dev);
 
   private:
+    ajn::InterfaceDescription const* BuildInterface(adapter::Interface const& interface);
+
+    void RegisterMethodHandlers();
+    void MethodHandler(ajn::InterfaceDescription::Member const* member,
+      ajn::Message& message);
+
+  private:
     std::unique_ptr<ajn::BusAttachment>   m_bus;
     adapter::Device                       m_adapterDevice;
     std::shared_ptr<adapter::Adapter>     m_adapter;
