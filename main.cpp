@@ -6,7 +6,6 @@
 
 #include "Adapters/MockAdapter/MockAdapter.h"
 
-#include "Common/Variant.h"
 #include <iostream>
 
 namespace
@@ -36,7 +35,7 @@ namespace
     return b;
   }
 
-  void PrintValue(adapter::Interface const& ifc, adapter::Value const& val)
+  void PrintValue(adapter::Interface const& ifc, adapter::NamedValue const& val)
   {
     std::cout << ifc.GetName() << "." << val.GetName();
     std::cout << " = " << val.GetValue().ToString();
@@ -59,7 +58,7 @@ namespace
       {
         std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
 
-        adapter::Value value = adapter::Value::Null();
+        adapter::NamedValue value = adapter::NamedValue::Null();
         adapter.GetProperty(ifc, prop, value, req);
         req->Wait();
 

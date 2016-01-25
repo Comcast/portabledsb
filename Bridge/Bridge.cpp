@@ -2,7 +2,7 @@
 #include "Bridge/BridgeError.h"
 #include "Bridge/BridgeBusObject.h"
 
-#include "Common/AdapterValue.h"
+#include "Common/AdapterNamedValue.h"
 #include "Common/EnumDeviceOptions.h"
 #include "Common/AdapterLog.h"
 

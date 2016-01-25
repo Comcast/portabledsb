@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Common/AdapterValue.h"
+#include "Common/AdapterNamedValue.h"
 
 #include <string>
 #include <vector>
@@ -13,7 +13,7 @@ namespace bridge
   public:
     static adapter::TypeId GetType(ajn::MsgArg const& msgArg);
 
-    static QStatus SetMsgArg(adapter::Value const& adapterValue, ajn::MsgArg& msgArg);
+    static QStatus SetMsgArg(adapter::NamedValue const& adapterValue, ajn::MsgArg& msgArg);
     
     template<class T>
     static QStatus SetMsgArg(ajn::MsgArg& msgArg, std::string const& sig, std::vector<T> const& arr);
@@ -22,11 +22,11 @@ namespace bridge
     static QStatus GetArrayFromMsgArg(ajn::MsgArg& msgArg, std::string const& sig, std::vector<T>& arr);
 
     
-    static QStatus SetMsgArgFromAdapterObject(adapter::Value const& adapterValue, ajn::MsgArg& msg);
+    static QStatus SetMsgArgFromAdapterObject(adapter::NamedValue const& adapterValue, ajn::MsgArg& msg);
 
-    static QStatus GetValue(adapter::Value& adapterValue, ajn::MsgArg const& msg);
+    static QStatus GetValue(adapter::NamedValue& adapterValue, ajn::MsgArg const& msg);
 
-    static QStatus GetAdapterObject(adapter::Value& adapterValue, ajn::MsgArg const& msg);
+    static QStatus GetAdapterObject(adapter::NamedValue& adapterValue, ajn::MsgArg const& msg);
 
     static std::string GetSignature(adapter::TypeId type);
 

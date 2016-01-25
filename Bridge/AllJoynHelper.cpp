@@ -59,10 +59,10 @@ namespace
 
 
 QStatus
-bridge::AllJoynHelper::SetMsgArg(adapter::Value const& adapterValue, ajn::MsgArg& m)
+bridge::AllJoynHelper::SetMsgArg(adapter::NamedValue const& adapterValue, ajn::MsgArg& m)
 {
   QStatus st = ER_OK;
-  adapter::Variant const& val = adapterValue.GetValue();
+  adapter::Value const& val = adapterValue.GetValue();
 
   std::string const sig = GetSignature(val.GetType());
 
@@ -225,11 +225,11 @@ QStatus bridge::AllJoynHelper::SetMsgArg(ajn::MsgArg& msg, std::string const& si
 }
    
 QStatus
-bridge::AllJoynHelper::SetMsgArgFromAdapterObject(adapter::Value const& adapterValue, ajn::MsgArg&)
+bridge::AllJoynHelper::SetMsgArgFromAdapterObject(adapter::NamedValue const& adapterValue, ajn::MsgArg&)
 {
   // TODO:
   QStatus st = ER_OK;
-  adapter::Variant const& val = adapterValue.GetValue();
+  adapter::Value const& val = adapterValue.GetValue();
   QCC_UNUSED(val);
   // std::string path = deviceMain->GetBusObjectPath(adapterValue);
 
@@ -237,7 +237,7 @@ bridge::AllJoynHelper::SetMsgArgFromAdapterObject(adapter::Value const& adapterV
 }
 
 QStatus
-bridge::AllJoynHelper::GetValue(adapter::Value& v, ajn::MsgArg const& msg)
+bridge::AllJoynHelper::GetValue(adapter::NamedValue& v, ajn::MsgArg const& msg)
 {
   QStatus                 st;
   std::string const sig = ajn::MsgArg::Signature(&msg, 1).c_str();
@@ -335,7 +335,7 @@ bridge::AllJoynHelper::GetValue(adapter::Value& v, ajn::MsgArg const& msg)
 }
 
 QStatus
-bridge::AllJoynHelper::GetAdapterObject(adapter::Value&, ajn::MsgArg const&)
+bridge::AllJoynHelper::GetAdapterObject(adapter::NamedValue&, ajn::MsgArg const&)
 {
   return ER_NOT_IMPLEMENTED;
 }

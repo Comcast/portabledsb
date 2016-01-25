@@ -7,7 +7,7 @@ SRCS=DeviceProviders/AllJoynProvider.cpp \
      Bridge/BridgeConfig.cpp \
      Bridge/ConfigManager.cpp \
      Common/AdapterLog.cpp \
-     Common/Variant.cpp \
+     Common/Value.cpp \
      Common/Guid.cpp \
      Adapters/MockAdapter/MockAdapter.cpp \
      Adapters/MockAdapter/MockDevices.cpp \

@@ -63,13 +63,13 @@ namespace mock
     virtual adapter::Status GetProperty(
       adapter::Interface const& ifc,
       adapter::Property const& prop,
-      adapter::Value& value,
+      adapter::NamedValue& value,
       std::shared_ptr<adapter::IoRequest> const& req);
 
     virtual adapter::Status SetProperty(
       adapter::Interface const& ifc,
       adapter::Property const& prop, 
-      adapter::Value const& value,
+      adapter::NamedValue const& value,
       std::shared_ptr<adapter::IoRequest> const& req);
 
     virtual adapter::Status InvokeMethod(
