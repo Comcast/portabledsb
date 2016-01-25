@@ -37,7 +37,7 @@ namespace adapter
     Guid GetId() const
       { return m_id; }
 
-    void SetG(Guid const& id)
+    void SetId(Guid const& id)
       { m_id = id; }
 
     void SetName(std::string const& name)

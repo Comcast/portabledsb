@@ -337,7 +337,7 @@ void
 bridge::Bridge::CreateDevice(std::shared_ptr<adapter::Adapter> const& adapter, adapter::Device const& dev)
 {
   std::string appname;
-  std::string path = "/zigbee/" + dev.GetInfo().GetName();
+  std::string path = adapter->GetAdapterPrefix() + "/" + dev.GetInfo().GetName();
 
   DSBLOG_DEBUG("create BusObject for device: %s", dev.GetInfo().GetName().c_str());
   std::shared_ptr<bridge::BusObject> obj = bridge::BusObject::BuildFromAdapterDevice(

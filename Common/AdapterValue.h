@@ -26,6 +26,9 @@ namespace adapter
     Variant const& GetValue() const
       { return m_value; }
 
+    void SetName(std::string const& name)
+      { m_name = name; }
+
     void SetValue(Variant const& value)
       { m_value = value; }
 

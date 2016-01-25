@@ -2,15 +2,69 @@
 #include "AllJoynHelper.h"
 #include "Common/Assert.h"
 
+#include <map>
+
+namespace
+{
+  std::map< adapter::TypeId, std::string > s_typeToSignature = 
+  {
+    { adapter::TypeId::Boolean, "b" },
+    { adapter::TypeId::UInt8  , "y" },
+    { adapter::TypeId::Int16  , "n" },
+    { adapter::TypeId::UInt16 , "q" },
+    { adapter::TypeId::Int32  , "i" },
+    { adapter::TypeId::UInt32 , "u" },
+    { adapter::TypeId::Int64  , "x" },
+    { adapter::TypeId::UInt64 , "t" },
+    { adapter::TypeId::Double , "d" },
+    { adapter::TypeId::String , "s" },
+
+    { adapter::TypeId::BooleanArray,  "ab" },
+    { adapter::TypeId::UInt8Array  ,  "ay" },
+    { adapter::TypeId::Int16Array  ,  "an" },
+    { adapter::TypeId::UInt16Array ,  "aq" },
+    { adapter::TypeId::Int32Array  ,  "ai" },
+    { adapter::TypeId::UInt32Array ,  "au" },
+    { adapter::TypeId::Int64Array  ,  "ax" },
+    { adapter::TypeId::UInt64Array ,  "at" },
+    { adapter::TypeId::DoubleArray ,  "ad" },
+    { adapter::TypeId::StringArray ,  "as" }
+  };
+
+  std::map< std::string, adapter::TypeId > s_signatureToType = 
+  {
+    { "b", adapter::TypeId::Boolean },
+    { "y", adapter::TypeId::UInt8   },
+    { "n", adapter::TypeId::Int16   },
+    { "q", adapter::TypeId::UInt16  },
+    { "i", adapter::TypeId::Int32   },
+    { "u", adapter::TypeId::UInt32  },
+    { "x", adapter::TypeId::Int64   },
+    { "t", adapter::TypeId::UInt64  },
+    { "d", adapter::TypeId::Double  },
+    { "s", adapter::TypeId::String  },
+
+    { "ab", adapter::TypeId::BooleanArray },
+    { "ay", adapter::TypeId::UInt8Array   },
+    { "an", adapter::TypeId::Int16Array   },
+    { "aq", adapter::TypeId::UInt16Array  },
+    { "ai", adapter::TypeId::Int32Array   },
+    { "au", adapter::TypeId::UInt32Array  },
+    { "ax", adapter::TypeId::Int64Array   },
+    { "at", adapter::TypeId::UInt64Array  },
+    { "ad", adapter::TypeId::DoubleArray  },
+    { "as", adapter::TypeId::StringArray  },
+  };
+}
+
 
 QStatus
 bridge::AllJoynHelper::SetMsgArg(adapter::Value const& adapterValue, ajn::MsgArg& m)
 {
   QStatus st = ER_OK;
-  std::string sig;
   adapter::Variant const& val = adapterValue.GetValue();
 
-  sig = GetSignature(val.GetType());
+  std::string const sig = GetSignature(val.GetType());
 
   switch (val.GetType())
   {
@@ -183,30 +237,97 @@ bridge::AllJoynHelper::SetMsgArgFromAdapterObject(adapter::Value const& adapterV
 }
 
 QStatus
-bridge::AllJoynHelper::GetValue(adapter::Value& adapterValue, ajn::MsgArg const& msg)
+bridge::AllJoynHelper::GetValue(adapter::Value& v, ajn::MsgArg const& msg)
 {
   QStatus                 st;
-  std::string             sig;
-  adapter::Variant const&  val = adapterValue.GetValue();
+  std::string const sig = ajn::MsgArg::Signature(&msg, 1).c_str();
 
-  // TODO: why not just hard-code signatures? GetSignature is never used outside
-  // AllJoynHelper
-  sig = GetSignature(val.GetType());
+  auto itr = s_signatureToType.find(sig);
+  DSB_ASSERT(itr != s_signatureToType.end());
 
-  switch (val.GetType())
+  adapter::TypeId type = itr->second;
+
+  switch (type)
   {
-    case adapter::TypeId::Boolean:
-      {
-        bool b;
-        st = msg.Get(sig.c_str(), &b);
-        if (st == ER_OK)
-          adapterValue.SetValue(adapter::Variant(b));
-      }
-      break;
+    case adapter::TypeId::Null:
+    break;
 
-    // TODO: reset of enumerations
+    case adapter::TypeId::Boolean:
+    {
+      bool b;
+      if ((st = msg.Get(sig.c_str(), &b)) == ER_OK)
+        v.SetValue(b);
+    }
+    break;
+
+    case adapter::TypeId::Int16:
+    {
+      int16_t i;
+      if ((st = msg.Get(sig.c_str(), &i)) == ER_OK)
+        v.SetValue(i);
+    }
+    break;
+
+    case adapter::TypeId::UInt16:
+    {
+      uint16_t u;
+      if ((st = msg.Get(sig.c_str(), &u)) == ER_OK)
+        v.SetValue(u);
+    }
+    break;
+
+    case adapter::TypeId::Int32:
+    {
+      int32_t i;
+      if ((st = msg.Get(sig.c_str(), &i)) == ER_OK)
+        v.SetValue(i);
+    }
+    break;
+
+    case adapter::TypeId::UInt32:
+    {
+      uint32_t u;
+      if ((st = msg.Get(sig.c_str(), &u)) == ER_OK)
+        v.SetValue(u);
+    }
+    break;
+
+    case adapter::TypeId::Int64:
+    {
+      int64_t l;
+      if ((st = msg.Get(sig.c_str(), &l)) == ER_OK)
+        v.SetValue(l);
+    }
+    break;
+
+    case adapter::TypeId::UInt64:
+    {
+      uint64_t lu;
+      if ((st = msg.Get(sig.c_str(), &lu)) == ER_OK)
+        v.SetValue(lu);
+    }
+    break;
+
+    case adapter::TypeId::Double:
+    {
+      double d;
+      if ((st = msg.Get(sig.c_str(), &d)) == ER_OK)
+        v.SetValue(d);
+    }
+    break;
+
+    case adapter::TypeId::String:
+    {
+      char* s = nullptr;
+      if ((st = msg.Get(sig.c_str(), &s)) == ER_OK)
+        v.SetValue(s);
+    }
+    break;
+
+    // TODO: arrays
 
     default:
+      assert(false);
       st = ER_NOT_IMPLEMENTED;
   }
 
@@ -222,43 +343,10 @@ bridge::AllJoynHelper::GetAdapterObject(adapter::Value&, ajn::MsgArg const&)
 std::string
 bridge::AllJoynHelper::GetSignature(adapter::TypeId type)
 {
-  std::string sig;
-
-  #define setSignature(T, S) case adapter::TypeId::T: sig = S; break
-
-  switch (type)
-  {
-    setSignature(Boolean,     "b");
-    setSignature(UInt8,       "y");
-    setSignature(Int16,       "n");
-    setSignature(UInt16,      "q");
-    setSignature(Int32,       "i");
-    setSignature(UInt32,      "u");
-    setSignature(Int64,       "x");
-    setSignature(UInt64,      "t");
-    setSignature(Double,      "d");
-    setSignature(String,      "s");
-
-    // arrays
-    setSignature(BooleanArray,"ab");
-    setSignature(UInt8Array,  "ay");
-    setSignature(Int16Array,  "an");
-    setSignature(UInt16Array, "aq");
-    setSignature(Int32Array,  "ai");
-    setSignature(UInt32Array, "au");
-    setSignature(Int64Array,  "ax");
-    setSignature(UInt64Array, "at");
-    setSignature(DoubleArray, "ad");
-    setSignature(StringArray, "as");
-
-    default:
-      DSB_ASSERT(false);
-      break;
-  }
-
-  #undef setSignature
-
-  return sig;
+  auto itr = s_typeToSignature.find(type);
+  if (itr == s_typeToSignature.end())
+    DSB_ASSERT(false);
+  return itr->second;
 }
 
 

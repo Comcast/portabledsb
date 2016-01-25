@@ -43,7 +43,7 @@ ifeq ($(UNAME_S),Linux)
 endif
 
 ifeq ($(DEBUG), 1)
-  CXXFLAGS += -g
+  CXXFLAGS += -g -O0 -fno-inline
 else
   CXXFLAGS += -O2
 endif

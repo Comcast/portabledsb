@@ -11,6 +11,8 @@ namespace bridge
   class AllJoynHelper
   {
   public:
+    static adapter::TypeId GetType(ajn::MsgArg const& msgArg);
+
     static QStatus SetMsgArg(adapter::Value const& adapterValue, ajn::MsgArg& msgArg);
     
     template<class T>

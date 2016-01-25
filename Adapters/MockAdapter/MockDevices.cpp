@@ -22,10 +22,10 @@ namespace
 
 
 adapter::Device
-adapters::mock::MockAdapter::CreateDoorWindowSensor()
+adapters::mock::MockAdapter::CreateDoorWindowSensor(std::string const& name)
 {
   adapter::ItemInformation info;
-  info.SetName("MyDoorWindowSensor");
+  info.SetName(name);
   info.SetVendor("Comcast");
   info.SetModel("801417");
   info.SetVersion("1.0");

@@ -5,6 +5,7 @@
 #include "Common/AdapterProperty.h"
 #include "Common/AdapterSignal.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace adapter
@@ -21,6 +22,19 @@ namespace adapter
 
     Property::Vector const& GetProperties() const
       { return m_props; }
+
+    Property const* GetProperty(char const* name) const
+    {
+      Property const* prop = nullptr;
+      
+      auto itr = std::find_if(m_props.begin(), m_props.end(),
+        [&name](Property const& p) { return strcmp(p.GetName().c_str(), name) == 0; });
+
+      if (itr != m_props.end())
+        prop = &(*itr);
+
+      return prop;
+    }
 
     void ClearProperties()
       { m_props.clear(); }

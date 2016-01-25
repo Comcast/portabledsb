@@ -6,12 +6,17 @@
 #include <algorithm>
 #include <chrono>
 #include <condition_variable>
+#include <map>
 #include <mutex>
 #include <thread>
 
 namespace
 {
   DSB_DECLARE_LOGNAME(BusObject);
+
+  // TODO: new class (InterfaceCache and/or InterfaceBuilder
+  typedef std::map< std::string, std::shared_ptr<adapter::Interface> > InterfaceCache;
+  InterfaceCache s_interfaceCache;
 
   uint8_t GetAccess(adapter::Property const& p)
   {
@@ -36,7 +41,16 @@ namespace
     QStatus st = ER_OK;
     ajn::InterfaceDescription* intf = nullptr;
 
-    char const* ifcName = interface.GetName().c_str();
+    std::string ifcName = interface.GetName().c_str();
+
+    {
+      auto itr = s_interfaceCache.find(ifcName);
+      if (itr == s_interfaceCache.end())
+      {
+        s_interfaceCache.insert(InterfaceCache::value_type(
+          ifcName, std::shared_ptr<adapter::Interface>(new adapter::Interface(interface))));
+      }
+    }
 
     // DSBLOG_DEBUG("looking for interface: %s", interface.GetName().c_str());
     
@@ -58,7 +72,7 @@ namespace
       std::string sig = bridge::AllJoynHelper::GetSignature(prop.GetType());
 
       st = intf->AddProperty(name, sig.c_str(), GetAccess(prop));
-      bridge::Error::ThrowIfNotOk(st, "failed to add property %s to interface %s", name, ifcName);
+      bridge::Error::ThrowIfNotOk(st, "failed to add property %s to interface %s", name, ifcName.c_str());
 
       for (auto attr : prop.GetAttributes())
       {
@@ -308,19 +322,65 @@ bridge::BusObject::AnnounceAndRegister()
   Error::ThrowIfNotOk(st, "failed to announce device");
 }
 
+
+// yes just testing
+static ajn::MsgArg s_val("s", "This is the default description");
+
 QStatus
 bridge::BusObject::Get(char const* interface, char const* property, ajn::MsgArg &val)
 {
-  DSBLOG_NOT_IMPLEMENTED();
-  DSBLOG_INFO("Get(%s, %s)", interface, property);
+  std::string ifc = interface;
+  auto itr = s_interfaceCache.find(ifc);
+  if (itr == s_interfaceCache.end())
+  {
+    DSBLOG_ERROR("can't find interface %s in cache", ifc.c_str());
+    return ER_FAIL;
+  }
+
+  // find property
+  adapter::Interface const& adapterInterface = *(itr->second);
+  adapter::Property const*  adapterProperty = adapterInterface.GetProperty(property);
+  adapter::Value            adapterValue;
+  adapter::IoRequest::Pointer adapterRequest;
+  adapter::Status st = m_adapter->GetProperty(adapterInterface, *adapterProperty,
+      adapterValue, adapterRequest);
+
+  if (st == 0)
+  {
+    AllJoynHelper::SetMsgArg(adapterValue, val);
+    printf("ValueType: %d\n", adapterValue.GetValue().GetType());
+  }
+
   return ER_OK;
 }
 
 QStatus
 bridge::BusObject::Set(char const* interface, char const* property, ajn::MsgArg &val)
 {
-  DSBLOG_NOT_IMPLEMENTED();
-  DSBLOG_INFO("Set(%s, %s)", interface, property);
+  std::string ifc = interface;
+  auto itr = s_interfaceCache.find(ifc);
+  if (itr == s_interfaceCache.end())
+  {
+    DSBLOG_ERROR("can't find interface %s in cache", ifc.c_str());
+    return ER_FAIL;
+  }
+
+  adapter::Interface const&   adapterInterface = *(itr->second);
+  adapter::Property const*    adapterProperty = adapterInterface.GetProperty(property);
+
+  adapter::Value              adapterValue(property, 0);
+  AllJoynHelper::GetValue(adapterValue, val);
+
+  adapter::IoRequest::Pointer adapterRequest;
+  adapter::Status st = m_adapter->SetProperty(adapterInterface, *adapterProperty,
+    adapterValue, adapterRequest);
+
+  if (st != 0)
+  {
+    DSBLOG_ERROR("failed to set property %s. %s", property, m_adapter->GetStatusText(st).c_str());
+    return ER_FAIL;
+  }
+
   return ER_OK;
 }
 

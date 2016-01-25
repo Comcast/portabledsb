@@ -28,7 +28,7 @@ adapters::mock::MockAdapter::MockAdapter()
 {
   m_info.SetName("MockAdapter");
   m_info.SetVendor("Comcast");
-  m_exposedAdapterPrefix = "com." + m_info.GetVendor();
+  m_exposedAdapterPrefix = "/zigbee";
 
   // TODO: get m_exposedApplicatioName and Prefix from config
 }
@@ -154,6 +154,8 @@ adapters::mock::MockAdapter::SetProperty(
   adapter::Value const& value,
   std::shared_ptr<adapter::IoRequest> const& req)
 {
+  DSBLOG_INFO("SetProperty %s, %s", ifc.GetName().c_str(), prop.GetName().c_str());
+
   // TODO: I think we make the bridge do the type checking, but the adapter would
   // have to do range checking
   valueCache[prop.GetId()] = value;
@@ -216,7 +218,9 @@ adapters::mock::MockAdapter::UnregisterSignalListener(adapter::RegistrationHandl
 void
 adapters::mock::MockAdapter::CreateMockDevices()
 {
-  m_devices.push_back(MockAdapter::CreateDoorWindowSensor());
+  m_devices.push_back(MockAdapter::CreateDoorWindowSensor("FrontDoor"));
+  m_devices.push_back(MockAdapter::CreateDoorWindowSensor("SideDoor"));
+  m_devices.push_back(MockAdapter::CreateDoorWindowSensor("RearDoor"));
 
 #if 0
   std::shared_ptr<MockAdapter> self = std::dynamic_pointer_cast<MockAdapter>(shared_from_this());

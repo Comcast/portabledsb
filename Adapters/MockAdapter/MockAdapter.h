@@ -91,7 +91,7 @@ namespace mock
     void CreateMockDevices();
     void CreateSignals();
 
-    adapter::Device CreateDoorWindowSensor();
+    adapter::Device CreateDoorWindowSensor(std::string const& name);
 
   private:
     adapter::ItemInformation m_info;
