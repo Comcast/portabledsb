@@ -66,13 +66,13 @@ namespace adapter
     virtual adapter::Status GetProperty(
       Interface const& ifc,
       Property const& prop,
-      NamedValue& value,
+      Value& value,
       IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status SetProperty(
       Interface const& ifc,
       Property const& prop,
-      NamedValue const& value,
+      Value const& value,
       IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status InvokeMethod(

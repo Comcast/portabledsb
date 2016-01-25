@@ -19,7 +19,7 @@ namespace
     return ++nextHandle;
   }
 
-  std::map< uint64_t, adapter::NamedValue > valueCache;
+  std::map< uint64_t, adapter::Value > valueCache;
 }
 
 adapters::mock::MockAdapter::MockAdapter()
@@ -116,7 +116,7 @@ adapter::Status
 adapters::mock::MockAdapter::GetProperty(
   adapter::Interface const& ifc,
   adapter::Property const& prop,
-  adapter::NamedValue& value,
+  adapter::Value& value,
   std::shared_ptr<adapter::IoRequest> const& req)
 {
   uint64_t id = prop.GetId();
@@ -131,13 +131,13 @@ adapters::mock::MockAdapter::GetProperty(
     adapter::Value v = prop.GetAttribute("default");
     if (!v.IsEmpty())
     {
-      value = adapter::NamedValue(prop.GetName(), v);
+      value = v;
     }
     else
     {
       // use default for type
       adapter::TypeId type = prop.GetType();
-      value = adapter::NamedValue(prop.GetName(), adapter::Value(type));
+      value = adapter::Value(adapter::Value(type));
     }
   }
 
@@ -151,7 +151,7 @@ adapter::Status
 adapters::mock::MockAdapter::SetProperty(
   adapter::Interface const& ifc,
   adapter::Property const& prop,
-  adapter::NamedValue const& value,
+  adapter::Value const& value,
   std::shared_ptr<adapter::IoRequest> const& req)
 {
   DSBLOG_INFO("SetProperty %s, %s", ifc.GetName().c_str(), prop.GetName().c_str());

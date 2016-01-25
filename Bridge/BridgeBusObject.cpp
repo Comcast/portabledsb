@@ -323,11 +323,8 @@ bridge::BusObject::AnnounceAndRegister()
 }
 
 
-// yes just testing
-static ajn::MsgArg s_val("s", "This is the default description");
-
 QStatus
-bridge::BusObject::Get(char const* interface, char const* property, ajn::MsgArg &val)
+bridge::BusObject::Get(char const* interface, char const* property, ajn::MsgArg& arg)
 {
   std::string ifc = interface;
   auto itr = s_interfaceCache.find(ifc);
@@ -340,22 +337,21 @@ bridge::BusObject::Get(char const* interface, char const* property, ajn::MsgArg 
   // find property
   adapter::Interface const& adapterInterface = *(itr->second);
   adapter::Property const*  adapterProperty = adapterInterface.GetProperty(property);
-  adapter::NamedValue       adapterValue;
+  adapter::Value            adapterValue;
   adapter::IoRequest::Pointer adapterRequest;
   adapter::Status st = m_adapter->GetProperty(adapterInterface, *adapterProperty,
       adapterValue, adapterRequest);
 
   if (st == 0)
   {
-    AllJoynHelper::SetMsgArg(adapterValue, val);
-    printf("ValueType: %d\n", adapterValue.GetValue().GetType());
+    AllJoynHelper::ValueToMsgArg(adapterValue, arg);
   }
 
   return ER_OK;
 }
 
 QStatus
-bridge::BusObject::Set(char const* interface, char const* property, ajn::MsgArg &val)
+bridge::BusObject::Set(char const* interface, char const* property, ajn::MsgArg& msg)
 {
   std::string ifc = interface;
   auto itr = s_interfaceCache.find(ifc);
@@ -367,9 +363,8 @@ bridge::BusObject::Set(char const* interface, char const* property, ajn::MsgArg 
 
   adapter::Interface const&   adapterInterface = *(itr->second);
   adapter::Property const*    adapterProperty = adapterInterface.GetProperty(property);
-
-  adapter::NamedValue         adapterValue(property, 0);
-  AllJoynHelper::GetValue(adapterValue, val);
+  adapter::Value              adapterValue;
+  AllJoynHelper::MsgArgToValue(msg, adapterValue);
 
   adapter::IoRequest::Pointer adapterRequest;
   adapter::Status st = m_adapter->SetProperty(adapterInterface, *adapterProperty,

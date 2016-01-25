@@ -58,12 +58,12 @@ namespace
       {
         std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
 
-        adapter::NamedValue value = adapter::NamedValue::Null();
+        adapter::Value value;
         adapter.GetProperty(ifc, prop, value, req);
         req->Wait();
 
         std::cout << " ";
-        PrintValue(ifc, value);
+        PrintValue(ifc, adapter::NamedValue(prop.GetName().c_str(), value));
 
         for (auto attr : prop.GetAttributes())
           std::cout << "    [" << attr.first << "=" << attr.second.ToString() << "]" << std::endl;
