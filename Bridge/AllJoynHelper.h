@@ -29,7 +29,7 @@ namespace bridge
     static std::string GetSignature(adapter::TypeId type);
     static std::string GetSignature(adapter::NamedValue::Vector const& v);
     static std::string GetMethodArgumentNames(adapter::NamedValue::Vector const& in,
-        adapter::NamedValue::Vector const& out);
+        adapter::NamedValue::Vector const& out = adapter::NamedValue::Vector());
 
     static void EncodeBusObjectName(std::string const& s, std::string &builtName);
     static void EncodePropertyOrMethodOrSignalName(std::string const& s, std::string &builtName);

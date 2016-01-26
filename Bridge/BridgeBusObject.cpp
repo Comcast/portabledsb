@@ -422,35 +422,9 @@ bridge::BusObject::MethodHandler(ajn::InterfaceDescription::Member const* member
   }
 }
 
-ajn::InterfaceDescription const*
-bridge::BusObject::BuildInterface(adapter::Interface const& interface)
+void
+bridge::BusObject::AddPropertiesToInterface(adapter::Interface const& interface, ajn::InterfaceDescription& desc)
 {
-  QStatus st = ER_OK;
-  ajn::InterfaceDescription* intf = nullptr;
-
-  std::string ifcName = interface.GetName().c_str();
-
-  {
-    auto itr = s_interfaceCache.find(ifcName);
-    if (itr == s_interfaceCache.end())
-    {
-      s_interfaceCache.insert(InterfaceCache::value_type(
-            ifcName, std::shared_ptr<adapter::Interface>(new adapter::Interface(interface))));
-    }
-  }
-
-  // DSBLOG_DEBUG("looking for interface: %s", interface.GetName().c_str());
-
-  st = m_bus->CreateInterface(interface.GetName().c_str(), intf, ajn::AJ_IFC_SECURITY_OFF);
-  Error::ThrowIfNotOk(st, "failed to create interface: %s", interface.GetName().c_str());
-
-  for (auto attr : interface.GetAttributes())
-  {
-    // DSBLOG_DEBUG("adding annotation to interface");
-    st = intf->AddAnnotation(attr.first.c_str(), attr.second.ToString().c_str());
-    Error::ThrowIfNotOk(st, "failed to add annotation to interface");
-  }
-
   for (auto prop : interface.GetProperties())
   {
     char const* name = prop.GetName().c_str();
@@ -458,16 +432,41 @@ bridge::BusObject::BuildInterface(adapter::Interface const& interface)
 
     std::string sig = AllJoynHelper::GetSignature(prop.GetType());
 
-    st = intf->AddProperty(name, sig.c_str(), GetAccess(prop));
-    Error::ThrowIfNotOk(st, "failed to add property %s to interface %s", name, ifcName.c_str());
+    QStatus st = desc.AddProperty(name, sig.c_str(), GetAccess(prop));
+    Error::ThrowIfNotOk(st, "failed to add property %s to interface %s", name,
+        desc.GetName());
 
     for (auto attr : prop.GetAttributes())
     {
-      st = intf->AddPropertyAnnotation(name, attr.first.c_str(), attr.second.ToString().c_str());
+      st = desc.AddPropertyAnnotation(name, attr.first.c_str(), attr.second.ToString().c_str());
       Error::ThrowIfNotOk(st, "failed to add annotation to property");
     }
   }
+}
 
+void
+bridge::BusObject::AddSignalsToInterface(adapter::Interface const& interface, ajn::InterfaceDescription& desc)
+{
+  for (adapter::Signal const& signal : interface.GetSignals())
+  {
+    std::string const sig = AllJoynHelper::GetSignature(signal.GetParameters());
+    char const* s = nullptr;
+    if (!sig.empty())
+      s = sig.c_str();
+
+    std::string const names = AllJoynHelper::GetMethodArgumentNames(signal.GetParameters());
+    char const* t = nullptr;
+    if (!names.empty())
+      t = names.c_str();
+
+    QStatus st = desc.AddSignal(signal.GetName().c_str(), s, t, 0, nullptr);
+    Error::ThrowIfNotOk(st, "failed to add signal");
+  }
+}
+
+void
+bridge::BusObject::AddMethodsToInterface(adapter::Interface const& interface, ajn::InterfaceDescription& desc)
+{
   for (auto method : interface.GetMethods())
   {
     char const* name = method.GetName().c_str();
@@ -485,21 +484,45 @@ bridge::BusObject::BuildInterface(adapter::Interface const& interface)
     std::string names = AllJoynHelper::GetMethodArgumentNames(method.GetInputArguments(),
         method.GetOutputArguments());
 
-    st = intf->AddMethod(name, insig, outsig, names.c_str());
+    QStatus st = desc.AddMethod(name, insig, outsig, names.c_str());
     Error::ThrowIfNotOk(st, "failed to add method %s", name);
-
   }
+}
 
-  for (auto signal : interface.GetSignals())
+ajn::InterfaceDescription const*
+bridge::BusObject::BuildInterface(adapter::Interface const& interface)
+{
+  QStatus st = ER_OK;
+  ajn::InterfaceDescription* desc = nullptr;
+
+  std::string ifcName = interface.GetName().c_str();
+
   {
-    // TODO:
+    auto itr = s_interfaceCache.find(ifcName);
+    if (itr == s_interfaceCache.end())
+    {
+      s_interfaceCache.insert(InterfaceCache::value_type(
+            ifcName, std::shared_ptr<adapter::Interface>(new adapter::Interface(interface))));
+    }
   }
 
-  if (intf != nullptr)
+  // DSBLOG_DEBUG("looking for interface: %s", interface.GetName().c_str());
+
+  st = m_bus->CreateInterface(interface.GetName().c_str(), desc, ajn::AJ_IFC_SECURITY_OFF);
+  Error::ThrowIfNotOk(st, "failed to create interface: %s", interface.GetName().c_str());
+
+  for (auto attr : interface.GetAttributes())
   {
-    intf->Activate();
-
+    // DSBLOG_DEBUG("adding annotation to interface");
+    st = desc->AddAnnotation(attr.first.c_str(), attr.second.ToString().c_str());
+    Error::ThrowIfNotOk(st, "failed to add annotation to interface");
   }
+
+  AddPropertiesToInterface(interface, *desc);
+  AddMethodsToInterface(interface, *desc);
+  AddSignalsToInterface(interface, *desc);
+
+  desc->Activate();
 
   return m_bus->GetInterface(interface.GetName().c_str());
 }
