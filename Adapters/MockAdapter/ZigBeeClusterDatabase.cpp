@@ -64,7 +64,7 @@ namespace
           { "optional", true }
           } ));
     def->Signals.push_back(MakeAdapterSignal("StatusFlags", {
-          { "StatusFlags", 0x00 }
+          { "PresentValue", false },
           } ));
     map.insert(InterfaceMap::value_type(0x000f, def));
   }

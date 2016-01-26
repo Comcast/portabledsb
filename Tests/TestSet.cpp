@@ -87,6 +87,14 @@ int main(int argc, char* argv[])
     printf("value: %s\n", ajn::MsgArg::ToString(&value, 1).c_str());
 
   // TODO: create a new test for method invoke
+  std::vector<ajn::MsgArg> args;
+  args.resize(3);
+  args[0].Set("t", 1234);
+  args[1].Set("s", "Hello World");
+  args[2].Set("b", true);
+
+  ajn::Message reply(*bus);
+
   st = obj->MethodCall("org.zigbee.general.Basic", "ResetToFactoryDefaults", nullptr, 0);
   printf("invoke method: %s\n", QCC_StatusText(st));
 

@@ -383,10 +383,19 @@ bridge::BusObject::BusListener::BusDisconnected()
 }
 
 void
-bridge::BusObject::MethodHandler(ajn::InterfaceDescription::Member const* member, ajn::Message& message)
+bridge::BusObject::MethodHandler(ajn::InterfaceDescription::Member const* member, ajn::Message& msg)
 {
   if (!member)
     return;
+
+  if (DSBLOG_LEVEL_ENABLED(Debug))
+  {
+    DSBLOG_DEBUG("MethodHandler\n"
+      "\tsignature : '%s'\n"
+      "\txml       : \n%s\n",
+      msg->GetSignature(),
+      msg->ToString().c_str());
+  }
 
   std::string ifc = member->iface->GetName();
   auto itr = s_interfaceCache.find(ifc);
