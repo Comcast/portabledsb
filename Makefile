@@ -1,5 +1,4 @@
-SRCS=DeviceProviders/AllJoynProvider.cpp \
-     DeviceProviders/AllJoynService.cpp \
+SRCS=\
      Bridge/AllJoynAbout.cpp \
      Bridge/AllJoynHelper.cpp \
      Bridge/Bridge.cpp \

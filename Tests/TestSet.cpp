@@ -72,32 +72,31 @@ int main(int argc, char* argv[])
   interfaces.resize(n);
   obj->GetInterfaces(&interfaces[0], interfaces.size());
 
+
+
+    // GET PROPERTY
   ajn::MsgArg value;
   QStatus st = obj->GetProperty("org.zigbee.general.BinaryInput", "Description", value);
   if (st == ER_OK)
     printf("value: %s\n", ajn::MsgArg::ToString(&value, 1).c_str());
 
+
+
+    // SET PROPERTY
   value.Set("s", "This is a new description");
   st = obj->SetProperty("org.zigbee.general.BinaryInput", "Description", value);
   if (st != ER_OK)
     printf("failed to set value: %s\n", QCC_StatusText(st));
 
+
+    // GET PROPERTY
   st = obj->GetProperty("org.zigbee.general.BinaryInput", "Description", value);
   if (st == ER_OK)
     printf("value: %s\n", ajn::MsgArg::ToString(&value, 1).c_str());
 
-  // TODO: create a new test for method invoke
-  std::vector<ajn::MsgArg> args;
-  args.resize(3);
-  args[0].Set("t", 1234);
-  args[1].Set("s", "Hello World");
-  args[2].Set("b", true);
-
-  ajn::Message reply(*bus);
-
+    // INVOKE METHOD (NO ARGS)
   st = obj->MethodCall("org.zigbee.general.Basic", "ResetToFactoryDefaults", nullptr, 0);
   printf("invoke method: %s\n", QCC_StatusText(st));
 
   return 0;
 }
-

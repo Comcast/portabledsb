@@ -13,13 +13,20 @@ namespace
 {
   DSB_DECLARE_LOGNAME(MockAdapter);
   
-  adapter::RegistrationHandle nextHandle = 0;
-  adapter::RegistrationHandle GetNextRegistrationHandle()
+  std::map< uint64_t, adapter::Value > valueCache;
+
+  uint16_t GetAttributeId(adapter::Property const& p)
   {
-    return ++nextHandle;
+    adapter::Value v = p.GetAttribute("code");
+    return v.ToUInt16();
   }
 
-  std::map< uint64_t, adapter::Value > valueCache;
+  uint16_t GetClusterId(adapter::Interface const& i)
+  {
+    adapter::Value v = i.GetAttribute("code");
+    return v.ToUInt16();
+  }
+
 }
 
 adapters::mock::MockAdapter::MockAdapter()
@@ -155,6 +162,12 @@ adapters::mock::MockAdapter::SetProperty(
   std::shared_ptr<adapter::IoRequest> const& req)
 {
   DSBLOG_INFO("SetProperty %s, %s", ifc.GetName().c_str(), prop.GetName().c_str());
+
+  // you put this in during the modeling phase
+  uint16_t clusterId = GetClusterId(ifc);
+  uint16_t attrId = GetAttributeId(prop);
+
+  DSBLOG_INFO("set cluster:0x%02x attr:0x%02x", clusterId, attrId);
 
   // TODO: I think we make the bridge do the type checking, but the adapter would
   // have to do range checking
