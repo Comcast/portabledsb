@@ -29,19 +29,9 @@ namespace
 
   void AddClusterToDevice(adapter::Device& dev, uint16_t clusterId)
   {
-    std::shared_ptr<adapters::mock::InterfaceDefinition> def = adapters::mock::GetZigBeeCluster(clusterId);
+    std::shared_ptr<adapter::Interface> def = adapters::mock::GetZigBeeCluster(clusterId);
     if (def)
-    {
-      adapter::Interface ifc(def->Name);
-      ifc.AddAttribute("code", clusterId);
-      for (auto const& m : def->Methods)
-        ifc.AddMethod(m);
-      for (auto const& p : def->Properties)
-        ifc.AddProperty(p);
-      for (auto const& s : def->Signals)
-        ifc.AddSignal(s);
-      dev.AddInterface(std::move(ifc));
-    }
+      dev.AddInterface(*def);
   }
 }
 

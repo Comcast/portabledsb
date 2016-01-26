@@ -9,23 +9,13 @@ namespace adapters
 {
 namespace mock
 {
-  struct InterfaceDefinition
-  {
-    std::string                     Name;
-    adapter::Property::Vector Properties;
-    adapter::Method::Vector   Methods;
-    adapter::Signal::Vector   Signals;
-  };
-
-  std::shared_ptr<InterfaceDefinition> GetZigBeeCluster(uint16_t clusterId);
+  std::shared_ptr<adapter::Interface> GetZigBeeCluster(uint16_t clusterId);
 
   class MockAdapter : public adapter::Adapter, public std::enable_shared_from_this<adapter::Adapter>
   {
   public:
     MockAdapter();
     virtual ~MockAdapter();
-
-    static InterfaceDefinition GetZigbeeInterface(uint16_t clusterId);
 
     virtual adapter::ItemInformation const&
     GetInfo();

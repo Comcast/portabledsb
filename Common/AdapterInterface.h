@@ -6,6 +6,7 @@
 #include "Common/AdapterSignal.h"
 
 #include <algorithm>
+#include <list>
 #include <vector>
 
 namespace adapter
@@ -18,6 +19,12 @@ namespace adapter
     Interface(std::string const& name)
       : adapter::Object(name)
     {
+    }
+
+    static std::list< std::shared_ptr<Interface> > FromFile(std::string const& file)
+    {
+      // TODO:
+      return std::list< std::shared_ptr<Interface> >();
     }
 
     Property::Vector const& GetProperties() const
