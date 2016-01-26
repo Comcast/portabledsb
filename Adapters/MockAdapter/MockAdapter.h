@@ -80,7 +80,8 @@ namespace mock
       std::shared_ptr<adapter::IoRequest> const& req);
 
     virtual adapter::Status RegisterSignalListener(
-      std::string const& signalName,
+      adapter::Interface const& ifc,
+      adapter::Signal const& signal,
       adapter::SignalListener const& listener,
       void* argp,
       adapter::RegistrationHandle& handle);
@@ -91,7 +92,6 @@ namespace mock
 
   private:
     void CreateMockDevices();
-    void CreateSignals();
 
     adapter::Device CreateDoorWindowSensor(std::string const& name);
 

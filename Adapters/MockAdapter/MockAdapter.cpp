@@ -27,6 +27,22 @@ namespace
     return v.ToUInt16();
   }
 
+  void AddClusterToDevice(adapter::Device& dev, uint16_t clusterId)
+  {
+    std::shared_ptr<adapters::mock::InterfaceDefinition> def = adapters::mock::GetZigBeeCluster(clusterId);
+    if (def)
+    {
+      adapter::Interface ifc(def->Name);
+      ifc.AddAttribute("code", clusterId);
+      for (auto const& m : def->Methods)
+        ifc.AddMethod(m);
+      for (auto const& p : def->Properties)
+        ifc.AddProperty(p);
+      for (auto const& s : def->Signals)
+        ifc.AddSignal(s);
+      dev.AddInterface(std::move(ifc));
+    }
+  }
 }
 
 adapters::mock::MockAdapter::MockAdapter()
@@ -80,7 +96,6 @@ adapters::mock::MockAdapter::Initialize(
   m_log = log;
 
   CreateMockDevices();
-  CreateSignals();
 
   if (req)
     req->SetComplete(0);
@@ -194,10 +209,11 @@ adapters::mock::MockAdapter::InvokeMethod(
 
 adapter::Status
 adapters::mock::MockAdapter::RegisterSignalListener(
-    std::string const& signalName,
-    adapter::SignalListener const& listener,
-    void* argp,
-    adapter::RegistrationHandle& handle)
+  adapter::Interface const& interface,
+  adapter::Signal const& signal,
+  adapter::SignalListener const& listener,
+  void* argp,
+  adapter::RegistrationHandle& handle)
 {
   DSBLOG_ASSERT_NOT_IMPLEMENTED();
 #if 0
@@ -236,59 +252,6 @@ adapters::mock::MockAdapter::CreateMockDevices()
   m_devices.push_back(MockAdapter::CreateDoorWindowSensor("FrontDoor"));
   m_devices.push_back(MockAdapter::CreateDoorWindowSensor("SideDoor"));
   m_devices.push_back(MockAdapter::CreateDoorWindowSensor("RearDoor"));
-
-#if 0
-  std::shared_ptr<MockAdapter> self = std::dynamic_pointer_cast<MockAdapter>(shared_from_this());
-
-  typedef std::vector<adapters::mock::MockDeviceDescriptor> vector;
-
-  vector devices = adapters::mock::GetMockDevices();
-  for (vector::const_iterator begin = devices.begin(), end = devices.end();
-    begin != end; ++begin)
-  {
-    std::shared_ptr<MockAdapterDevice> dev = MockAdapterDevice::Create(*begin, self);
-    m_devices.push_back(dev);
-  }
-#endif
-}
-
-void
-adapters::mock::MockAdapter::CreateSignals()
-{
-  DSBLOG_NOT_IMPLEMENTED();
-#if 0
-  std::shared_ptr<MockAdapterDevice> parent;
-
-  adapter::Value::Vector values;
-
-  // TODO
-  // std::shared_ptr<MockAdapterValue> val(new MockAdapterValue(bridge::kDeviceArravalHandle));
-  // std::shared_ptr<MockterSignal> signal(new MockAdapterSignal(bridge::kDeviceArrivalSignal,
-  //   parent, values));
-  // m_signals.push_back(signal);
-#endif
-}
-
-adapter::Status
-adapters::mock::MockAdapter::NotifySignalListeners(adapter::Signal const& signal)
-{
-#if 0
-  adapter::Status st = 1;
-  if (!signal)
-    return st;
-
-  std::pair< SignalMap::iterator, SignalMap::iterator > range = 
-    m_signalListeners.equal_range(signal->GetName());
-
-  for (SignalMap::iterator begin = range.first, end = range.second; begin != end; ++begin)
-  {
-    RegisteredSignal& handler = begin->second;
-    handler.Listener->AdapterSignalHandler(*signal, handler.Context);
-  }
-
-  return st;
-  #endif
-  return 0;
 }
 
 std::string
@@ -331,3 +294,23 @@ adapters::mock::MockAdapter::SetConfiguration(
   return 0;
 }
 
+adapter::Device
+adapters::mock::MockAdapter::CreateDoorWindowSensor(std::string const& name)
+{
+  adapter::ItemInformation info;
+  info.SetName(name);
+  info.SetVendor("Comcast");
+  info.SetModel("801417");
+  info.SetVersion("1.0");
+  info.SetFirmwareVersion("1.0");
+  info.SetSerialNumber("H123ALK");
+  info.SetDescription("Door/Window sensor");
+
+  adapter::Device dev;
+  dev.SetBasicInfo(info);
+
+  AddClusterToDevice(dev, 0x0000); // basic
+  AddClusterToDevice(dev, 0x000f); // binary input
+
+  return std::move(dev);
+}

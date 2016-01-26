@@ -103,7 +103,7 @@ bridge::AllJoynHelper::SetMsgArgFromAdapterObject(adapter::NamedValue const& ada
 QStatus
 bridge::AllJoynHelper::MsgArgToValue(ajn::MsgArg const& m, adapter::Value& v)
 {
-  QStatus                 st;
+  QStatus st = ER_OK;
   std::string const sig = ajn::MsgArg::Signature(&m, 1).c_str();
 
   auto itr = s_signatureToType.find(sig);

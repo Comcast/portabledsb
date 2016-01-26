@@ -83,11 +83,13 @@ namespace adapter
       IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status RegisterSignalListener(
-        std::string const& signalName,
-        SignalListener const& listener,
-        void* argp,
-        RegistrationHandle& handle) = 0;
+      Interface const& ifc,
+      Signal const& signal,
+      SignalListener const& listener,
+      void* argp,
+      adapter::RegistrationHandle& handle) = 0;
 
-    virtual adapter::Status UnregisterSignalListener(RegistrationHandle const& h) = 0;
+    virtual adapter::Status UnregisterSignalListener(
+      RegistrationHandle const& h) = 0;
   };
 }

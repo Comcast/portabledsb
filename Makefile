@@ -9,7 +9,6 @@ SRCS=\
      Common/Value.cpp \
      Common/Guid.cpp \
      Adapters/MockAdapter/MockAdapter.cpp \
-     Adapters/MockAdapter/MockDevices.cpp \
      Adapters/MockAdapter/ZigBeeClusterDatabase.cpp \
      main.cpp
 
