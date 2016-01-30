@@ -59,7 +59,7 @@ namespace
         std::shared_ptr<adapter::IoRequest> req(new adapter::IoRequest());
 
         adapter::Value value;
-        adapter.GetProperty(ifc, prop, value, req);
+        adapter.GetProperty(dev, ifc, prop, value, req);
         req->Wait();
 
         std::cout << " ";

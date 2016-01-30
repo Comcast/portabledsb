@@ -126,6 +126,7 @@ adapters::mock::MockAdapter::EnumDevices(
 
 adapter::Status
 adapters::mock::MockAdapter::GetProperty(
+  adapter::Device const& device,
   adapter::Interface const& ifc,
   adapter::Property const& prop,
   adapter::Value& value,
@@ -161,6 +162,7 @@ adapters::mock::MockAdapter::GetProperty(
 
 adapter::Status
 adapters::mock::MockAdapter::SetProperty(
+  adapter::Device const& device,
   adapter::Interface const& ifc,
   adapter::Property const& prop,
   adapter::Value const& value,
@@ -186,6 +188,7 @@ adapters::mock::MockAdapter::SetProperty(
 
 adapter::Status
 adapters::mock::MockAdapter::InvokeMethod(
+  adapter::Device const& device,
   adapter::Interface const& ifc,
   adapter::Method const& method,
   adapter::Value const& inarg,
@@ -199,6 +202,7 @@ adapters::mock::MockAdapter::InvokeMethod(
 
 adapter::Status
 adapters::mock::MockAdapter::RegisterSignalListener(
+  adapter::Device const& device,
   adapter::Interface const& interface,
   adapter::Signal const& signal,
   adapter::SignalListener const& listener,

@@ -51,18 +51,21 @@ namespace mock
       std::shared_ptr<adapter::IoRequest> const& req);
 
     virtual adapter::Status GetProperty(
+      adapter::Device const& device,
       adapter::Interface const& ifc,
       adapter::Property const& prop,
       adapter::Value& value,
       std::shared_ptr<adapter::IoRequest> const& req);
 
     virtual adapter::Status SetProperty(
+      adapter::Device const& device,
       adapter::Interface const& ifc,
       adapter::Property const& prop, 
       adapter::Value const& value,
       std::shared_ptr<adapter::IoRequest> const& req);
 
     virtual adapter::Status InvokeMethod(
+      adapter::Device const& device,
       adapter::Interface const& ifc,
       adapter::Method const& method,
       adapter::Value const& inarg,
@@ -70,6 +73,7 @@ namespace mock
       std::shared_ptr<adapter::IoRequest> const& req);
 
     virtual adapter::Status RegisterSignalListener(
+      adapter::Device const& device,
       adapter::Interface const& ifc,
       adapter::Signal const& signal,
       adapter::SignalListener const& listener,

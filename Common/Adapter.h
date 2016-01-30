@@ -64,18 +64,21 @@ namespace adapter
       IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status GetProperty(
+      Device const& device,
       Interface const& ifc,
       Property const& prop,
       Value& value,
       IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status SetProperty(
+      Device const& device,
       Interface const& ifc,
       Property const& prop,
       Value const& value,
       IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status InvokeMethod(
+      Device const& device,
       Interface const& ifc,
       Method const& method,
       Value const& inarg,
@@ -83,6 +86,7 @@ namespace adapter
       IoRequest::Pointer const& req) = 0;
 
     virtual adapter::Status RegisterSignalListener(
+      Device const& device,
       Interface const& ifc,
       Signal const& signal,
       SignalListener const& listener,

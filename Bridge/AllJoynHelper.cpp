@@ -56,6 +56,16 @@ namespace
     { "ad", adapter::TypeId::DoubleArray  },
     { "as", adapter::TypeId::StringArray  },
   };
+
+  template<class T>
+  QStatus Extract(ajn::MsgArg const& m, std::string const& sig, adapter::Value& v)
+  {
+    T val;
+    QStatus st = m.Get(sig.c_str(), &val);
+    if (st == ER_OK)
+      v = val;
+    return st;
+  }
 }
 
 
@@ -109,84 +119,18 @@ bridge::AllJoynHelper::MsgArgToValue(ajn::MsgArg const& m, adapter::Value& v)
   auto itr = s_signatureToType.find(sig);
   DSB_ASSERT(itr != s_signatureToType.end());
 
-  adapter::TypeId type = itr->second;
-
-  switch (type)
+  switch (itr->second)
   {
-    case adapter::TypeId::Null:
-    break;
-
-    case adapter::TypeId::Boolean:
-    {
-      bool b;
-      if ((st = m.Get(sig.c_str(), &b)) == ER_OK)
-        v = b;
-    }
-    break;
-
-    case adapter::TypeId::Int16:
-    {
-      int16_t i;
-      if ((st = m.Get(sig.c_str(), &i)) == ER_OK)
-        v = i;
-    }
-    break;
-
-    case adapter::TypeId::UInt16:
-    {
-      uint16_t u;
-      if ((st = m.Get(sig.c_str(), &u)) == ER_OK)
-        v = u;
-    }
-    break;
-
-    case adapter::TypeId::Int32:
-    {
-      int32_t i;
-      if ((st = m.Get(sig.c_str(), &i)) == ER_OK)
-        v = i;
-    }
-    break;
-
-    case adapter::TypeId::UInt32:
-    {
-      uint32_t u;
-      if ((st = m.Get(sig.c_str(), &u)) == ER_OK)
-        v = u;
-    }
-    break;
-
-    case adapter::TypeId::Int64:
-    {
-      int64_t l;
-      if ((st = m.Get(sig.c_str(), &l)) == ER_OK)
-        v = l;
-    }
-    break;
-
-    case adapter::TypeId::UInt64:
-    {
-      uint64_t lu;
-      if ((st = m.Get(sig.c_str(), &lu)) == ER_OK)
-        v = lu;
-    }
-    break;
-
-    case adapter::TypeId::Double:
-    {
-      double d;
-      if ((st = m.Get(sig.c_str(), &d)) == ER_OK)
-        v = d;
-    }
-    break;
-
-    case adapter::TypeId::String:
-    {
-      char* s = nullptr;
-      if ((st = m.Get(sig.c_str(), &s)) == ER_OK)
-        v = s;
-    }
-    break;
+    case adapter::TypeId::Null:    st = ER_OK; break;
+    case adapter::TypeId::Boolean: st = Extract<bool>(m, sig, v); break;
+    case adapter::TypeId::Int16:   st = Extract<int16_t>(m, sig, v); break;
+    case adapter::TypeId::UInt16:  st = Extract<uint16_t>(m, sig, v); break;
+    case adapter::TypeId::Int32:   st = Extract<int32_t>(m, sig, v); break;
+    case adapter::TypeId::UInt32:  st = Extract<uint32_t>(m, sig, v); break;
+    case adapter::TypeId::Int64:   st = Extract<int64_t>(m, sig, v); break;
+    case adapter::TypeId::UInt64:  st = Extract<uint64_t>(m, sig, v); break;
+    case adapter::TypeId::Double:  st = Extract<double>(m, sig, v); break;
+    case adapter::TypeId::String:  st = Extract<char *>(m, sig, v); break;
 
     // TODO: arrays
 
