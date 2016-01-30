@@ -15,12 +15,9 @@ namespace adapter
     friend class Interface;
 
   public:
-    typedef std::vector<Signal> Vector;
+    using Vector = std::vector<Signal>;
 
-    Signal(std::string const& name)
-      : adapter::Object(name)
-    {
-    }
+    Signal(std::string const& name);
 
     std::string const& GetInterface() const
       { return m_interface; }
@@ -39,16 +36,10 @@ namespace adapter
       { m_interface = name; }
 
   private:
-    std::string           m_interface;
+    std::string         m_interface;
     NamedValue::Vector  m_params;
   };
 
-  inline Signal MakeAdapterSignal(std::string const& name,
-    NamedValue::Vector const& params = NamedValue::Vector())
-  {
-    Signal signal(name);
-    for (auto const& param : params)
-      signal.AddParameter(param);
-    return std::move(signal);
-  }
+  Signal MakeAdapterSignal(std::string const& name,
+    NamedValue::Vector const& params = NamedValue::Vector());
 }

@@ -16,23 +16,21 @@ namespace adapter
     {
     }
 
-    NamedValue(std::string const& name, Value const& value)
-      : m_name(name)
-      , m_value(value) { }
+    NamedValue(std::string const& name, Value const& value);
 
-    std::string const& GetName() const
+    inline std::string const& GetName() const
       { return m_name; }
 
-    Value const& GetValue() const
+    inline Value const& GetValue() const
       { return m_value; }
 
-    void SetName(std::string const& name)
+    inline void SetName(std::string const& name)
       { m_name = name; }
 
-    void SetValue(Value const& value)
+    inline void SetValue(Value const& value)
       { m_value = value; }
 
-    bool IsNull() const
+    inline bool IsNull() const
       { return m_name.empty() && m_value.IsEmpty(); }
 
     static NamedValue const& Null()

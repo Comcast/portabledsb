@@ -52,21 +52,10 @@ namespace adapter
     NamedValue::Vector m_outArgs;
   };
 
-  inline Method MakeMethod(
+  Method MakeMethod(
       std::string const& name,
       NamedValue::Vector const& attrs = NamedValue::Vector(),
       std::string const& description = std::string(),
       NamedValue::Vector const& inputArgs = NamedValue::Vector(),
-      NamedValue::Vector const& outputArgs = NamedValue::Vector())
-  {
-    Method method(name);
-    for (auto attr : attrs)
-      method.AddAttribute(attr.GetName(), attr.GetValue());
-    for (auto in : inputArgs)
-      method.AddInputArgument(in);
-    for (auto out : outputArgs)
-      method.AddOutputArgument(out);
-    method.SetDescription(description);
-    return std::move(method);
-  }
+      NamedValue::Vector const& outputArgs = NamedValue::Vector());
 }

@@ -12,6 +12,13 @@ SRCS=\
      Adapters/MockAdapter/ZigBeeClusterDatabase.cpp \
      main.cpp
 
+SDK_SRCS=Common/AdapterInterface.cpp \
+         Common/AdapterNamedValue.cpp \
+         Common/AdapterMethod.cpp \
+         Common/AdapterProperty.cpp \
+         Common/AdapterSignal.cpp
+
+SRCS += $(SDK_SRCS)
 TEST_SRCS = Tests/VariantTest.cpp
 TEST_OBJS = $(patsubst %.cpp, %.o, $(TEST_SRCS))
 TESTS = $(patsubst %.cpp, %, $(TEST_SRCS))

@@ -289,7 +289,7 @@ bridge::BusObject::Get(char const* interface, char const* property, ajn::MsgArg&
 
   // find property
   adapter::Interface const& adapterInterface = *(itr->second);
-  adapter::Property const*  adapterProperty = adapterInterface.GetProperty(property);
+  adapter::Property const*  adapterProperty = adapterInterface.FindProperty(property);
   adapter::Value            adapterValue;
   adapter::IoRequest::Pointer adapterRequest;
   adapter::Status st = m_adapter->GetProperty(m_adapterDevice, adapterInterface, *adapterProperty,
@@ -315,7 +315,7 @@ bridge::BusObject::Set(char const* interface, char const* property, ajn::MsgArg&
   }
 
   adapter::Interface const&   adapterInterface = *(itr->second);
-  adapter::Property const*    adapterProperty = adapterInterface.GetProperty(property);
+  adapter::Property const*    adapterProperty = adapterInterface.FindProperty(property);
   adapter::Value              adapterValue;
   AllJoynHelper::MsgArgToValue(msg, adapterValue);
 
@@ -406,7 +406,7 @@ bridge::BusObject::MethodHandler(ajn::InterfaceDescription::Member const* member
   }
 
   adapter::Interface const&   adapterInterface = *(itr->second);
-  adapter::Method    const*   adapterMethod = adapterInterface.GetMethod(member->name.c_str());
+  adapter::Method    const*   adapterMethod = adapterInterface.FindMethod(member->name.c_str());
   adapter::IoRequest::Pointer adapterRequest;
   adapter::Value              inarg;
   adapter::Value              outarg;

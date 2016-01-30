@@ -8,7 +8,7 @@ namespace adapter
   class Device
   {
   public:
-    typedef std::vector<Device> Vector;
+    using Vector = std::vector<Device>;
 
     ItemInformation const& GetInfo() const
       { return m_info; }

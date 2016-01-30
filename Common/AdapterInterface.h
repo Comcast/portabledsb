@@ -14,83 +14,49 @@ namespace adapter
   class Interface : public adapter::Object
   {
   public:
-    typedef std::vector<Interface> Vector;
+    using Vector = std::vector<Interface>;
 
-    Interface(std::string const& name)
-      : adapter::Object(name)
-    {
-    }
+    Interface(std::string const& name);
 
-    static std::list< std::shared_ptr<Interface> > FromFile(std::string const& file)
-    {
-      // TODO:
-      return std::list< std::shared_ptr<Interface> >();
-    }
+    // properties
+    void AddProperty(Property prop);
 
-    Property::Vector const& GetProperties() const
-      { return m_props; }
-
-    Property const* GetProperty(char const* name) const
-    {
-      Property const* prop = nullptr;
-      
-      auto itr = std::find_if(m_props.begin(), m_props.end(),
-        [&name](Property const& p) { return strcmp(p.GetName().c_str(), name) == 0; });
-
-      if (itr != m_props.end())
-        prop = &(*itr);
-
-      return prop;
-    }
-
-    void ClearProperties()
+    inline void ClearProperties()
       { m_props.clear(); }
 
-    void AddProperty(Property const& prop)
-    {
-      Property myProp = prop;
-      myProp.SetInterfaceName(GetName());
-      m_props.push_back(std::move(myProp));
-    }
+    inline Property::Vector const& GetProperties() const
+      { return m_props; }
 
-    Method::Vector const& GetMethods() const
-      { return m_methods; }
+    Property const* FindProperty(char const* name) const;
 
-    Method const* GetMethod(char const* name) const
-    {
-      Method const* method = nullptr;
 
-      auto itr = std::find_if(m_methods.begin(), m_methods.end(),
-        [&name](Method const& m) { return strcmp(m.GetName().c_str(), name) == 0; });
+    // methods
+    void AddMethod(Method method);
 
-      if (itr != m_methods.end())
-        method = &(*itr);
-
-      return method;
-    }
-
-    void ClearMethods()
+    inline void ClearMethods()
       { m_methods.clear(); }
 
-    void AddMethod(Method const& method)
-    {
-      Method myMethod = method;
-      myMethod.SetInterfaceName(GetName());
-      m_methods.push_back(std::move(myMethod));
-    }
+    inline Method::Vector const& GetMethods() const
+      { return m_methods; }
 
-    Signal::Vector const& GetSignals() const
-      { return m_signals; }
+    Method const* FindMethod(char const* name) const;
 
-    void ClearSignals()
+
+    // signals
+    void AddSignal(Signal signal);
+
+    inline void ClearSignals()
       { m_signals.clear(); }
 
-    void AddSignal(Signal const& signal)
-    {
-      Signal mySignal = signal;
-      mySignal.SetInterfaceName(GetName());
-      m_signals.push_back(std::move(mySignal));
-    }
+    inline Signal::Vector const& GetSignals() const
+      { return m_signals; }
+
+
+    static std::list< std::shared_ptr<Interface> > FromFile(std::string const& file);
+
+  private:
+    template<typename T>
+    void TakeOwnership(std::vector<T>& v, T&& item);
 
   private:
     Property::Vector m_props;

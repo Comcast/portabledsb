@@ -18,31 +18,26 @@ namespace adapter
     friend class Interface;
 
   public:
-    typedef std::vector<Property> Vector;
+    using Vector = std::vector<Property>;
 
-    Property(std::string const& name, TypeId type, AccessType access) 
-      : adapter::Object(name)
-      , m_type(type)
-      , m_access(access)
-    {
-    }
+    Property(std::string const& name, TypeId type, AccessType access);
 
-    std::string const& GetInterfaceName() const
+    inline std::string const& GetInterfaceName() const
       { return m_interface; }
 
-    TypeId GetType() const
+    inline TypeId GetType() const
       { return m_type; }
 
-    AccessType GetAccess() const
+    inline AccessType GetAccess() const
       { return m_access; }
 
-    void SetAccess(AccessType access)
+    inline void SetAccess(AccessType access)
       { m_access = access; }
 
-    SignalBehavior GetChangeOfValueBehavior() const
+    inline SignalBehavior GetChangeOfValueBehavior() const
       { return m_changeOfValueBehavior; }
 
-    void SetGetChangeOfValueBehavior(SignalBehavior changeOfValueBehavior)
+    inline void SetGetChangeOfValueBehavior(SignalBehavior changeOfValueBehavior)
       { m_changeOfValueBehavior = changeOfValueBehavior; }
 
   private:
@@ -56,12 +51,6 @@ namespace adapter
     SignalBehavior        m_changeOfValueBehavior;
   };
 
-  inline Property MakeProperty(std::string const& name, TypeId type,
-    AccessType access, NamedValue::Vector const& attrs = NamedValue::Vector())
-  {
-    Property prop(name, type, access);
-    for (auto const& attr : attrs)
-      prop.AddAttribute(attr.GetName(), attr.GetValue());
-    return std::move(prop);
-  }
+  Property MakeProperty(std::string const& name, TypeId type,
+    AccessType access, NamedValue::Vector const& attrs = NamedValue::Vector());
 }
