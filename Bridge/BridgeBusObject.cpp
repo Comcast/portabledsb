@@ -96,6 +96,13 @@ namespace
   }
 }
 
+bridge::BusObject::BusObject(std::string const& appname, std::string const& path, std::shared_ptr<ajn::BusAttachment> const& bus)
+  : ajn::BusObject(path.c_str())
+  , m_bus(bus)
+{
+  DSBLOG_INFO("new child: %s", path.c_str());
+}
+
 bridge::BusObject::BusObject(std::string const& appname, std::string const& path)
   : ajn::BusObject(path.c_str())
   , m_bus(new ajn::BusAttachment(appname.c_str(), true))
@@ -177,11 +184,33 @@ bridge::BusObject::BuildFromAdapterDevice(std::string const& appname, std::strin
   Error::ThrowIfNotOk(st, "failed to connect to alljoyn router");
   DSBLOG_INFO("new bus connection: %s", obj->m_bus->GetConnectSpec().c_str());
 
+  for (auto const& child : dev.GetChildren())
+  {
+    std::stringstream childPath;
+    childPath << path;
+    childPath << '/';
+    childPath << child->GetInfo().GetName();
+
+    std::shared_ptr<BusObject> childDevice(new BusObject(appname, childPath.str(), obj->m_bus));
+    childDevice->m_adapter = adapter;
+    childDevice->m_adapterDevice = *child;
+    obj->m_children.push_back(childDevice);
+  }
+
   return obj;
 }
 
 void
 bridge::BusObject::Publish()
+{
+  PublishInternal(false);
+  for (auto& child : m_children)
+    child->PublishInternal(true);
+  AnnounceAndRegister();
+}
+
+void
+bridge::BusObject::PublishInternal(bool isChild)
 {
   for (auto interface : m_adapterDevice.GetInterfaces())
   {
@@ -210,15 +239,19 @@ bridge::BusObject::Publish()
     }
   }
 
-  ajn::SessionPort port = ajn::SESSION_PORT_ANY;
-  ajn::SessionOpts opts(ajn::SessionOpts::TRAFFIC_MESSAGES, false, ajn::SessionOpts::PROXIMITY_ANY, ajn::TRANSPORT_ANY);
+  if (!isChild)
+  {
+    ajn::SessionPort port = ajn::SESSION_PORT_ANY;
+    ajn::SessionOpts opts(ajn::SessionOpts::TRAFFIC_MESSAGES, false, ajn::SessionOpts::PROXIMITY_ANY, ajn::TRANSPORT_ANY);
 
-  QStatus st = m_bus->BindSessionPort(port, opts, *(m_sessionPortListener.get()));
-  Error::ThrowIfNotOk(st, "failed to bind session port");
+    QStatus st = m_bus->BindSessionPort(port, opts, *(m_sessionPortListener.get()));
+    Error::ThrowIfNotOk(st, "failed to bind session port");
 
-  m_sessionPort = port;;
+    m_sessionPort = port;
 
-  AnnounceAndRegister();
+    for (auto& child : m_children)
+      child->m_sessionPort = port;
+  }
 }
 
 void
@@ -270,6 +303,15 @@ bridge::BusObject::AnnounceAndRegister()
   Error::ThrowIfNotOk(st, "failed to register bus object");
 
   m_aboutObject.reset(new ajn::AboutObj(*m_bus.get()));
+  DSBLOG_DEBUG("announce: %d", m_sessionPort);
+
+  for (auto& child : m_children)
+  {
+    DSBLOG_INFO("register %s", child->GetPath());
+
+    st = m_bus->RegisterBusObject(*child);
+    Error::ThrowIfNotOk(st, "failed to register child object");
+  }
 
   st = m_aboutObject->Announce(m_sessionPort, *m_aboutData.get());
   Error::ThrowIfNotOk(st, "failed to announce device");

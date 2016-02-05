@@ -13,6 +13,7 @@ SRCS=\
      main.cpp
 
 SDK_SRCS=Common/AdapterInterface.cpp \
+         Common/AdapterDevice.cpp \
          Common/AdapterNamedValue.cpp \
          Common/AdapterMethod.cpp \
          Common/AdapterProperty.cpp \

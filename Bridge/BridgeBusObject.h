@@ -13,14 +13,18 @@ namespace bridge
   class BusObject : public ajn::BusObject
   {
   public:
-   virtual ~BusObject();
-   void Publish();
+    virtual ~BusObject();
+    void Publish();
 
   private:
+    void PublishInternal(bool isChild);
     void AnnounceAndRegister();
 
   private:
     BusObject(std::string const& appname, std::string const& path);
+
+    BusObject(std::string const& appname, std::string const& path,
+      std::shared_ptr<ajn::BusAttachment> const& bus);
 
     class SessionPortListener : public ajn::SessionPortListener
     {
@@ -75,7 +79,7 @@ namespace bridge
       ajn::Message& message);
 
   private:
-    std::unique_ptr<ajn::BusAttachment>   m_bus;
+    std::shared_ptr<ajn::BusAttachment>   m_bus;
     adapter::Device                       m_adapterDevice;
     std::shared_ptr<adapter::Adapter>     m_adapter;
     std::unique_ptr<SessionPortListener>  m_sessionPortListener;
@@ -84,5 +88,6 @@ namespace bridge
     std::unique_ptr<ajn::AboutData>       m_aboutData;
     std::unique_ptr<BusListener>          m_busListener;
     std::string                           m_appName;
+    std::vector< std::shared_ptr<BusObject> > m_children;
   };
 }

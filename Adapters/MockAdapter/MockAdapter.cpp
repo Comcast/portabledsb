@@ -243,9 +243,10 @@ adapters::mock::MockAdapter::UnregisterSignalListener(adapter::RegistrationHandl
 void
 adapters::mock::MockAdapter::CreateMockDevices()
 {
-  m_devices.push_back(MockAdapter::CreateDoorWindowSensor("FrontDoor"));
-  m_devices.push_back(MockAdapter::CreateDoorWindowSensor("SideDoor"));
-  m_devices.push_back(MockAdapter::CreateDoorWindowSensor("RearDoor"));
+  // m_devices.push_back(MockAdapter::CreateDoorWindowSensor("FrontDoor"));
+  // m_devices.push_back(MockAdapter::CreateDoorWindowSensor("SideDoor"));
+  // m_devices.push_back(MockAdapter::CreateDoorWindowSensor("RearDoor"));
+  m_devices.push_back(MockAdapter::CreateMultiEndpointPowerStrip("LivingRoomPowerStrip"));
 }
 
 std::string
@@ -305,6 +306,41 @@ adapters::mock::MockAdapter::CreateDoorWindowSensor(std::string const& name)
 
   AddClusterToDevice(dev, 0x0000); // basic
   AddClusterToDevice(dev, 0x000f); // binary input
+
+  return std::move(dev);
+}
+
+adapter::Device
+adapters::mock::MockAdapter::CreateMultiEndpointPowerStrip(std::string const& name)
+{
+  adapter::ItemInformation info;
+  info.SetName(name);
+  info.SetVendor("Comcast");
+  info.SetModel("801417");
+  info.SetVersion("1.0");
+  info.SetFirmwareVersion("1.0");
+  info.SetSerialNumber("H123ALK");
+  info.SetDescription("Door/Window sensor");
+
+  adapter::Device dev;
+  dev.SetBasicInfo(std::move(info));
+
+  AddClusterToDevice(dev, 0x0000);
+//   AddClusterToDevice(dev, 0x000f);
+
+  for (int i = 0; i < 3; ++i)
+  {
+    std::stringstream name;
+    name << "outlet" << i;
+
+    adapter::ItemInformation info;
+    info.SetName(name.str());
+
+    std::shared_ptr<adapter::Device> outlet(new adapter::Device());
+    outlet->SetBasicInfo(info);
+
+    dev.AddChild(outlet);
+  }
 
   return std::move(dev);
 }

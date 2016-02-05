@@ -85,6 +85,15 @@ namespace
 
 int main(int /*argc*/, char* /*argv*/ [])
 {
+
+  std::cout << "size adapter::Device : " << sizeof(adapter::Device) << std::endl;
+  std::cout << "size adapter::Method : " << sizeof(adapter::Method) << std::endl;
+  std::cout << "size adapter::Prop   : " << sizeof(adapter::Property) << std::endl;
+  std::cout << "size adpater::Intf   : " << sizeof(adapter::Interface) << std::endl;
+  std::cout << "size std::string     : " << sizeof(std::string) << std::endl;
+  std::cout << "size adapter::Guid   : " << sizeof(adapter::Guid) << std::endl;
+  std::cout << "size string map<>    : " << sizeof(std::map<std::string, std::string>) << std::endl;
+
   #if 0
   bridge::bridgeConfig config;
   config.FromFile("/some/file.xml");

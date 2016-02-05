@@ -9,6 +9,7 @@ namespace adapter
   {
   public:
     using Vector = std::vector<Device>;
+    using ChildList = std::vector< std::shared_ptr<Device> >;
 
     ItemInformation const& GetInfo() const
       { return m_info; }
@@ -16,17 +17,28 @@ namespace adapter
     void SetBasicInfo(ItemInformation const& info)
       { m_info = info; }
 
-    Interface::Vector const& GetInterfaces() const
-      { return m_interfaces; }
-
+    // interfaces
     void AddInterface(Interface const& interface)
       { m_interfaces.push_back(interface); }
 
     void ClearInterfaces()
       { m_interfaces.clear(); }
 
+    inline Interface::Vector const& GetInterfaces() const
+      { return m_interfaces; }
+
+    // children
+    void AddChild(std::shared_ptr<Device> const& dev);
+
+    void ClearChildren()
+      { m_children.clear(); }
+
+    inline ChildList const& GetChildren() const
+      { return m_children; }
+
   private:
-    ItemInformation          m_info;
-    Interface::Vector        m_interfaces;
+    ItemInformation         m_info;
+    Interface::Vector       m_interfaces;
+    ChildList               m_children;
   };
 }

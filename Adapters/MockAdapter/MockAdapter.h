@@ -88,6 +88,7 @@ namespace mock
     void CreateMockDevices();
 
     adapter::Device CreateDoorWindowSensor(std::string const& name);
+    adapter::Device CreateMultiEndpointPowerStrip(std::string const& name);
 
   private:
     adapter::ItemInformation m_info;
