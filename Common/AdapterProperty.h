@@ -18,7 +18,7 @@ namespace adapter
     friend class Interface;
 
   public:
-    using Vector = std::vector<Property>;
+    typedef std::vector<Property> Vector;
 
     Property(std::string const& name, TypeId type, AccessType access);
 

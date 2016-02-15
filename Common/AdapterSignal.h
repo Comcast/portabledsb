@@ -15,7 +15,7 @@ namespace adapter
     friend class Interface;
 
   public:
-    using Vector = std::vector<Signal>;
+    typedef std::vector<Signal> Vector;
 
     Signal(std::string const& name);
 

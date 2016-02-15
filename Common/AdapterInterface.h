@@ -14,7 +14,7 @@ namespace adapter
   class Interface : public adapter::Object
   {
   public:
-    using Vector = std::vector<Interface>;
+    typedef std::vector<Interface> Vector;
 
     Interface(std::string const& name);
 

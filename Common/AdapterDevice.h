@@ -8,8 +8,8 @@ namespace adapter
   class Device
   {
   public:
-    using Vector = std::vector<Device>;
-    using ChildList = std::vector< std::shared_ptr<Device> >;
+    typedef std::vector<Device> Vector;
+    typedef std::vector< std::shared_ptr<Device> > ChildList;
 
     ItemInformation const& GetInfo() const
       { return m_info; }
