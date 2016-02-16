@@ -1,12 +1,29 @@
-
+//
+// Copyright (c) 2016, Comcast Cable Communications Management, LLC
+//
+// Permission to use, copy, modify, and/or distribute this software for any purpose with or
+// without fee is hereby granted, provided that the above copyright notice and this
+// permission notice appear in all copies.
+//
+// THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO
+// THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT
+// SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR
+// ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+// OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE
+// USE OR PERFORMANCE OF THIS SOFTWARE.
+//
 #include "Bridge/Bridge.h"
-
 #include "Common/Adapter.h"
 #include "Common/AdapterLog.h"
 
-#include "Adapters/MockAdapter/MockAdapter.h"
+#include <dlfcn.h>
+#include <getopt.h>
 
-#include <iostream>
+static option longOptions[] =
+{
+  { "adapter", required_argument, 0, 'a' },
+  { 0, 0, 0, 0 }
+};
 
 namespace
 {
@@ -83,9 +100,9 @@ namespace
   }
 }
 
-int main(int /*argc*/, char* /*argv*/ [])
+int main(int argc, char* argv[])
 {
-
+  #if 0
   std::cout << "size adapter::Device : " << sizeof(adapter::Device) << std::endl;
   std::cout << "size adapter::Method : " << sizeof(adapter::Method) << std::endl;
   std::cout << "size adapter::Prop   : " << sizeof(adapter::Property) << std::endl;
@@ -93,6 +110,27 @@ int main(int /*argc*/, char* /*argv*/ [])
   std::cout << "size std::string     : " << sizeof(std::string) << std::endl;
   std::cout << "size adapter::Guid   : " << sizeof(adapter::Guid) << std::endl;
   std::cout << "size string map<>    : " << sizeof(std::map<std::string, std::string>) << std::endl;
+  #endif
+
+  int optionIndex = 0;
+  char const* adapterName = nullptr;
+
+  while (true)
+  {
+    int c = getopt_long(argc, argv, "a:", longOptions, &optionIndex);
+    if (c == -1)
+      break;
+
+    switch (c)
+    {
+      case 'a':
+        adapterName = optarg;
+        break;
+
+      default:
+        return 0;
+    }
+  }
 
   #if 0
   bridge::bridgeConfig config;
@@ -125,7 +163,30 @@ int main(int /*argc*/, char* /*argv*/ [])
   #endif
   adapter::Log::SetDefaultLevel(adapter::LogLevel::Debug);
 
-  bridge::Bridge::InitializeSingleton(std::shared_ptr<adapter::Adapter>(new adapters::mock::MockAdapter()));
+  if (!adapterName)
+  {
+    DSBLOG_ERROR("need --adapter=<adaptername> argument");
+    exit(1);
+  }
+
+  void* lib = dlopen(adapterName, RTLD_LAZY);
+  if (!lib)
+  {
+    DSBLOG_ERROR("failed to load adapter lib '%s'. %s", adapterName, dlerror());
+    exit(1);
+  }
+
+  adapter::creator new_adapter = reinterpret_cast<adapter::creator>(dlsym(lib, ALLJOYN_ADAPTER_CREATE_FUNC));
+  if (!new_adapter)
+  {
+    DSBLOG_ERROR("failed to find '%s' function in %s. %s", ALLJOYN_ADAPTER_CREATE_FUNC,
+      adapterName, dlerror());
+    dlclose(lib);
+    exit(1);
+  }
+
+  adapter::Adapter* adapter = new_adapter();
+  bridge::Bridge::InitializeSingleton(std::shared_ptr<adapter::Adapter>(adapter));
 
   DSB()->Initialize();
 

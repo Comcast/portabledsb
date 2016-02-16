@@ -344,3 +344,8 @@ adapters::mock::MockAdapter::CreateMultiEndpointPowerStrip(std::string const& na
 
   return std::move(dev);
 }
+
+extern "C" adapter::Adapter* AllJoynAdapter_Create()
+{
+  return new adapters::mock::MockAdapter();
+}

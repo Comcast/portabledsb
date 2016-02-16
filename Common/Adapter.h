@@ -12,9 +12,14 @@
 
 #include <memory>
 
+#define ALLJOYN_ADAPTER_CREATE_FUNC "AllJoynAdapter_Create"
+
 namespace adapter
 {
   typedef uint32_t RegistrationHandle;
+
+  class Adapter;
+  typedef Adapter* (*creator)();
 
   class Adapter
   {
