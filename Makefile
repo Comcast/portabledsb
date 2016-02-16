@@ -48,7 +48,7 @@ endif
 
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-    LIB_UUID=luuid
+    LIB_UUID=-luuid
     LDFLAGS += -pthread -luuid
     CXXFLAGS += -DQCC_OS_GROUP_POSIX
 else
