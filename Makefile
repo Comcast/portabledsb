@@ -48,7 +48,10 @@ endif
 
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
+    LIB_UUID=luuid
     LDFLAGS += -pthread -luuid
+    CXXFLAGS += -DQCC_OS_GROUP_POSIX
+else
     CXXFLAGS += -DQCC_OS_GROUP_POSIX
 endif
 
@@ -76,14 +79,14 @@ check: tests
 	done
 
 clean:
-	$(RM) moc-adapter $(TESTS) $(OBJS) $(DEPS) $(TEST_OBJS) $(SDK_OBJS) liballjoyndsb.so
+	$(RM) $(EXE_NAME) $(ADAPTER_OBJS) $(TESTS) $(OBJS) $(DEPS) $(TEST_OBJS) $(SDK_OBJS) liballjoyndsb.so
 
 $(EXE_NAME): mocadapter sdk $(OBJS)
 	$(LD_PRETTY) -o $@ $(OBJS) -ldl $(LDFLAGS) -L. -lalljoyndsb
 
 $(SDK_OBJS): CXXFLAGS := -fPIC $(CXXFLAGS)
 sdk: $(SDK_OBJS)
-	$(LD_PRETTY) -shared  $(SDK_OBJS) -luuid -o liballjoyndsb.so
+	$(LD_PRETTY) -shared  $(SDK_OBJS) $(LIB_UUID) -o liballjoyndsb.so
 
 $(ADAPTER_OBJS): CXXFLAGS := -fPIC $(CXXFLAGS)
 mocadapter: $(ADAPTER_OBJS) sdk

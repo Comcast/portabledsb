@@ -13,6 +13,7 @@
 #include <memory>
 
 #define ALLJOYN_ADAPTER_CREATE_FUNC "AllJoynAdapter_Create"
+#define ALLJOYN_ADAPTER_DESTROY_FUNC "AllJoynAdapter_Destroy"
 
 namespace adapter
 {
@@ -20,6 +21,7 @@ namespace adapter
 
   class Adapter;
   typedef Adapter* (*creator)();
+  typedef void (*destroyer)(Adapter *);
 
   class Adapter
   {

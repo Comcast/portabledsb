@@ -185,8 +185,16 @@ int main(int argc, char* argv[])
     exit(1);
   }
 
+  adapter::destroyer del_adapter = reinterpret_cast<adapter::destroyer>(dlsym(lib, ALLJOYN_ADAPTER_DESTROY_FUNC));
+  if (!del_adapter)
+  {
+    DSBLOG_ERROR("failed to find '%s function in %s, %s", ALLJOYN_ADAPTER_DESTROY_FUNC,
+      adapterName, dlerror());
+    exit(1);
+  }
+
   adapter::Adapter* adapter = new_adapter();
-  bridge::Bridge::InitializeSingleton(std::shared_ptr<adapter::Adapter>(adapter));
+  bridge::Bridge::InitializeSingleton(std::shared_ptr<adapter::Adapter>(adapter, del_adapter));
 
   DSB()->Initialize();
 

@@ -349,3 +349,8 @@ extern "C" adapter::Adapter* AllJoynAdapter_Create()
 {
   return new adapters::mock::MockAdapter();
 }
+
+extern "C" void AllJoynAdapter_Destroy(adapter::Adapter* a)
+{
+  delete a;
+}
