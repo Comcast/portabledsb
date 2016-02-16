@@ -1,26 +1,26 @@
 SRCS=\
-     Bridge/AllJoynAbout.cpp \
-     Bridge/AllJoynHelper.cpp \
-     Bridge/Bridge.cpp \
-     Bridge/BridgeBusObject.cpp \
-     Bridge/BridgeConfig.cpp \
-     Bridge/ConfigManager.cpp \
-     Common/AdapterLog.cpp \
+     bridge/AllJoynAbout.cpp \
+     bridge/AllJoynHelper.cpp \
+     bridge/Bridge.cpp \
+     bridge/BridgeBusObject.cpp \
+     bridge/BridgeConfig.cpp \
+     bridge/ConfigManager.cpp \
+     common/AdapterLog.cpp \
      main.cpp
 
 ADAPTER_SRCS=\
-     Adapters/MockAdapter/MockAdapter.cpp \
-     Adapters/MockAdapter/ZigBeeClusterDatabase.cpp
+     adapters/mock/MockAdapter.cpp \
+     adapters/mock/ZigBeeClusterDatabase.cpp
 
 SDK_SRCS=\
-  Common/AdapterInterface.cpp \
-  Common/AdapterDevice.cpp \
-  Common/AdapterNamedValue.cpp \
-  Common/AdapterMethod.cpp \
-  Common/AdapterProperty.cpp \
-  Common/AdapterSignal.cpp \
-  Common/Guid.cpp \
-  Common/Value.cpp
+  common/AdapterInterface.cpp \
+  common/AdapterDevice.cpp \
+  common/AdapterNamedValue.cpp \
+  common/AdapterMethod.cpp \
+  common/AdapterProperty.cpp \
+  common/AdapterSignal.cpp \
+  common/Guid.cpp \
+  common/Value.cpp
 
 TEST_SRCS = Tests/VariantTest.cpp
 TEST_OBJS = $(patsubst %.cpp, %.o, $(TEST_SRCS))
@@ -34,9 +34,11 @@ CXXFLAGS          = -Wall -Wextra -std=c++0x -I. -I$(ALLJOYN_INSTALL_DIR)/inc -I
 LDFLAGS           = -L $(ALLJOYN_INSTALL_DIR)/lib -lalljoyn -lcrypto -lxml2
 DEV_PROVIDER_OBJS = $(patsubst %.cpp, %.o, $(SRCS))
 OBJS              = $(DEV_PROVIDER_OBJS)
-DEPS              = $(OBJS:%.o=%.d) $(TEST_OBJS:%.o=%.d)
 SDK_OBJS          = $(patsubst %.cpp, %.o, $(SDK_SRCS))
 ADAPTER_OBJS      = $(patsubst %.cpp, %.o, $(ADAPTER_SRCS))
+DEPS              = $(OBJS:%.o=%.d) $(TEST_OBJS:%.o=%.d)
+DEPS             += $(SDK_OBJS:%.o=%.d) $(TEST_OBJS:%.o=%.d)
+DEPS             += $(ADAPTER_OBJS:%.o=%.d) $(TEST_OBJS:%.o=%.d)
 
 GTEST_DIR?=/usr/src/gtest
 ifneq ("$(wildcard $(GTEST_DIR)/libgtest.a)","")
@@ -92,11 +94,8 @@ $(ADAPTER_OBJS): CXXFLAGS := -fPIC $(CXXFLAGS)
 mocadapter: $(ADAPTER_OBJS) sdk
 	$(LD_PRETTY) -shared  $(ADAPTER_OBJS) -o libmockadapter.so -L. -lalljoyndsb
 
-Tests/VariantTest: Tests/VariantTest.o Common/Variant.o
+Tests/VariantTest: Tests/VariantTest.o common/Variant.o
 	$(LD_PRETTY) -o $@ $^ $(LDFLAGS) $(GTEST_FLAGS)
-
-#Common/%.o: Common/%.cpp
-#	$(CXX_PRETTY) -fPIC $(CXXFLAGS) -MMD -c -o $@ $<
 
 %.o: %.cpp
 	$(CXX_PRETTY) $(CXXFLAGS) -MMD -c -o $@ $<

@@ -12,9 +12,9 @@
 // OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE
 // USE OR PERFORMANCE OF THIS SOFTWARE.
 //
-#include "Bridge/Bridge.h"
-#include "Common/Adapter.h"
-#include "Common/AdapterLog.h"
+#include "bridge/Bridge.h"
+#include "common/Adapter.h"
+#include "common/AdapterLog.h"
 
 #include <dlfcn.h>
 #include <getopt.h>
