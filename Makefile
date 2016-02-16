@@ -5,7 +5,6 @@ SRCS=\
      bridge/BridgeBusObject.cpp \
      bridge/BridgeConfig.cpp \
      bridge/ConfigManager.cpp \
-     common/AdapterLog.cpp \
      main.cpp
 
 ADAPTER_SRCS=\
@@ -15,8 +14,10 @@ ADAPTER_SRCS=\
 SDK_SRCS=\
   common/AdapterInterface.cpp \
   common/AdapterDevice.cpp \
-  common/AdapterNamedValue.cpp \
+  common/AdapterLoader.cpp \
+  common/AdapterLog.cpp \
   common/AdapterMethod.cpp \
+  common/AdapterNamedValue.cpp \
   common/AdapterProperty.cpp \
   common/AdapterSignal.cpp \
   common/Guid.cpp \
