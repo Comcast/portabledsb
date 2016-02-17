@@ -22,6 +22,7 @@
 static option longOptions[] =
 {
   { "adapter", required_argument, 0, 'a' },
+  { "config",  required_argument, 0, 'c' },
   { 0, 0, 0, 0 }
 };
 
@@ -114,10 +115,11 @@ int main(int argc, char* argv[])
 
   int optionIndex = 0;
   char const* adapterName = nullptr;
+  char const* configFile = "alljoyndsb.xml";
 
   while (true)
   {
-    int c = getopt_long(argc, argv, "a:", longOptions, &optionIndex);
+    int c = getopt_long(argc, argv, "a:c:", longOptions, &optionIndex);
     if (c == -1)
       break;
 
@@ -126,7 +128,9 @@ int main(int argc, char* argv[])
       case 'a':
         adapterName = optarg;
         break;
-
+      case 'c':
+        configFile = optarg;
+        break;
       default:
         return 0;
     }
@@ -170,10 +174,21 @@ int main(int argc, char* argv[])
   }
 
   adapter::Loader loader(adapterName);
+  if (!loader.bind())
+    exit(1);
+
   std::shared_ptr<adapter::Adapter> adapter = loader.create();
   bridge::Bridge::InitializeSingleton(adapter);
 
-  DSB()->Initialize();
+  try
+  {
+    DSB()->Initialize(configFile);
+  }
+  catch (std::exception const& err)
+  {
+    DSBLOG_ERROR("failed to initialize dsb. %s", err.what());
+    exit(1);
+  }
 
 
   #if 0

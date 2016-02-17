@@ -112,7 +112,7 @@ bridge::Bridge::~Bridge()
 }
 
 void
-bridge::Bridge::Initialize()
+bridge::Bridge::Initialize(char const* configFile)
 {
   DSBLOG_DEBUG(__FUNCTION__);
 
@@ -124,17 +124,17 @@ bridge::Bridge::Initialize()
     Error::ThrowIfNotOk(st, "AllJoyn init failed");
   }
 
-  InitializeInternal();
+  InitializeInternal(configFile);
   m_alljoynInitialized = true;
 }
 
 void
-bridge::Bridge::InitializeInternal()
+bridge::Bridge::InitializeInternal(char const* configFile)
 {
   QStatus st = ER_OK;
 
   DSBLOG_INFO("initialize configuration manager");
-  st = m_configManager.Initialize(), 
+  st = m_configManager.Initialize(configFile); 
   Error::ThrowIfNotOk(st, "failed to initialize configuration manager");
 
   DSBLOG_INFO("initialize adapter");

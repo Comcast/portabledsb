@@ -23,36 +23,39 @@ namespace
 }
 
 adapter::Loader::Loader(char const* libname)
-  : m_libname(libname)
+  : m_create(nullptr)
+  , m_destroy(nullptr)
+  , m_libname(libname)
 {
 }
 
-void
+bool
 adapter::Loader::bind()
 {
   void* lib = dlopen(m_libname.c_str(), RTLD_LAZY);
   if (!lib)
   {
     DSBLOG_ERROR("failed to load adapter lib '%s'. %s", m_libname.c_str(), dlerror());
-    exit(1);
+    return false;
   }
 
-  adapter::creator new_adapter = reinterpret_cast<adapter::creator>(dlsym(lib, ALLJOYN_ADAPTER_CREATE_FUNC));
-  if (!new_adapter)
+  m_create = reinterpret_cast<adapter::creator>(dlsym(lib, ALLJOYN_ADAPTER_CREATE_FUNC));
+  if (!m_create)
   {
     DSBLOG_ERROR("failed to find '%s' function in %s. %s", ALLJOYN_ADAPTER_CREATE_FUNC,
       m_libname.c_str(), dlerror());
     dlclose(lib);
-    exit(1);
+    return false;
   }
 
-  adapter::destroyer del_adapter = reinterpret_cast<adapter::destroyer>(dlsym(lib, ALLJOYN_ADAPTER_DESTROY_FUNC));
-  if (!del_adapter)
+  m_destroy = reinterpret_cast<adapter::destroyer>(dlsym(lib, ALLJOYN_ADAPTER_DESTROY_FUNC));
+  if (!m_destroy)
   {
     DSBLOG_ERROR("failed to find '%s function in %s, %s", ALLJOYN_ADAPTER_DESTROY_FUNC,
       m_libname.c_str(), dlerror());
-    exit(1);
+    return false;
   }
+  return true;
 }
 
 std::shared_ptr<adapter::Adapter>

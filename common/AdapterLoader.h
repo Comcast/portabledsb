@@ -30,12 +30,11 @@ namespace adapter
   {
   public:
     Loader(char const* libname);
+    bool bind();
 
     std::shared_ptr<Adapter> create();
 
   private:
-    void bind();
-
     creator                     m_create;
     destroyer                   m_destroy;
     std::shared_ptr<Adapter>    m_adapter;

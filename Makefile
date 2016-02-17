@@ -1,3 +1,7 @@
+.PHONY: clean dist
+ADAPTER_LIB_VERSION=1.0.0
+ADAPTER_LIB_NAME=liballjoyndsb.so
+
 SRCS=\
      bridge/AllJoynAbout.cpp \
      bridge/AllJoynHelper.cpp \
@@ -49,6 +53,7 @@ else
 	GTEST_FLAGS = -lgtest
 endif
 
+UNAME_M = $(shell uname -m)
 UNAME_S = $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
     LIB_UUID=-luuid
@@ -82,14 +87,17 @@ check: tests
 	done
 
 clean:
-	$(RM) $(EXE_NAME) $(ADAPTER_OBJS) $(TESTS) $(OBJS) $(DEPS) $(TEST_OBJS) $(SDK_OBJS) liballjoyndsb.so
+	$(RM) $(EXE_NAME) $(ADAPTER_OBJS) $(TESTS) $(OBJS) $(DEPS) $(TEST_OBJS) $(SDK_OBJS) $(ADAPTER_LIB_NAME)
+
+dist-clean:
+	$(RM) -rf dist
 
 $(EXE_NAME): mocadapter sdk $(OBJS)
 	$(LD_PRETTY) -o $@ $(OBJS) -ldl $(LDFLAGS) -L. -lalljoyndsb
 
 $(SDK_OBJS): CXXFLAGS := -fPIC $(CXXFLAGS)
 sdk: $(SDK_OBJS)
-	$(LD_PRETTY) -shared  $(SDK_OBJS) $(LIB_UUID) -o liballjoyndsb.so
+	$(LD_PRETTY) -shared  $(SDK_OBJS) $(LIB_UUID) -o $(ADAPTER_LIB_NAME)
 
 $(ADAPTER_OBJS): CXXFLAGS := -fPIC $(CXXFLAGS)
 mocadapter: $(ADAPTER_OBJS) sdk
@@ -100,5 +108,18 @@ Tests/VariantTest: Tests/VariantTest.o common/Variant.o
 
 %.o: %.cpp
 	$(CXX_PRETTY) $(CXXFLAGS) -MMD -c -o $@ $<
+
+dist:
+	@[ -d dist/$(UNAME_M) ] || mkdir -p dist/$(UNAME_M)
+	@[ -d dist/$(UNAME_M)/include ] || mkdir -p dist/$(UNAME_M)/include
+	@[ -d dist/$(UNAME_M)/lib ] || mkdir -p dist/$(UNAME_M)/lib
+	@[ -d dist/$(UNAME_M)/bin ] || mkdir -p dist/$(UNAME_M)/bin
+	cp -f common/*.h dist/$(UNAME_M)/include
+	cp -f $(ADAPTER_LIB_NAME) dist/$(UNAME_M)/lib/$(ADAPTER_LIB_NAME).$(ADAPTER_LIB_VERSION)
+	rm -f dist/$(UNAME_M)/lib/$(ADAPTER_LIB_NAME)
+	cd dist/$(UNAME_M)/lib && ln -s $(ADAPTER_LIB_NAME).$(ADAPTER_LIB_VERSION) $(ADAPTER_LIB_NAME)
+	cp -f alljoyndsb dist/$(UNAME_M)/bin
+	cp libmockadapter.so dist/$(UNAME_M)/lib
+	cp alljoyndsb.xml dist/$(UNAME_M)/bin
 
 -include $(DEPS)

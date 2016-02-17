@@ -23,7 +23,8 @@ namespace
   DSB_DECLARE_LOGNAME(ConfigManager);
 
   // TODO: make this configurable;
-  std::string const kBridgeConfigFile = "BridgeConfig.xml";
+  char const* kBridgeConfigFile = "alljoyndsb.xml";
+
   //int const kMaxConnectionAttempts = 60;
   //int const kReconnectDelay = 500;
   int const kDSBServicePort = 1000;
@@ -43,9 +44,11 @@ ConfigManager::~ConfigManager()
 }
 
 QStatus
-ConfigManager::Initialize()
+ConfigManager::Initialize(char const* configFile)
 {
-  return m_bridgeConfig.FromFile(kBridgeConfigFile);
+  if (!configFile)
+    configFile = kBridgeConfigFile;
+  return m_bridgeConfig.FromFile(configFile);
 }
 
 QStatus

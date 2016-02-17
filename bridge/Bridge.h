@@ -35,7 +35,7 @@ namespace bridge
 
     virtual ~Bridge();
 
-    void Initialize();
+    void Initialize(char const* configFile);
     void Shutdown();
 
   private:
@@ -43,7 +43,7 @@ namespace bridge
 
     QStatus RegisterAdapterSignalHandlers(bool isRegister);
     void InitializeAdapter();
-    void InitializeInternal();
+    void InitializeInternal(char const* configFile);
     void InitializeDevices(bool isUpdate = false);
     void CreateDevice(std::shared_ptr<adapter::Adapter> const& adapter, adapter::Device const& device);
     void UpdateDevice(adapter::Device const& device, bool exposedOnAllJoynBus);

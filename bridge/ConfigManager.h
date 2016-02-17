@@ -30,7 +30,7 @@ namespace bridge
     ConfigManager(Bridge&, std::shared_ptr<adapter::Adapter> const& adapter);
     ~ConfigManager();
 
-    QStatus Initialize();
+    QStatus Initialize(char const* configFile);
     QStatus ConnectToAllJoyn();
     QStatus Shutdown();
 
