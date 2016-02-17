@@ -14,8 +14,8 @@
 //
 #pragma once
 
-#include "common/AdapterObject.h"
-#include "common/AdapterNamedValue.h"
+#include "AdapterObject.h"
+#include "AdapterNamedValue.h"
 
 #include <string>
 #include <vector>

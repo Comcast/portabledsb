@@ -35,7 +35,7 @@ LIBXML_INC?=/usr/include/libxml2
 
 ALLJOYN_INSTALL_DIR?=/Users/jgladi200/Work/alljoyn/alljoyn-15.09.00a-src/build/darwin/x86/debug/dist/cpp
 
-CXXFLAGS          = -Wall -Wextra -std=c++0x -I. -I$(ALLJOYN_INSTALL_DIR)/inc -I$(LIBXML_INC) -Wno-unused-parameter
+CXXFLAGS          = -Wall -Wextra -std=c++0x -I. -Icommon -I$(ALLJOYN_INSTALL_DIR)/inc -I$(LIBXML_INC) -Wno-unused-parameter
 LDFLAGS           = -L $(ALLJOYN_INSTALL_DIR)/lib -lalljoyn -lcrypto -lxml2
 DEV_PROVIDER_OBJS = $(patsubst %.cpp, %.o, $(SRCS))
 OBJS              = $(DEV_PROVIDER_OBJS)

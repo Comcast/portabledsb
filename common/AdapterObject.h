@@ -18,7 +18,7 @@
 #include <map>
 #include <stdint.h>
 
-#include "common/Value.h"
+#include "Value.h"
 
 namespace adapter
 {

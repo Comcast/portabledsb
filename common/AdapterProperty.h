@@ -17,11 +17,11 @@
 #include <atomic>
 #include <string>
 
-#include "common/AdapterObject.h"
-#include "common/AdapterNamedValue.h"
-#include "common/AccessType.h"
-#include "common/SignalBehavior.h"
-#include "common/TypeId.h"
+#include "AdapterObject.h"
+#include "AdapterNamedValue.h"
+#include "AccessType.h"
+#include "SignalBehavior.h"
+#include "TypeId.h"
 
 namespace adapter
 {

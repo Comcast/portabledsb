@@ -14,8 +14,8 @@
 //
 #pragma once
 
-#include "common/AdapterItemInformation.h"
-#include "common/AdapterInterface.h"
+#include "AdapterItemInformation.h"
+#include "AdapterInterface.h"
 
 namespace adapter
 {

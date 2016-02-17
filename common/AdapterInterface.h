@@ -14,11 +14,10 @@
 //
 #pragma once
 
-#include "common/AdapterMethod.h"
-#include "common/AdapterObject.h"
-#include "common/AdapterProperty.h"
-#include "common/AdapterSignal.h"
-
+#include "AdapterMethod.h"
+#include "AdapterObject.h"
+#include "AdapterProperty.h"
+#include "AdapterSignal.h"
 #include <algorithm>
 #include <list>
 #include <vector>

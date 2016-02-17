@@ -14,8 +14,7 @@
 //
 #pragma once
 
-#include "common/AdapterStatus.h"
-
+#include "AdapterStatus.h"
 #include <condition_variable>
 #include <mutex>
 

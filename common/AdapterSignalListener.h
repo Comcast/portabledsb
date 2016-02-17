@@ -14,7 +14,7 @@
 //
 #pragma once
 
-#include "common/AdapterSignal.h"
+#include "AdapterSignal.h"
 
 namespace adapter
 {

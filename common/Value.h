@@ -14,8 +14,8 @@
 //
 #pragma once
 
-#include "common/Assert.h"
-#include "common/TypeId.h"
+#include "Assert.h"
+#include "TypeId.h"
 
 #include <stdint.h>
 #include <string.h>

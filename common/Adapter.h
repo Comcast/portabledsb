@@ -14,15 +14,15 @@
 //
 #pragma once
 
-#include "common/AdapterDevice.h"
-#include "common/AdapterIoRequest.h"
-#include "common/AdapterItemInformation.h"
-#include "common/AdapterLog.h"
-#include "common/AdapterSignal.h"
-#include "common/AdapterSignalListener.h"
-#include "common/AdapterStatus.h"
-#include "common/EnumDeviceOptions.h"
-#include "common/Guid.h"
+#include "AdapterDevice.h"
+#include "AdapterIoRequest.h"
+#include "AdapterItemInformation.h"
+#include "AdapterLog.h"
+#include "AdapterSignal.h"
+#include "AdapterSignalListener.h"
+#include "AdapterStatus.h"
+#include "EnumDeviceOptions.h"
+#include "Guid.h"
 
 #include <memory>
 

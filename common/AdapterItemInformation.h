@@ -14,8 +14,8 @@
 //
 #pragma once
 
+#include "Guid.h"
 #include <string>
-#include "common/Guid.h"
 
 namespace adapter
 {
