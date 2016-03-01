@@ -15,6 +15,7 @@
 #pragma once
 
 #include "common/Adapter.h"
+#include <alljoyn/Status.h>
 
 #include <sstream>
 #include <stdexcept>
@@ -26,7 +27,7 @@ namespace bridge
   public:
     Error(std::string const& message);
     static void Throw(char const* fmt, ...);
-    static void ThrowIfNotOk(QStatus st, char const* fmt, ...)
-    static void Throw(adapter::Adapter& a, adapter::Status st, char const* fmt, ...)
+    static void ThrowIfNotOk(QStatus st, char const* fmt, ...);
+    static void Throw(adapter::Adapter& a, adapter::Status st, char const* fmt, ...);
   };
 }

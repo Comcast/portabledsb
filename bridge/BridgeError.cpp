@@ -14,13 +14,13 @@
 //
 #include "BridgeError.h"
 
-bridge::Error(std::string const& message)
+bridge::Error::Error(std::string const& message)
   : std::runtime_error(message)
 {
 }
 
 void
-bridge::Throw(char const* fmt, ...)
+bridge::Error::Throw(char const* fmt, ...)
 {
   va_list args;
   va_start(args, fmt);
